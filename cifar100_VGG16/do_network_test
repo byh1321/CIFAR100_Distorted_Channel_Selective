@@ -1,0 +1,18 @@
+#!/bin/bash
+for (( i=0; i<7; i++ ))
+do
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.375_blur_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.25_blur_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.125_blur_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_blocked.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.125_gaussian_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.25_gaussian_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.375_gaussian_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.375_blur_mixed_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.25_blur_mixed_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.125_blur_mixed_fixed.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.375_blur_mixed_fixed2.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.25_blur_mixed_fixed2.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_0.125_blur_mixed_fixed2.t0 --testsel $i
+	echo "testsel $i done"
+done

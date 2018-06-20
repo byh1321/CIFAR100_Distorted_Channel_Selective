@@ -1,0 +1,5 @@
+python3 main_half_clean_half_blur.py --lr=0.8 --ne=100 --bs=1024 --mode=1
+python3 main_half_clean_half_blur.py --resume --lr=0.08 --ne=100 --bs=1024 --mode=1
+python3 main_half_clean_half_blur.py --resume --lr=0.008 --ne=100 --bs=1024 --mode=1
+python3 main_half_clean_half_blur.py --resume --lr=0.001 --ne=100 --bs=128 --mode=1
+python3 main_half_clean_half_blur.py --resume --mode 0

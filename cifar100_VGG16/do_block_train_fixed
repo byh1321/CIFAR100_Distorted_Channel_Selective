@@ -1,0 +1,10 @@
+#source do_block_train_half_clean_0.25_blur_fixed
+#echo "0.25 blur done"
+#source do_block_train_half_clean_0.375_blur_fixed
+#echo "0.375 blur done"
+source do_block_train_half_clean_0.125_gaussian_fixed
+echo "0.125 gaussian done"
+source do_block_train_half_clean_0.25_gaussian_fixed
+echo "0.25 gaussian done"
+source do_block_train_half_clean_0.375_gaussian_fixed
+echo "0.375 gaussian done"

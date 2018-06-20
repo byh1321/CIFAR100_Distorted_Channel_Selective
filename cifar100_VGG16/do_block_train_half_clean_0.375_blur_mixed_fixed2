@@ -1,0 +1,4 @@
+cp checkpoint/ckpt_20180609_half_clean_0.25_blur_mixed_fixed2.t0 checkpoint/ckpt_20180609_half_clean_0.375_blur_mixed_fixed2.t0
+python3 -W ignore main_half_clean_0.375_blur_mixed_fixed2.py --lr=0.08 --ne=30 --bs=1024 --mode=1
+python3 -W ignore main_half_clean_0.375_blur_mixed_fixed2.py --resume --lr=0.008 --ne=50 --bs=1024 --mode=1
+python3 -W ignore main_half_clean_0.375_blur_mixed_fixed2.py --resume --lr=0.001 --ne=100 --bs=128 --mode=1

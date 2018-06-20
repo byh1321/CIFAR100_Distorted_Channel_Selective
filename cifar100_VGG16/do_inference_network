@@ -1,0 +1,6 @@
+#!/bin/bash
+for (( i=0; i<7; i++ ))
+do
+	#python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_025_gaussian_best1.t0 --testsel $i --amp 1
+	python3 -W ignore main_network_test.py --network ckpt_test1.t0 --testsel $i --amp 1
+done
