@@ -316,11 +316,6 @@ def train(epoch):
 		loss.backward()
 		optimizer.step()
 
-		##For 0.125 dirty train
-		#mask = cn.set_mask(cn.set_mask(mask, 3, 1), 4, 0)
-		#net = cn.net_mask_mul(net, mask)
-		#net = cn.add_network(net, net2) 
-
 		train_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)

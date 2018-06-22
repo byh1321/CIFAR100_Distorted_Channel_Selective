@@ -38,7 +38,7 @@ parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter
 parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
 parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
-parser.add_argument('--block', type=int, default=0, metavar='N',help='Choose range of network blocking')
+parser.add_argument('--block', type=int, default=1, metavar='N',help='Choose range of network blocking')
 
 args = parser.parse_args()
 
@@ -65,7 +65,7 @@ cifar_train_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180
 cifar_train_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
 cifar_train_gaussian_blur_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
 
-train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_gaussian_025]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+train_loader = torch.utils.data.DataLoader(cifar_train_gaussian_025,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 mask_conv0 = torch.zeros(64,3,3,3).cuda()

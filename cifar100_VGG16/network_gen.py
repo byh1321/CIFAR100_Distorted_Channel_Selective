@@ -223,7 +223,8 @@ def quant(input):
 	#input = torch.round(input / (2 ** (-aprec))) * (2 ** (-aprec))
 	return input
 
-mask = torch.load('mask_rand.dat')
+mask = torch.load('mask_null.dat')
+mask_rand = torch.load('mask_rand2.dat')
 layer = torch.load('layer_null.dat')
 
 def set_mask(block, val):
@@ -732,17 +733,64 @@ if __name__ == '__main__':
 	except:
 		print("Error : Failed to load net3. End program.")
 		exit()
-	
+	'''
 	f = open('testout1.csv','a+')
 	for child in net1.children():
 		for param in child.conv10[0].parameters():
 			print(torch.sum(torch.abs(param)), file=f)
 	f.close()
-	
-	
+	'''
+	######################################################
+	#Enable this part for blur 06
+	'''
+	set_mask(3,1)
 	set_mask(4,0)
+	for i in range(16):
+		mask[i] = torch.mul(mask[i],mask_rand[i])
+	add_mask(net1,mask) 
+	'''
+	#######################################################
+	
+	######################################################
+	#Enable this part for blur 10
+	'''
+	set_mask(3,1)
+	net1 = block_network(net1)
+	set_mask(0,1)
+	set_mask(3,0)
+	for i in range(16):
+		mask[i] = torch.mul(mask[i],mask_rand[i])
+	add_mask(net1,mask) 
+	'''
+	#######################################################
+
+	######################################################
+	#Enable this part for gaussian 016
+	'''
+	set_mask(3,1)
+	net1 = block_network(net1)
+	set_mask(0,0)
+	set_mask(2,1)
+	set_mask(3,0)
+	for i in range(16):
+		mask[i] = torch.mul(mask[i],mask_rand[i])
+	add_mask(net1,mask) 
+	'''
+	#######################################################
+
+	######################################################
+	#Enable this part for gaussian 025
+	
+	set_mask(2,1)
+	net1 = block_network(net1)
+	set_mask(0,1)
+	set_mask(2,0)
+	for i in range(16):
+		mask[i] = torch.mul(mask[i],mask_rand[i])
 	add_mask(net1,mask) 
 	
+	#######################################################
+
 	'''
 	set_mask(0,1)
 	set_mask(3,0)
@@ -751,13 +799,14 @@ if __name__ == '__main__':
 	net1 = add_network(net1)
 	'''
 
-	
+	'''
 	f = open('testout2.csv','a+')
 	for child in net1.children():
 		for param in child.conv10[0].parameters():
 			print(torch.sum(torch.abs(param)),file=f)
 	f.close()
-	
+	'''
+
 	if args.o == 'NULL':
 		pass
 	else:

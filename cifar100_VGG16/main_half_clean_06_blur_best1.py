@@ -278,6 +278,7 @@ def quant(input):
 
 checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_06_blur_best1.t0')
 ckpt = torch.load('./checkpoint/ckpt_20180609_half_blocked.t0')
+#ckpt = torch.load('./checkpoint/ckpt_20180609_half_blocked.t0')
 if args.resume == 0:
 	best_acc = 0
 else:

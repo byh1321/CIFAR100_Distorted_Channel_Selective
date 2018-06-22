@@ -1,4 +1,0 @@
-cp checkpoint/ckpt_20180609_half_blocked.t0 checkpoint/ckpt_20180609_half_clean_06_blur_best2.t0
-python3 -W ignore main_half_clean_06_blur_best2.py --lr=0.08 --ne=50 --bs=1024 --mode=1
-python3 -W ignore main_half_clean_06_blur_best2.py --resume --lr=0.008 --ne=70 --bs=1024 --mode=1
-python3 -W ignore main_half_clean_06_blur_best2.py --resume --lr=0.001 --ne=100 --bs=128 --mode=1
