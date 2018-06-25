@@ -40,4 +40,4 @@ mask.append(mask_fc0)
 mask.append(mask_fc1)
 mask.append(mask_fc2)
 
-torch.save(mask, 'mask_rand.dat')
+torch.save(mask, 'mask_rand2.dat')

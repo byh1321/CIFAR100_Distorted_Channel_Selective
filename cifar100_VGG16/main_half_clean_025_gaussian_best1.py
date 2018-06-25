@@ -268,8 +268,8 @@ def quant(input):
 	input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
 	return input
 
-checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_025_gaussian_best1.t0')
-ckpt = torch.load('./checkpoint/ckpt_20180609_half_clean_0.25_gaussian_fixed.t0')
+checkpoint = torch.load('./checkpoint/ckpt_20180620_half_clean_025_gaussian_best1.t0')
+ckpt = torch.load('./checkpoint/ckpt_20180620_half_clean_016_gaussian_best1.t0')
 
 if args.resume == 0:
 	best_acc = 0
@@ -361,7 +361,7 @@ def test():
 		}
 		if not os.path.isdir('checkpoint'):
 			os.mkdir('checkpoint')
-		torch.save(state,'./checkpoint/ckpt_20180609_half_clean_025_gaussian_best1.t0')
+		torch.save(state,'./checkpoint/ckpt_20180620_half_clean_025_gaussian_best1.t0')
 		best_acc = acc
 	
 	return acc
@@ -428,7 +428,7 @@ if mode == 1: # mode=1 is training & inference @ each epoch
 		train(epoch)
 
 		#For 0.125 dirty train
-		mask = cn.set_mask(cn.set_mask(mask, 0, 1), 2, 0)
+		mask = cn.set_mask(cn.set_mask(mask, 1, 1), 2, 0)
 		net = cn.net_mask_mul(net, mask)
 		net = cn.add_network(net, net2) 
 		

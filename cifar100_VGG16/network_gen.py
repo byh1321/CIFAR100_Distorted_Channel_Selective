@@ -733,14 +733,8 @@ if __name__ == '__main__':
 	except:
 		print("Error : Failed to load net3. End program.")
 		exit()
-	'''
-	f = open('testout1.csv','a+')
-	for child in net1.children():
-		for param in child.conv10[0].parameters():
-			print(torch.sum(torch.abs(param)), file=f)
-	f.close()
-	'''
-	######################################################
+	
+	#######################################################
 	#Enable this part for blur 06
 	'''
 	set_mask(3,1)
@@ -750,21 +744,34 @@ if __name__ == '__main__':
 	add_mask(net1,mask) 
 	'''
 	#######################################################
+
+	#######################################################
+	#Enable this part for blur 08
 	
-	######################################################
-	#Enable this part for blur 10
-	'''
 	set_mask(3,1)
 	net1 = block_network(net1)
-	set_mask(0,1)
+	set_mask(2,1)
 	set_mask(3,0)
+	for i in range(16):
+		mask[i] = torch.mul(mask[i],mask_rand[i])
+	add_mask(net1,mask) 
+	
+	#######################################################
+	
+	#######################################################
+	#Enable this part for blur 10
+	'''	
+	set_mask(2,1)
+	net1 = block_network(net1)
+	set_mask(0,1)
+	set_mask(2,0)
 	for i in range(16):
 		mask[i] = torch.mul(mask[i],mask_rand[i])
 	add_mask(net1,mask) 
 	'''
 	#######################################################
 
-	######################################################
+	#######################################################
 	#Enable this part for gaussian 016
 	'''
 	set_mask(3,1)
@@ -778,9 +785,9 @@ if __name__ == '__main__':
 	'''
 	#######################################################
 
-	######################################################
+	#######################################################
 	#Enable this part for gaussian 025
-	
+	'''
 	set_mask(2,1)
 	net1 = block_network(net1)
 	set_mask(0,1)
@@ -788,24 +795,32 @@ if __name__ == '__main__':
 	for i in range(16):
 		mask[i] = torch.mul(mask[i],mask_rand[i])
 	add_mask(net1,mask) 
+	'''
+	#######################################################
 	
 	#######################################################
-
+	#Check if training works
 	'''
+	f = open('testout1.csv','a+')
+	for child in net1.children():
+		for param in child.conv10[0].parameters():
+			print(torch.sum(torch.abs(param)), file=f)
+	f.close()
+
 	set_mask(0,1)
-	set_mask(3,0)
-	net2 = block_network(net2)
-	save_network(net2)
-	net1 = add_network(net1)
-	'''
+	set_mask(4,0)
+	net1 = block_network(net1)
+	#net2 = block_network(net2)
+	#save_network(net2)
+	#net1 = add_network(net1)
 
-	'''
 	f = open('testout2.csv','a+')
 	for child in net1.children():
 		for param in child.conv10[0].parameters():
 			print(torch.sum(torch.abs(param)),file=f)
 	f.close()
 	'''
+	#######################################################
 
 	if args.o == 'NULL':
 		pass
