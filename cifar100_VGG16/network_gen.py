@@ -747,7 +747,7 @@ if __name__ == '__main__':
 
 	#######################################################
 	#Enable this part for blur 08
-	
+	'''	
 	set_mask(3,1)
 	net1 = block_network(net1)
 	set_mask(2,1)
@@ -755,12 +755,12 @@ if __name__ == '__main__':
 	for i in range(16):
 		mask[i] = torch.mul(mask[i],mask_rand[i])
 	add_mask(net1,mask) 
-	
+	'''
 	#######################################################
 	
 	#######################################################
 	#Enable this part for blur 10
-	'''	
+		
 	set_mask(2,1)
 	net1 = block_network(net1)
 	set_mask(0,1)
@@ -768,7 +768,7 @@ if __name__ == '__main__':
 	for i in range(16):
 		mask[i] = torch.mul(mask[i],mask_rand[i])
 	add_mask(net1,mask) 
-	'''
+	
 	#######################################################
 
 	#######################################################

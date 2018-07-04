@@ -1,0 +1,4 @@
+cp checkpoint/ckpt_20180620_half_clean_0.125_rand.t0 checkpoint/ckpt_20180620_half_clean_008_gaussian_best1.t0
+python3 -W ignore main_half_clean_008_gaussian_best1.py --lr=0.08 --ne=50 --bs=1024 --mode=1
+python3 -W ignore main_half_clean_008_gaussian_best1.py --resume --lr=0.008 --ne=50 --bs=1024 --mode=1
+python3 -W ignore main_half_clean_008_gaussian_best1.py --resume --lr=0.001 --ne=100 --bs=128 --mode=1

@@ -1,0 +1,30 @@
+python3 -W ignore main_train.py --lr=0.8 --ne=70 --bs=1024 --mode=1 --dataset 0 --ckptname ckpt_20180626_10_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.08 --ne=70 --bs=1024 --mode=1 --dataset 0 --ckptname ckpt_20180626_10_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.008 --ne=70 --bs=1024 --mode=1 --dataset 0 --ckptname ckpt_20180626_10_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.001 --ne=70 --bs=128 --mode=1 --dataset 0 --ckptname ckpt_20180626_10_blur.t0
+echo "10 blur done\n\n\n\n"
+python3 -W ignore main_train.py --lr=0.8 --ne=70 --bs=1024 --mode=1 --dataset 1 --ckptname ckpt_20180626_08_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.08 --ne=70 --bs=1024 --mode=1 --dataset 1 --ckptname ckpt_20180626_08_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.008 --ne=70 --bs=1024 --mode=1 --dataset 1 --ckptname ckpt_20180626_08_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.001 --ne=70 --bs=128 --mode=1 --dataset 1 --ckptname ckpt_20180626_08_blur.t0
+echo "08 blur done\n\n\n\n"
+python3 -W ignore main_train.py --lr=0.8 --ne=70 --bs=1024 --mode=1 --dataset 1 --ckptname ckpt_20180626_06_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.08 --ne=70 --bs=1024 --mode=1 --dataset 2 --ckptname ckpt_20180626_06_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.008 --ne=70 --bs=1024 --mode=1 --dataset 2 --ckptname ckpt_20180626_06_blur.t0
+python3 -W ignore main_train.py --resume --lr=0.001 --ne=70 --bs=128 --mode=1 --dataset 2 --ckptname ckpt_20180626_06_blur.t0
+echo "06 blur done\n\n\n\n"
+python3 -W ignore main_train.py --lr=0.8 --ne=70 --bs=1024 --mode=1 --dataset 1 --ckptname ckpt_20180626_008_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.08 --ne=70 --bs=1024 --mode=1 --dataset 4 --ckptname ckpt_20180626_008_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.008 --ne=70 --bs=1024 --mode=1 --dataset 4 --ckptname ckpt_20180626_008_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.001 --ne=70 --bs=128 --mode=1 --dataset 4 --ckptname ckpt_20180626_008_gaussian.t0
+echo "008 gaussian done\n\n\n\n"
+python3 -W ignore main_train.py --lr=0.8 --ne=70 --bs=1024 --mode=1 --dataset 1 --ckptname ckpt_20180626_016_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.08 --ne=70 --bs=1024 --mode=1 --dataset 5 --ckptname ckpt_20180626_016_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.008 --ne=70 --bs=1024 --mode=1 --dataset 5 --ckptname ckpt_20180626_016_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.001 --ne=70 --bs=128 --mode=1 --dataset 5 --ckptname ckpt_20180626_016_gaussian.t0
+echo "016 gaussian done\n\n\n\n"
+python3 -W ignore main_train.py --lr=0.8 --ne=70 --bs=1024 --mode=1 --dataset 1 --ckptname ckpt_20180626_025_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.08 --ne=70 --bs=1024 --mode=1 --dataset 6 --ckptname ckpt_20180626_025_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.008 --ne=70 --bs=1024 --mode=1 --dataset 6 --ckptname ckpt_20180626_025_gaussian.t0
+python3 -W ignore main_train.py --resume --lr=0.001 --ne=70 --bs=128 --mode=1 --dataset 6 --ckptname ckpt_20180626_025_gaussian.t0
+echo "025 gaussian done\n\n\n\n"
