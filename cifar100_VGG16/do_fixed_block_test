@@ -1,0 +1,52 @@
+#!/bin/bash
+for (( i=9; i<11; i++ ))
+do
+	for (( j=3; j<7; j++ ))
+	do
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_10_blur_best1.t0 --testsel 0 --fixed 1 --iwidth 5 --pprec $i --aprec $j
+	done
+done 
+for (( i=9; i<11; i++ ))
+do
+	for (( j=3; j<7; j++ ))
+	do
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_08_blur_best1.t0 --testsel 1 --fixed 1 --iwidth 5 --pprec $i --aprec $j
+	done
+done 
+for (( i=9; i<11; i++ ))
+do
+	for (( j=3; j<7; j++ ))
+	do
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_06_blur_best1.t0 --testsel 2 --fixed 1 --iwidth 5 --pprec $i --aprec $j
+	done
+done 
+for (( i=9; i<11; i++ ))
+do
+	for (( j=3; j<7; j++ ))
+	do
+	python3 -W ignore main_network_test.py --network ckpt_20180609_half_blocked.t0 --testsel 3 --fixed 1 --iwidth 5 --pprec $i --aprec $j
+	done
+done 
+for (( i=9; i<11; i++ ))
+do
+	for (( j=3; j<7; j++ ))
+	do
+	python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_008_gaussian_best1.t0 --testsel 4 --fixed 1 --iwidth 5 --pprec $i --aprec $j
+	done
+done 
+for (( i=9; i<11; i++ ))
+do
+	for (( j=3; j<7; j++ ))
+	do
+	python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_016_gaussian_best1.t0 --testsel 5 --fixed 1 --iwidth 5 --pprec $i --aprec $j
+	echo "testsel $i is done"
+	done
+done 
+for (( i=9; i<11; i++ ))
+do
+	for (( j=3; j<7; j++ ))
+	do
+	python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_025_gaussian_best1.t0 --testsel 6 --fixed 1 --iwidth 5 --pprec $i --aprec $j
+	echo "testsel $i is done"
+	done
+done 

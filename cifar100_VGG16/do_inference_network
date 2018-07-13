@@ -3,14 +3,19 @@ for (( i=0; i<7; i++ ))
 do
 	#python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_025_gaussian_best1.t0 --testsel $i --amp 1
 	#python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_10_blur_best1.t0 --testsel $i --amp 1
-	python3 -W ignore main_network_test.py --network ckpt_20180626_10_blur.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180626_08_blur.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180626_06_blur.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180425.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180626_008_gaussian.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180626_016_gaussian.t0 --testsel $i 
-	python3 -W ignore main_network_test.py --network ckpt_20180626_025_gaussian.t0 --testsel $i 
-	#echo "testsel $i is done"
+	
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_10_blur.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_08_blur.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_06_blur.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180425.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_008_gaussian.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_016_gaussian.t0 --testsel $i 
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_025_gaussian.t0 --testsel $i 
+
+	#python3 -W ignore main_network_test.py --network ckpt_20180425.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_025_gaussian.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180626_10_blur.t0 --testsel $i
+	echo "testsel $i is done"
 done 
 
 

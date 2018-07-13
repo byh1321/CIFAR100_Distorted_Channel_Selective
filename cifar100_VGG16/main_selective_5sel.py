@@ -75,7 +75,7 @@ cifar_train_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_c
 cifar_train_gaussian_blur_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_gaussian_025, cifar_train_blur_10, cifar_train_gaussian_blur_mixed]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-test_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_test_blur_10, cifar_test_blur_08, cifar_test_blur_06, cifar_test, cifar_test_gaussian_008, cifar_test_gaussian_016, cifar_test_gaussian_025]),batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_test_blur_10, cifar_test_blur_06, cifar_test, cifar_test_gaussian_008, cifar_test_gaussian_025]),batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 #test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 #test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
@@ -83,16 +83,12 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_
 if args.testsel == 0:
 	test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 1:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_08,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 2:
 	test_loader = torch.utils.data.DataLoader(cifar_test_blur_06,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 3:
+elif args.testsel == 2:
 	test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 4:
+elif args.testsel == 3:
 	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_008,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 5:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_016,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 6:
+elif args.testsel == 4:
 	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 
 
@@ -303,12 +299,10 @@ def quant(input):
 
 # Load checkpoint.
 check1 = torch.load('./checkpoint/ckpt_20180609_half_clean_10_blur_best1.t0')
-check2 = torch.load('./checkpoint/ckpt_20180609_half_clean_08_blur_best1.t0')
-check3 = torch.load('./checkpoint/ckpt_20180609_half_clean_06_blur_best1.t0')
-check4 = torch.load('./checkpoint/ckpt_20180609_half_blocked.t0')
-check5 = torch.load('./checkpoint/ckpt_20180620_half_clean_008_gaussian_best1.t0')
-check6 = torch.load('./checkpoint/ckpt_20180620_half_clean_016_gaussian_best1.t0')
-check7 = torch.load('./checkpoint/ckpt_20180620_half_clean_025_gaussian_best1.t0')
+check2 = torch.load('./checkpoint/ckpt_20180609_half_clean_06_blur_best1.t0')
+check3 = torch.load('./checkpoint/ckpt_20180609_half_blocked.t0')
+check4 = torch.load('./checkpoint/ckpt_20180620_half_clean_008_gaussian_best1.t0')
+check5 = torch.load('./checkpoint/ckpt_20180620_half_clean_025_gaussian_best1.t0')
 
 best_acc = 0 
 net1 = check1['net']
@@ -316,8 +310,6 @@ net2 = check2['net']
 net3 = check3['net']
 net4 = check4['net']
 net5 = check5['net']
-net6 = check6['net']
-net7 = check7['net']
 
 if use_cuda:
 	net1.cuda()
@@ -325,37 +317,27 @@ if use_cuda:
 	net3.cuda()
 	net4.cuda()
 	net5.cuda()
-	net6.cuda()
-	net7.cuda()
 	net1 = torch.nn.DataParallel(net1, device_ids=range(0,8))
 	net2 = torch.nn.DataParallel(net2, device_ids=range(0,8))
 	net3 = torch.nn.DataParallel(net3, device_ids=range(0,8))
 	net4 = torch.nn.DataParallel(net4, device_ids=range(0,8))
 	net5 = torch.nn.DataParallel(net5, device_ids=range(0,8))
-	net6 = torch.nn.DataParallel(net6, device_ids=range(0,8))
-	net7 = torch.nn.DataParallel(net7, device_ids=range(0,8))
 	cudnn.benchmark = True
 
 blur10 = np.genfromtxt('blur10.csv',delimiter=',')
-blur08 = np.genfromtxt('blur08.csv',delimiter=',')
 blur06 = np.genfromtxt('blur06.csv',delimiter=',')
 clean = np.genfromtxt('clean.csv',delimiter=',')
 gau008= np.genfromtxt('gau008.csv',delimiter=',')
-gau016= np.genfromtxt('gau016.csv',delimiter=',')
 gau025= np.genfromtxt('gau025.csv',delimiter=',')
-FS_array = np.append(blur10, blur08)
-FS_array = np.append(FS_array, blur06)
+FS_array = np.append(blur10, blur06)
 FS_array = np.append(FS_array, clean)
 FS_array = np.append(FS_array, gau008)
-FS_array = np.append(FS_array, gau016)
 FS_array = np.append(FS_array, gau025)
  
-bar1 = 223
-bar2 = 286
-bar3 = 684
-bar4 = 2342
-bar5 = 3588
-bar6 = 4680
+bar1 = 267
+bar2 = 684
+bar3 = 2342
+bar4 = 4265
 
 '''
 if args.amp:
@@ -402,8 +384,6 @@ def test():
 	net3.eval()
 	net4.eval()
 	net5.eval()
-	net6.eval()
-	net7.eval()
 	test_loss = 0
 	correct = 0
 	total = 0
@@ -414,8 +394,6 @@ def test():
 	count_net3 = 0
 	count_net4 = 0
 	count_net5 = 0
-	count_net6 = 0
-	count_net7 = 0
 	for batch_idx, (inputs, targets) in enumerate(test_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
@@ -432,15 +410,9 @@ def test():
 		elif FS_array[idx] < bar4:
 			outputs = net4(inputs)
 			count_net4 +=1
-		elif FS_array[idx] < bar5:
+		else:
 			outputs = net5(inputs)
 			count_net5 +=1
-		elif FS_array[idx] < bar6:
-			outputs = net6(inputs)
-			count_net6 +=1
-		else:
-			outputs = net7(inputs)
-			count_net7 +=1
 		idx = idx + 1
 		#print(batch_idx)
 		#outputs = net4(inputs)
@@ -456,7 +428,7 @@ def test():
 
 	# Save checkpoint.
 	acc = 100.*correct/total
-	print(count_net1, count_net2, count_net3, count_net4, count_net5, count_net6, count_net7)
+	print(count_net1, count_net2, count_net3, count_net4, count_net5)
 	'''
 	if acc > best_acc:
 	#	print('Saving..')

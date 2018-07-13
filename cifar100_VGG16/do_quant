@@ -1,0 +1,20 @@
+echo "pprec 7, half blocked"
+python3 -W ignore quant.py --network ckpt_20180609_half_blocked.t0 --outputfile ckpt_20180712_half_blocked_quant_7.t0 --mode 2 --pprec 7 --bs 1024 --lr 0.08
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_7.t0 --outputfile ckpt_20180712_half_blocked_quant_7.t0 --mode 2 --pprec 7 --bs 1024 --lr 0.008 -r
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_7.t0 --outputfile ckpt_20180712_half_blocked_quant_7.t0 --mode 2 --pprec 7 --bs 128 --lr 0.001 -r
+echo "pprec 6, half blocked"
+python3 -W ignore quant.py --network ckpt_20180609_half_blocked.t0 --outputfile ckpt_20180712_half_blocked_quant_6.t0 --mode 2 --pprec 6 --bs 1024 --lr 0.08
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_6.t0 --outputfile ckpt_20180712_half_blocked_quant_6.t0 --mode 2 --pprec 6 --bs 1024 --lr 0.008 -r
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_6.t0 --outputfile ckpt_20180712_half_blocked_quant_6.t0 --mode 2 --pprec 6 --bs 128 --lr 0.001 -r
+echo "pprec 5, half blocked"
+python3 -W ignore quant.py --network ckpt_20180609_half_blocked.t0 --outputfile ckpt_20180712_half_blocked_quant_5.t0 --mode 2 --pprec 5 --bs 1024 --lr 0.08
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_5.t0 --outputfile ckpt_20180712_half_blocked_quant_5.t0 --mode 2 --pprec 5 --bs 1024 --lr 0.008 -r
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_5.t0 --outputfile ckpt_20180712_half_blocked_quant_5.t0 --mode 2 --pprec 5 --bs 128 --lr 0.001 -r
+echo "pprec 4, half blocked"
+python3 -W ignore quant.py --network ckpt_20180609_half_blocked.t0 --outputfile ckpt_20180712_half_blocked_quant_4.t0 --mode 2 --pprec 4 --bs 1024 --lr 0.08
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_4.t0 --outputfile ckpt_20180712_half_blocked_quant_4.t0 --mode 2 --pprec 4 --bs 1024 --lr 0.008 -r
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_4.t0 --outputfile ckpt_20180712_half_blocked_quant_4.t0 --mode 2 --pprec 4 --bs 128 --lr 0.001 -r
+echo "pprec 3, half blocked"
+python3 -W ignore quant.py --network ckpt_20180609_half_blocked.t0 --outputfile ckpt_20180712_half_blocked_quant_3.t0 --mode 2 --pprec 3 --bs 1024 --lr 0.08
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_3.t0 --outputfile ckpt_20180712_half_blocked_quant_3.t0 --mode 2 --pprec 3 --bs 1024 --lr 0.008 -r
+python3 -W ignore quant.py --network ckpt_20180712_half_blocked_quant_3.t0 --outputfile ckpt_20180712_half_blocked_quant_3.t0 --mode 2 --pprec 3 --bs 128 --lr 0.001 -r

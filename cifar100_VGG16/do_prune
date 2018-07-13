@@ -1,0 +1,5 @@
+#python3 main_histo.py -r --outputfile test --network ckpt_20180609_half_blocked.t0
+python3 -W ignore prune_half_clean.py --pr 81 --prindex 0.0274 --bs 1024 --lr 0.08 
+python3 -W ignore prune_half_clean.py --pr 81 --prindex 0.0274 --bs 1024 --lr 0.008 -r
+python3 -W ignore prune_half_clean.py --pr 81 --prindex 0.0274 --bs 128 --lr 0.001 -r
+#python3 -W ignore prune.py --pr 90 --prindex 0.0096 --network ckpt_20180626_10_blur.t0
