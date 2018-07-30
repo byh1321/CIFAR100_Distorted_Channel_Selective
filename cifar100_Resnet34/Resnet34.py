@@ -8,50 +8,50 @@ class ResNet34(nn.Module):
 		self.conv1 = nn.Sequential(
 			nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False),
 			nn.BatchNorm2d(64),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 			nn.MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1),
 		)
 		self.layer1_basic1 = nn.Sequential(
 			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(64),
-		)
-		self.layer1_relu1 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer1_basic2 = nn.Sequential(
 			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(64),
-			nn.ReLU(inplace=False),
+		)
+		self.layer1_relu1 = nn.Sequential(
+			nn.ReLU(inplace=True),
 		)
 		self.layer1_basic3 = nn.Sequential(
 			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(64),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer1_basic4 = nn.Sequential(
 			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(64),
 		)
 		self.layer1_relu2 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer1_basic5 = nn.Sequential(
 			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(64),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer1_basic6 = nn.Sequential(
 			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(64),
 		)
 		self.layer1_relu3 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 
 		self.layer2_basic1 = nn.Sequential(
 			nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1, bias=False),
 			nn.BatchNorm2d(128),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer2_downsample = nn.Sequential(
 			nn.Conv2d(64, 128, kernel_size=1, stride=2, bias=False),
@@ -62,49 +62,49 @@ class ResNet34(nn.Module):
 			nn.BatchNorm2d(128),
 		)
 		self.layer2_relu1 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer2_basic3 = nn.Sequential(
 			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(128),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer2_basic4 = nn.Sequential(
 			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(128),
 		)
 		self.layer2_relu2 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer2_basic5 = nn.Sequential(
 			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(128),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer2_basic6 = nn.Sequential(
 			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(128),
 		)
 		self.layer2_relu3 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer2_basic7 = nn.Sequential(
 			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(128),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer2_basic8 = nn.Sequential(
 			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(128),
 		)
 		self.layer2_relu4 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 
 		self.layer3_basic1 = nn.Sequential(
 			nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1, bias=False),
 			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_downsample = nn.Sequential(
 			nn.Conv2d(128, 256, kernel_size=1, stride=2, bias=False),
@@ -115,74 +115,74 @@ class ResNet34(nn.Module):
 			nn.BatchNorm2d(256),
 		)
 		self.layer3_relu1 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic3 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic4 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
 		)
 		self.layer3_relu2 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic5 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic6 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
 		)
 		self.layer3_relu3 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic7 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic8 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
 		)
 		self.layer3_relu4 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic9 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic10 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
 		)
 		self.layer3_relu5 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic11 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer3_basic12 = nn.Sequential(
 			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(256),
 		)
 		self.layer3_relu6 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 
 
 		self.layer4_basic1 = nn.Sequential(
 			nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer4_downsample = nn.Sequential(
 			nn.Conv2d(256, 512, kernel_size=1, stride=2, bias=False),
@@ -193,31 +193,31 @@ class ResNet34(nn.Module):
 			nn.BatchNorm2d(512),
 		)
 		self.layer4_relu1 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer4_basic3 = nn.Sequential(
 			nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer4_basic4 = nn.Sequential(
 			nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(512),
 		)
 		self.layer4_relu2 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer4_basic5 = nn.Sequential(
 			nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.layer4_basic6 = nn.Sequential(
 			nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
 			nn.BatchNorm2d(512),
 		)
 		self.layer4_relu3 = nn.Sequential(
-			nn.ReLU(inplace=False),
+			nn.ReLU(inplace=True),
 		)
 		self.avgpool = nn.Sequential(
 			nn.AvgPool2d(2, stride=1, padding=0)

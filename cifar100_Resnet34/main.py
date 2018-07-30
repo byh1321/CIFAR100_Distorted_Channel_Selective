@@ -21,7 +21,7 @@ from utils import progress_bar
 import os
 import argparse
 #import VGG16
-#import Resnet_vision2 as RS
+#import Resnet_vision as RS
 import Resnet34 as RS
 
 import struct
@@ -34,10 +34,6 @@ parser.add_argument('--se', default=0, type=int, help='start epoch')
 parser.add_argument('--ne', default=0, type=int, help='number of epoch')
 parser.add_argument('--bs', default=128, type=int, help='batch size')
 parser.add_argument('--mode', default=1, type=int, help='train or inference') #mode=1 is train, mode=0 is inference
-parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter precision for layer weight')
-parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
-parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
-parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 
 args = parser.parse_args()
 
@@ -64,12 +60,13 @@ if args.resume:
 	# Load checkpoint.
 	print('==> Resuming from checkpoint..')
 	assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-	checkpoint = torch.load('./checkpoint/ckpt_20180723.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20180724.t0')
 	best_acc = 0 
 	net = checkpoint['net']
 
 else:
 	print('==> Building model..')
+	#net = RS.resnet34()
 	net = RS.ResNet34()
 
 if use_cuda:
@@ -140,66 +137,11 @@ def test():
 		}
 		if not os.path.isdir('checkpoint'):
 			os.mkdir('checkpoint')
-		torch.save(state, './checkpoint/ckpt_20180723.t0')
+		torch.save(state, './checkpoint/ckpt_20180724.t0')
 		best_acc = acc
 	
 	return acc
 
-# Truncate weight param
-'''
-pprec = args.pprec
-if args.fixed:
-        for child in net.children():
-                for param in child.conv1[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv2[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv3[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv4[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv5[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv6[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv7[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv8[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv9[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv10[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv11[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv12[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv13[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-
-        for child in net.children():
-                for param in child.fc1[1].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.fc2[1].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.fc3[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-'''
-#print(net)
 # Train+inference vs. Inference
 mode = args.mode
 if mode == 1: # mode=1 is training & inference @ each epoch
