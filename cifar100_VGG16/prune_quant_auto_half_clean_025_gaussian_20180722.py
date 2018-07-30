@@ -48,7 +48,7 @@ parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter
 parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
 parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
-parser.add_argument('--network', default='NULL', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20180722_half_clean_025_gaussian.t0', help='input network ckpt name', metavar="FILE")
 parser.add_argument('--outputfile', default='garbage.txt', help='output file name', metavar="FILE")
 
 
@@ -95,9 +95,9 @@ cifar_train_gaussian_016_blur_06_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/h
 cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.16_blur_0.8_train_targets.csv") 
 cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
 
-train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+train_loader = torch.utils.data.DataLoader(cifar_train_gaussian_025,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 #train_loader = torch.utils.data.DataLoader(cifar_train_blur_03,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 mode = args.mode
 
@@ -277,19 +277,20 @@ class CNN(nn.Module):
 			out21 = quant(out21) 
 			out21 = roundmax(out21)
 		out22 = self.fc3(out21) # 1250*10
-		'''
 		if args.fixed:
 			out22 = quant(out22) 
 			out22 = roundmax(out22)
-		'''
+
 		return out22
 
 def roundmax(input):
+	
 	maximum = 2**args.iwidth-1
 	minimum = -maximum-1
 	input = F.relu(torch.add(input, -minimum))
 	input = F.relu(torch.add(torch.neg(input), maximum-minimum))
 	input = torch.add(torch.neg(input), maximum)
+	
 	return input	
 
 def quant(input):
@@ -320,10 +321,10 @@ def findThreshold(params):
 	thres=0
 	while 1:
 		tmp = (torch.abs(params.data)>thres).type(torch.FloatTensor)
-		#result = torch.sum(tmp)/params.size()[0]*64/28
+		result = torch.sum(tmp)/params.size()[0]*64/28
 		#result = torch.sum(tmp)/params.size()[0]*64/11
 		#result = torch.sum(tmp)/params.size()[0]*64/9
-		result = torch.sum(tmp)/params.size()[0]*4 #for half clean
+		#result = torch.sum(tmp)/params.size()[0]*4 #for half clean
 		#result = torch.sum(tmp)/params.size()[0] # for full size
 		if ((100-args.pr)/100)>result:
 			print("threshold : {}".format(thres))
@@ -539,6 +540,111 @@ def set_mask(mask, block, val):
 		mask[15][:,0:255] = val 
 	return mask
 
+def save_network(layer):
+	for child in net2.children():
+		for param in child.conv1[0].parameters():
+			layer[0] = param.data
+	for child in net2.children():
+		for param in child.conv2[0].parameters():
+			layer[1] = param.data		
+	for child in net2.children():
+		for param in child.conv3[0].parameters():
+			layer[2] = param.data		
+	for child in net2.children():
+		for param in child.conv4[0].parameters():
+			layer[3] = param.data		
+	for child in net2.children():
+		for param in child.conv5[0].parameters():
+			layer[4] = param.data	
+	for child in net2.children():
+		for param in child.conv6[0].parameters():
+			layer[5] = param.data
+	for child in net2.children():
+		for param in child.conv7[0].parameters():
+			layer[6] = param.data
+	for child in net2.children():
+		for param in child.conv8[0].parameters():
+			layer[7] = param.data
+	for child in net2.children():
+		for param in child.conv9[0].parameters():
+			layer[8] = param.data
+	for child in net2.children():
+		for param in child.conv10[0].parameters():
+			layer[9] = param.data
+	for child in net2.children():
+		for param in child.conv11[0].parameters():
+			layer[10] = param.data
+	for child in net2.children():
+		for param in child.conv12[0].parameters():
+			layer[11] = param.data
+	for child in net2.children():
+		for param in child.conv13[0].parameters():
+			layer[12] = param.data
+
+	for child in net2.children():
+		for param in child.fc1[1].parameters():
+			layer[13] = param.data
+	for child in net2.children():
+		for param in child.fc2[1].parameters():
+			layer[14] = param.data
+	for child in net2.children():
+		for param in child.fc3[0].parameters():
+			layer[15] = param.data
+	return layer
+
+def add_network():
+	layer = torch.load('layer_null.dat')
+	layer = save_network(layer)
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.data = torch.add(param.data,layer[0])
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.add(param.data,layer[1])
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.add(param.data,layer[2])
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.add(param.data,layer[3])
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.add(param.data,layer[4])
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.add(param.data,layer[5])
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.add(param.data,layer[6])
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.add(param.data,layer[7])
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.add(param.data,layer[8])
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.add(param.data,layer[9])
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.add(param.data,layer[10])
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.add(param.data,layer[11])
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.add(param.data,layer[12])
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.add(param.data,layer[13])
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.add(param.data,layer[14])
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.add(param.data,layer[15])
+
 def net_mask_mul(mask):
 	for child in net.children():
 		for param in child.conv1[0].parameters():
@@ -592,31 +698,37 @@ def net_mask_mul(mask):
 
 # Load checkpoint.
 if args.mode == 0:
-	if args.resume:
-		print('==> Resuming from checkpoint..')
-		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/'+args.network)
-		net = checkpoint['net']
-
-elif args.mode == 1:
-	if args.resume:
-		print('==> Resuming from checkpoint..')
-		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/'+args.network)
-		best_acc = checkpoint['acc'] 
-		net = checkpoint['net']
-	else:
-		print('==> Building model..')
-		net = CNN()
-
-elif args.mode == 2:
 	checkpoint = torch.load('./checkpoint/'+args.network)
 	net = checkpoint['net']
+
+elif args.mode == 1:
+	checkpoint = torch.load('./checkpoint/ckpt_20180722_half_clean_025_gaussian.t0')
+	ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_016_gaussian_prune_80_pprec_15.t0')
+	net = checkpoint['net']
+	net2 = ckpt['net']
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		best_acc = checkpoint['acc']
 	else:
 		best_acc = 0
+
+elif args.mode == 2:
+	checkpoint = torch.load('./checkpoint/ckpt_20180722_half_clean_025_gaussian_prune_80_pprec_15.t0')
+	ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_016_gaussian_prune_80_pprec_15.t0')
+	net = checkpoint['net']
+	net2 = ckpt['net']
+	if args.resume:
+		print('==> Resuming from checkpoint..')
+		best_acc = 0 
+	else:
+		best_acc = 0
+
+elif args.mode == 3:
+	checkpoint = torch.load('./checkpoint/'+args.network)
+	net = checkpoint['net']
+	params = paramsget()
+	thres = findThreshold(params)
+	exit()
 
 if args.pr:
 	params = paramsget()
@@ -631,6 +743,9 @@ if args.pr:
 if use_cuda:
 	net.cuda()
 	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
+	if args.mode > 0:
+		net2.cuda()
+		net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
 	cudnn.benchmark = True
 
 #pruneNetwork(mask)
@@ -643,14 +758,14 @@ start_epoch = args.se
 num_epoch = args.ne
 
 # Training
-def train(epoch, mask_channel):
+def train(epoch):
 	print('\nEpoch: %d' % epoch)
 	net.train()
 	train_loss = 0
 	correct = 0
 	total = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(mask_channel, 4, 1)
+	mask_channel = set_mask(set_mask(mask_channel, 0, 1), 2, 0)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
@@ -661,6 +776,7 @@ def train(epoch, mask_channel):
 		loss.backward()
 
 		net_mask_mul(mask_channel)
+		add_network() 
 
 		optimizer.step()
 
@@ -721,7 +837,7 @@ def retrain(epoch, mask):
 	total = 0
 	correct = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(mask_channel, 4, 1)
+	mask_channel = set_mask(set_mask(mask_channel, 0, 1), 2, 0)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
@@ -734,7 +850,8 @@ def retrain(epoch, mask):
 		quantize()
 
 		net_mask_mul(mask_channel)
-		
+		add_network()
+
 		pruneNetwork(mask)
 
 		optimizer.step()
@@ -809,13 +926,11 @@ if mode == 0: # only inference
 elif mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
 		train(epoch)
-		
 
 		test()
 elif mode == 2: # retrain for quantization and pruning
 	for epoch in range(0,50):
 		retrain(epoch, mask_prune) 
-
 
 		test()
 else:

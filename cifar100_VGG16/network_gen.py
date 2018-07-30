@@ -330,6 +330,57 @@ def set_mask(block, val):
 def net_mask_mul(net, mask):
 	for child in net.children():
 		for param in child.conv1[0].parameters():
+			param.data = torch.mul(param.data,mask[0])
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.mul(param.data,mask[1])
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.mul(param.data,mask[2])
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.mul(param.data,mask[3])
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.mul(param.data,mask[4])
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.mul(param.data,mask[5])
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.mul(param.data,mask[6])
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.mul(param.data,mask[7])
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.mul(param.data,mask[8])
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.mul(param.data,mask[9])
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.mul(param.data,mask[10])
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.mul(param.data,mask[11])
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.mul(param.data,mask[12])
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.mul(param.data,mask[13])
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.mul(param.data,mask[14])
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.mul(param.data,mask[15])
+	return net
+	'''
+	for child in net.children():
+		for param in child.conv1[0].parameters():
 			param.data = torch.mul(param.data,mask[0].cuda())
 	for child in net.children():
 		for param in child.conv2[0].parameters():
@@ -377,6 +428,7 @@ def net_mask_mul(net, mask):
 		for param in child.fc3[0].parameters():
 			param.data = torch.mul(param.data,mask[15].cuda())
 	return net
+	'''
 
 def add_network(net):
 	for child in net.children():

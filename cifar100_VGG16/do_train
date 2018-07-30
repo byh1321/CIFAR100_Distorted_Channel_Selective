@@ -1,8 +1,10 @@
-#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.8 --ne=100 --bs=1024 --mode=1 --outputfile ckpt_20180722.t0 --mode 1
-python3 -W ignore prune_quant_auto_half_clean.py --lr=0.08 --ne=100 --bs=1024 --mode=1 --outputfile ckpt_20180722.t0 --mode 1 --network ckpt_20180722.t0
-python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.008 --ne=100 --bs=1024 --mode=1 --outputfile ckpt_20180722.t0 --mode 1 --network ckpt_20180722.t0
-python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.001 --ne=100 --bs=128 --mode=1 --outputfile ckpt_20180722.t0 --mode 1 --network ckpt_20180722.t0
-python3 -W ignore prune_quant_auto_half_clean.py --resume --mode 0 --network ckpt_20180722.t0
+#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.8 --ne=150 --bs=1024 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1
+#python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.08 --ne=150 --bs=1024 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1 --network ckpt_20180722_half_clean.t0
+#python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.008 --ne=150 --bs=1024 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1 --network ckpt_20180722_half_clean.t0
+#python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.001 --ne=150 --bs=128 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1 --network ckpt_20180722_half_clean.t0
+#python3 -W ignore prune_quant_auto_half_clean.py --resume --mode 0 --network ckpt_20180722_half_clean.t0
 
-#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.008 --bs=1024 --mode=2 --network ckpt_20180716_half_clean.t0 --pr 80 --outputfile ckpt_20180716_half_clean_prune_80_pprec_15.t0 --pprec 15 
-#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.008 --bs=1024 --mode=2 --network ckpt_20180716_half_clean_prune_80_pprec_15.t0 --pr 80 --outputfile ckpt_20180716_half_clean_prune_80_pprec_15_69.t0 --pprec 15 --fixed 1 --aprec 9 --iwidth 6 --thres 0.0274
+#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.008 --bs=1024 --mode=2 --network ckpt_20180722_half_clean.t0 --pr 80 --outputfile ckpt_20180722_half_clean_prune_80_pprec_15.t0 --pprec 15
+#cp ./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0 ./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15_510.t0
+#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.008 --bs=1024 --mode=2 --network ckpt_20180722_half_clean_prune_80_pprec_15_510.t0 --pr 80 --outputfile ckpt_20180722_half_clean_prune_80_pprec_15.t0 --pprec 15 --fixed 1 --aprec 5 --iwidth 10 --thres 0.0260
+python -W ignore prune_quant_auto_half_clean.py --mode 0 --network ckpt_20180722_half_clean_prune_80_pprec_15.t0 --pprec 15 --fixed 1 --aprec 10 --iwidth 5 -r
