@@ -43,6 +43,8 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--count', type=int, default=50000, metavar='N',help='number of test image')
 parser.add_argument('--dirty', type=int, default=0, metavar='N',help='dirty dataset -> dirty = 1')
+parser.add_argument('--testsel', type=int, default=0, metavar='N',help='choose testset')
+parser.add_argument('--outputfile', default='garbage.txt', help='output file name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -88,7 +90,21 @@ cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/h
 cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
 
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+#test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+if args.testsel == 0:
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.testsel == 1:
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_08,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.testsel == 2:
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_06,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.testsel == 3:
+	test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.testsel == 4:
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_008,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.testsel == 5:
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_016,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.testsel == 6:
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 
 mode = args.mode
 
@@ -202,10 +218,16 @@ class CNN(nn.Module):
 		f = fft.Fft2d()
 		fft_rout, fft_iout = f(x, tmp)
 		mag = torch.sqrt(torch.mul(fft_rout,fft_rout) + torch.mul(fft_iout,fft_iout))
-		f = open('clean.txt','a+')
+		tmp = torch.zeros(1,1,32,32).cuda()
+		tmp = torch.add(torch.add(mag[:,0,:,:],mag[:,1,:,:]),mag[:,2,:,:])
+		#print(mag.size())
+		#print(tmp.size())
+		f = open(args.outputfile,'a+')
 		for i in range(0,mag.size()[2]):
 			for j in range(0,mag.size()[3]):
-				print(mag[0,0,i,j].data[0],file = f)
+				print(tmp[0,i,j].data[0]/3,file = f)
+				#print(mag[0,1,i,j].data[0],file = f)
+				#print(mag[0,2,i,j].data[0],file = f)
 		f.close()
 		'''
 		if args.fixed:

@@ -1,9 +1,13 @@
-"""
+'''
 some parts of code are extracted from "https://github.com/kuangliu/pytorch-cifar"
 I modified some parts for our experiment
-"""
+'''
 ############################################################################################
-# example : python3 -W ignore quant.py --network ckpt_20180609_half_blocked.t0 --outputfile ckpt_20180712_half_blocked_quant_5.t0 --mode 2
+# example - for thres check : python3 -W ignore prune_quant_auto_half_clean.py --mode 0 --pr 80 --network ckpt_~ --outputfile ckpt_~ --pprec 7 -r
+# example - for retrain : python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 1024 --lr 0.8 --network ckpt_~ --outputfile ckpt_~ --pprec 7
+# python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 1024 --lr 0.08 -r 
+# python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 1024 --lr 0.008 -r
+# python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 128 --lr 0.001 -r
 ############################################################################################
 
 from __future__ import print_function
@@ -23,13 +27,13 @@ from utils import progress_bar
 
 import os
 import argparse
-#import VGG16_yh
 
 import struct
 import random
 import cifar_dirty_test
 import cifar_dirty_train
-
+import concate_network as cn
+#import VGG16_yh 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -37,15 +41,16 @@ parser.add_argument('--resume', '-r', action='store_true', help='resume from che
 parser.add_argument('--se', default=0, type=int, help='start epoch')
 parser.add_argument('--ne', default=0, type=int, help='number of epoch')
 parser.add_argument('--pr', default=0, type=int, help='pruning') # mode=1 is pruning, mode=0 is no pruning
-parser.add_argument('--ldpr', default=0, type=int, help='pruning') # mode=1 load pruned trained data. mode=0 is trained, but not pruned data
 parser.add_argument('--bs', default=128, type=int, help='batch size')
 parser.add_argument('--mode', default=1, type=int, help='train or inference') #mode=1 is train, mode=0 is inference
-parser.add_argument('--pprec', type=int, default=15, metavar='N',help='parameter precision for layer weight')
-parser.add_argument('--aprec', type=int, default=15, metavar='N',help='Arithmetic precision for internal arithmetic')
+parser.add_argument('--thres', default=0, type=float)
+parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter precision for layer weight')
+parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
 parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--network', default='NULL', help='input network ckpt name', metavar="FILE")
 parser.add_argument('--outputfile', default='garbage.txt', help='output file name', metavar="FILE")
+
 
 args = parser.parse_args()
 
@@ -95,32 +100,6 @@ train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuff
 test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 mode = args.mode
-
-mask_conv0 = torch.cuda.FloatTensor(64,3,3,3)
-mask_conv3 = torch.cuda.FloatTensor(64,64,3,3)
-mask_conv7 = torch.cuda.FloatTensor(128,64,3,3)
-mask_conv10 = torch.cuda.FloatTensor(128,128,3,3)
-mask_conv14 = torch.cuda.FloatTensor(256,128,3,3)
-mask_conv17 = torch.cuda.FloatTensor(256,256,3,3)
-mask_conv20 = torch.cuda.FloatTensor(256,256,3,3)
-mask_conv24 = torch.cuda.FloatTensor(512,256,3,3)
-mask_conv27 = torch.cuda.FloatTensor(512,512,3,3)
-mask_conv30 = torch.cuda.FloatTensor(512,512,3,3)
-mask_conv34 = torch.cuda.FloatTensor(512,512,3,3)
-mask_conv37 = torch.cuda.FloatTensor(512,512,3,3)
-mask_conv40 = torch.cuda.FloatTensor(512,512,3,3)
-
-mask_fc1 = torch.cuda.FloatTensor(512,512)
-mask_fc4 = torch.cuda.FloatTensor(512,512)
-mask_fc6 = torch.cuda.FloatTensor(100,512)
-
-def roundmax(input):
-	maximum = 2**args.iwidth-1
-	minimum = -maximum-1
-	input = F.relu(torch.add(input, -minimum))
-	input = F.relu(torch.add(torch.neg(input), maximum-minimum))
-	input = torch.add(torch.neg(input), maximum)
-	return input	
 
 class CNN(nn.Module):
 	def __init__(self):
@@ -304,22 +283,356 @@ class CNN(nn.Module):
 
 		return out22
 
-net = CNN()
+def roundmax(input):
+	'''
+	maximum = 2**args.iwidth-1
+	minimum = -maximum-1
+	input = F.relu(torch.add(input, -minimum))
+	input = F.relu(torch.add(torch.neg(input), maximum-minimum))
+	input = torch.add(torch.neg(input), maximum)
+	'''
+	return input	
+
+def quant(input):
+	#input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
+	return input
+
+def paramsget():
+	params = net.conv1[0].weight.view(-1,)
+	params = torch.cat((params,net.conv2[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv3[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv4[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv5[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv6[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv7[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv8[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv9[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv10[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv11[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv12[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv13[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc1[1].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc2[1].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc3[0].weight.view(-1,)),0)
+	#net = checkpoint['net']
+	return params
+
+def findThreshold(params):
+	thres=0
+	while 1:
+		tmp = (torch.abs(params.data)>thres).type(torch.FloatTensor)
+		#result = torch.sum(tmp)/params.size()[0]*4 #for half clean
+		result = torch.sum(tmp)/params.size()[0] # for full size
+		if ((100-args.pr)/100)>result:
+			print("threshold : {}".format(thres))
+			return thres
+		else:
+			thres += 0.0001
+
+def getPruningMask(thres):
+	mask = torch.load('mask_null.dat')
+	mask[0] = torch.abs(net.conv1[0].weight.data)>thres
+	mask[1] = torch.abs(net.conv2[0].weight.data)>thres
+	mask[2] = torch.abs(net.conv3[0].weight.data)>thres
+	mask[3] = torch.abs(net.conv4[0].weight.data)>thres
+	mask[4] = torch.abs(net.conv5[0].weight.data)>thres
+	mask[5] = torch.abs(net.conv6[0].weight.data)>thres
+	mask[6] = torch.abs(net.conv7[0].weight.data)>thres
+	mask[7] = torch.abs(net.conv8[0].weight.data)>thres
+	mask[8] = torch.abs(net.conv9[0].weight.data)>thres
+	mask[9] = torch.abs(net.conv10[0].weight.data)>thres
+	mask[10] = torch.abs(net.conv11[0].weight.data)>thres
+	mask[11] = torch.abs(net.conv12[0].weight.data)>thres
+	mask[12] = torch.abs(net.conv13[0].weight.data)>thres
+	mask[13] = torch.abs(net.fc1[1].weight.data)>thres
+	mask[14] = torch.abs(net.fc2[1].weight.data)>thres
+	mask[15] = torch.abs(net.fc3[0].weight.data)>thres
+	mask[0] = mask[0].type(torch.FloatTensor)
+	mask[1] = mask[1].type(torch.FloatTensor)
+	mask[2] = mask[2].type(torch.FloatTensor)
+	mask[3] = mask[3].type(torch.FloatTensor)
+	mask[4] = mask[4].type(torch.FloatTensor)
+	mask[5] = mask[5].type(torch.FloatTensor)
+	mask[6] = mask[6].type(torch.FloatTensor)
+	mask[7] = mask[7].type(torch.FloatTensor)
+	mask[8] = mask[8].type(torch.FloatTensor)
+	mask[9] = mask[9].type(torch.FloatTensor)
+	mask[10] = mask[10].type(torch.FloatTensor)
+	mask[11] = mask[11].type(torch.FloatTensor)
+	mask[12] = mask[12].type(torch.FloatTensor)
+	mask[13] = mask[13].type(torch.FloatTensor)
+	mask[14] = mask[14].type(torch.FloatTensor)
+	mask[15] = mask[15].type(torch.FloatTensor)
+	return mask
+
+def pruneNetwork(mask):
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[0].cuda())
+			param.data = torch.mul(param.data,mask[0].cuda())
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[1].cuda())
+			param.data = torch.mul(param.data,mask[1].cuda())
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[2].cuda())
+			param.data = torch.mul(param.data,mask[2].cuda())
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[3].cuda())
+			param.data = torch.mul(param.data,mask[3].cuda())
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[4].cuda())
+			param.data = torch.mul(param.data,mask[4].cuda())
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[5].cuda())
+			param.data = torch.mul(param.data,mask[5].cuda())
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[6].cuda())
+			param.data = torch.mul(param.data,mask[6].cuda())
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[7].cuda())
+			param.data = torch.mul(param.data,mask[7].cuda())
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[8].cuda())
+			param.data = torch.mul(param.data,mask[8].cuda())
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[9].cuda())
+			param.data = torch.mul(param.data,mask[9].cuda())
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[10].cuda())
+			param.data = torch.mul(param.data,mask[10].cuda())
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[11].cuda())
+			param.data = torch.mul(param.data,mask[11].cuda())
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[12].cuda())
+			param.data = torch.mul(param.data,mask[12].cuda())
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[13].cuda())
+			param.data = torch.mul(param.data,mask[13].cuda())
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[14].cuda())
+			param.data = torch.mul(param.data,mask[14].cuda())
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[15].cuda())
+			param.data = torch.mul(param.data,mask[15].cuda())
+	return
+
+
+def set_mask(mask, block, val):
+	if block == 0:
+		mask[0][:,:,:,:] = val
+		mask[1][:,:,:,:] = val 
+		mask[2][:,:,:,:] = val 
+		mask[3][:,:,:,:] = val
+		mask[4][:,:,:,:] = val
+		mask[5][:,:,:,:] = val
+		mask[6][:,:,:,:] = val
+		mask[7][:,:,:,:] = val
+		mask[8][:,:,:,:] = val
+		mask[9][:,:,:,:] = val
+		mask[10][:,:,:,:] = val
+		mask[11][:,:,:,:] = val
+		mask[12][:,:,:,:] = val
+		mask[13][:,:] = val 
+		mask[14][:,:] = val 
+		mask[15][:,:] = val 
+	elif block == 1:
+		for i in range(56):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:55,:,:] = val 
+		for i in range(112):
+			mask[2][i,0:55,:,:] = val 
+			mask[3][i,0:111,:,:] = val
+		for i in range(224):
+			mask[4][i,0:111,:,:] = val
+			mask[5][i,0:223,:,:] = val
+			mask[6][i,0:223,:,:] = val
+		for i in range(448):
+			mask[7][i,0:223,:,:] = val
+			mask[8][i,0:447,:,:] = val
+			mask[9][i,0:447,:,:] = val
+			mask[10][i,0:447,:,:] = val
+			mask[11][i,0:447,:,:] = val
+			mask[12][i,0:447,:,:] = val
+			mask[13][i,0:447] = val 
+			mask[14][i,0:447] = val 
+		mask[15][:,0:447] = val 
+	elif block == 2:
+		for i in range(48):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:47,:,:] = val 
+		for i in range(96):
+			mask[2][i,0:47,:,:] = val 
+			mask[3][i,0:95,:,:] = val
+		for i in range(192):
+			mask[4][i,0:95,:,:] = val
+			mask[5][i,0:191,:,:] = val
+			mask[6][i,0:191,:,:] = val
+		for i in range(384):
+			mask[7][i,0:191,:,:] = val
+			mask[8][i,0:383,:,:] = val
+			mask[9][i,0:383,:,:] = val
+			mask[10][i,0:383,:,:] = val
+			mask[11][i,0:383,:,:] = val
+			mask[12][i,0:383,:,:] = val
+			mask[13][i,0:383] = val 
+			mask[14][i,0:383] = val 
+		mask[15][:,0:383] = val 
+	elif block == 3:
+		for i in range(40):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:39,:,:] = val 
+		for i in range(80):
+			mask[2][i,0:39,:,:] = val 
+			mask[3][i,0:79,:,:] = val
+		for i in range(160):
+			mask[4][i,0:79,:,:] = val
+			mask[5][i,0:159,:,:] = val
+			mask[6][i,0:159,:,:] = val
+		for i in range(320):
+			mask[7][i,0:159,:,:] = val
+			mask[8][i,0:319,:,:] = val
+			mask[9][i,0:319,:,:] = val
+			mask[10][i,0:319,:,:] = val
+			mask[11][i,0:319,:,:] = val
+			mask[12][i,0:319,:,:] = val
+			mask[13][i,0:319] = val 
+			mask[14][i,0:319] = val 
+		mask[15][:,0:319] = val 
+	elif block == 4:
+		for i in range(32):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:31,:,:] = val 
+		for i in range(64):
+			mask[2][i,0:31,:,:] = val 
+			mask[3][i,0:63,:,:] = val
+		for i in range(128):
+			mask[4][i,0:63,:,:] = val
+			mask[5][i,0:127,:,:] = val
+			mask[6][i,0:127,:,:] = val
+		for i in range(256):
+			mask[7][i,0:127,:,:] = val
+			mask[8][i,0:255,:,:] = val
+			mask[9][i,0:255,:,:] = val
+			mask[10][i,0:255,:,:] = val
+			mask[11][i,0:255,:,:] = val
+			mask[12][i,0:255,:,:] = val
+			mask[13][i,0:255] = val 
+			mask[14][i,0:255] = val 
+		mask[15][:,0:255] = val 
+	return mask
+
+def net_mask_mul(mask):
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.data = torch.mul(param.data,mask[0].cuda())
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.mul(param.data,mask[1].cuda())
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.mul(param.data,mask[2].cuda())
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.mul(param.data,mask[3].cuda())
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.mul(param.data,mask[4].cuda())
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.mul(param.data,mask[5].cuda())
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.mul(param.data,mask[6].cuda())
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.mul(param.data,mask[7].cuda())
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.mul(param.data,mask[8].cuda())
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.mul(param.data,mask[9].cuda())
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.mul(param.data,mask[10].cuda())
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.mul(param.data,mask[11].cuda())
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.mul(param.data,mask[12].cuda())
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.mul(param.data,mask[13].cuda())
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.mul(param.data,mask[14].cuda())
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.mul(param.data,mask[15].cuda())
 
 # Load checkpoint.
-assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-checkpoint = torch.load('./checkpoint/'+args.network)
-net = checkpoint['net']
-if args.resume:
-	print('==> Resuming from checkpoint..')
-	best_acc = checkpoint['acc']
-else:
-	best_acc = 0 
+if args.mode == 0:
+	if args.resume:
+		print('==> Resuming from checkpoint..')
+		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
+		checkpoint = torch.load('./checkpoint/'+args.network)
+		net = checkpoint['net']
 
+elif args.mode == 1:
+	if args.resume:
+		print('==> Resuming from checkpoint..')
+		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
+		checkpoint = torch.load('./checkpoint/'+args.network)
+		best_acc = checkpoint['acc'] 
+		net = checkpoint['net']
+	else:
+		print('==> Building model..')
+		net = CNN()
+
+elif args.mode == 2:
+	checkpoint = torch.load('./checkpoint/'+args.network)
+	net = checkpoint['net']
+	if args.resume:
+		print('==> Resuming from checkpoint..')
+		best_acc = checkpoint['acc']
+	else:
+		best_acc = 0
+
+if args.pr:
+	params = paramsget()
+	if args.thres == 0:
+		thres = findThreshold(params)
+	else:
+		thres = args.thres
+	mask_prune = getPruningMask(thres)
+
+#printsize()
+#net = checkpoint['net']
 if use_cuda:
 	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(0,8))
+	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 	cudnn.benchmark = True
+
+#pruneNetwork(mask)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
@@ -334,6 +647,8 @@ def train(epoch):
 	train_loss = 0
 	correct = 0
 	total = 0
+	mask_channel = torch.load('mask_null.dat')
+	mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
@@ -342,6 +657,9 @@ def train(epoch):
 		outputs = net(inputs)
 		loss = criterion(outputs, targets)
 		loss.backward()
+
+		net_mask_mul(mask_channel)
+
 		optimizer.step()
 
 		train_loss += loss.data[0]
@@ -377,26 +695,30 @@ def test():
 	# Save checkpoint.
 	acc = 100.*correct/total
 	if acc > best_acc:
-		print('Saving..')
 		state = {
 			'net': net.module if use_cuda else net,
 			'acc': acc,
 		}
 		if not os.path.isdir('checkpoint'):
 			os.mkdir('checkpoint')
-		torch.save(state, './checkpoint/'+args.outputfile)
+		if args.mode == 0:
+			pass
+		else:
+			print('Saving..')
+			torch.save(state, './checkpoint/'+args.outputfile)
 		best_acc = acc
 
-		return acc
-
+	return acc
+	
 # Retraining
-def retrain(epoch):
+def retrain(epoch,mask):
 	print('\nEpoch: %d' % epoch)
 	global best_acc
 	net.train()
 	train_loss = 0
 	total = 0
 	correct = 0
+
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
@@ -407,6 +729,8 @@ def retrain(epoch):
 		loss.backward()
 
 		quantize()
+
+		#pruneNetwork(mask)
 
 		optimizer.step()
 
@@ -474,15 +798,22 @@ def quantize():
 
 
 # Train+inference vs. Inference
-if mode == 1: # mode=1 is training & inference @ each epoch
+if mode == 0: # only inference
+	test()
+
+elif mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
 		train(epoch)
+		
+
 		test()
-elif mode == 0: # only inference
-	test()
-elif mode == 2: # retrain for quantization
-	for epoch in range(0,10):
-		retrain(epoch) 
+elif mode == 2: # retrain for quantization and pruning
+	for epoch in range(0,20):
+		retrain(epoch, mask_prune) 
+
+		mask_channel = cn.set_mask(mask_channel, 4, 1)
+		net = cn.net_mask_mul(net, mask_channel)
+
 		test()
 else:
 	pass

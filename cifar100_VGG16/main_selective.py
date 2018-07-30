@@ -350,12 +350,12 @@ FS_array = np.append(FS_array, gau008)
 FS_array = np.append(FS_array, gau016)
 FS_array = np.append(FS_array, gau025)
  
-bar1 = 223
-bar2 = 286
-bar3 = 684
-bar4 = 2342
-bar5 = 3588
-bar6 = 4680
+bar1 = 224
+bar2 = 288
+bar3 = 646
+bar4 = 2332
+bar5 = 3635
+bar6 = 4766
 
 '''
 if args.amp:

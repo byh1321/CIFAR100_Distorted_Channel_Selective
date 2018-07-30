@@ -21,12 +21,9 @@ from utils import progress_bar
 import os
 import argparse
 #import VGG16
-import cifar_dirty_test
-import cifar_dirty_train
 
 import struct
 import random
-import concate_network as cn
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -35,21 +32,15 @@ parser.add_argument('--se', default=0, type=int, help='start epoch')
 parser.add_argument('--ne', default=0, type=int, help='number of epoch')
 parser.add_argument('--bs', default=128, type=int, help='batch size')
 parser.add_argument('--mode', default=1, type=int, help='train or inference') #mode=1 is train, mode=0 is inference
-parser.add_argument('--pprec', type=int, default=15, metavar='N',help='parameter precision for layer weight')
-parser.add_argument('--aprec', type=int, default=15, metavar='N',help='Arithmetic precision for internal arithmetic')
+parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter precision for layer weight')
+parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
 parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
-parser.add_argument('--modelsel', type=int, default=0, metavar='N',help='choose model')
-parser.add_argument('--testsel', type=int, default=0, metavar='N',help='choose testset')
-parser.add_argument('--amp', type=int, default=0, metavar='N',help='amp = 1, multiply mask to the feature')
-parser.add_argument('--network', default='NULL', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
 use_cuda = torch.cuda.is_available()
 best_acc = 0  # best test accuracy
-
-use_cuda = torch.cuda.is_available()
 
 transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
 									  transforms.RandomHorizontalFlip(),
@@ -61,41 +52,8 @@ transform_test = transforms.Compose([transforms.ToTensor(),
 cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_transform=None, download=True)
 cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
 
-cifar_test_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.25_blur_0.0_test_targets.csv")
-cifar_test_gaussian_016 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.16_blur_0.0_test_targets.csv")
-cifar_test_gaussian_008 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.08_blur_0.0_test_targets.csv")
-
-cifar_test_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.0_blur_1.0_test_targets.csv")
-cifar_test_blur_08 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_test_targets.csv")
-cifar_test_blur_06 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.0_blur_0.6_test_targets.csv")
-cifar_test_blur_03 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.0_blur_0.3_test_targets.csv")
-
-cifar_train_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
-cifar_train_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
-cifar_train_gaussian_blur_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180606_cifar100_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
-
-train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_gaussian_025, cifar_train_blur_10, cifar_train_gaussian_blur_mixed]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-#test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-#test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-#test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-
-if args.testsel == 0:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 1:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_08,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 2:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_06,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 3:
-	test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 4:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_008,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 5:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_016,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 6:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
-
-#mask_amp = torch.ones(1250,512)
-#mask_amp[:,256:512] = 1.5
+train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 class CNN(nn.Module):
 	def __init__(self):
@@ -263,14 +221,8 @@ class CNN(nn.Module):
 			out17 = roundmax(out17)
 
 		out18 = self.maxpool5(out17)
-		
+
 		out19 = out18.view(out18.size(0),-1)
-		
-		#f = open('testout.csv','a+')
-		#print(out19,file=f)	
-		#out19.data = torch.mul(out19.data, mask_amp.cuda())
-		#print(out19,file=f)
-		#f.close()
 		out20 = self.fc1(out19) # 1250*512
 		if args.fixed:
 			out20 = quant(out20) 
@@ -299,30 +251,18 @@ def quant(input):
 	return input
 
 
-# Load checkpoint.
-if args.modelsel == 1:
+# Model
+if args.resume:
+	# Load checkpoint.
+	print('==> Resuming from checkpoint..')
+	assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
 	checkpoint = torch.load('./checkpoint/ckpt_20180425.t0')
-elif args.modelsel == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_half_blur.t0')
-elif args.modelsel == 3:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_0.375_blur.t0')
-elif args.modelsel == 4:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_0.25_blur.t0')
-elif args.modelsel == 5:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_0.125_blur.t0')
-elif args.modelsel == 6:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_0.125_gaussian.t0')
-elif args.modelsel == 7:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_0.25_gaussian.t0')
-elif args.modelsel == 8:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_0.375_gaussian.t0')
-elif args.modelsel == 9:
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_clean_half_gaussian.t0')
-else:
-	checkpoint = torch.load('./checkpoint/'+args.network)
+	best_acc = 0 
+	net = checkpoint['net']
 
-best_acc = 0 
-net = checkpoint['net']
+else:
+	print('==> Building model..')
+	net = CNN()
 
 if use_cuda:
 	net.cuda()
@@ -380,11 +320,15 @@ def test():
 
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+		'''f = open('result_original.txt','a+')
+		print('{:.5f}'.format(100. * correct / len(test_loader.dataset)), end='\t', file=f)
+		f.close()'''
+
 
 	# Save checkpoint.
 	acc = 100.*correct/total
 	if acc > best_acc:
-	#	print('Saving..')
+		print('Saving..')
 		state = {
 			'net': net.module if use_cuda else net,
 			'acc': acc,
@@ -399,59 +343,56 @@ def test():
 # Truncate weight param
 pprec = args.pprec
 if args.fixed:
-        for child in net.children():
-                for param in child.conv1[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv2[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv3[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv4[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv5[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv6[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv7[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv8[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv9[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv10[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv11[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv12[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.conv13[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv1[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv2[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv3[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv4[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv5[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv6[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv7[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv8[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv9[0].parameters():
+						print(param.data[0,0])
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+						print(param.data[0,0])
+		for child in net.children():
+				for param in child.conv10[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv11[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv12[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.conv13[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
 
-        for child in net.children():
-                for param in child.fc1[1].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.fc2[1].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-        for child in net.children():
-                for param in child.fc3[0].parameters():
-                        param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.fc1[1].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.fc2[1].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+		for child in net.children():
+				for param in child.fc3[0].parameters():
+						param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
 
 test()
-if args.fixed:
-	print("networkname : ",args.network,"pprec, iwidth, arpec : ",args.pprec, args.iwidth, args.aprec)
-# Train+inference vs. Inference
-#test()
-

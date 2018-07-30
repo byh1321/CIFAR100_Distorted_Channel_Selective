@@ -339,7 +339,7 @@ if args.resume:
 	# Load checkpoint.
 	print('==> Resuming from checkpoint..')
 	assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-	checkpoint = torch.load('./checkpoint/ckpt_20180609_half_blocked.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20180722_half_clean.t0')
 	best_acc = 0 
 	net = checkpoint['net']
 
@@ -349,7 +349,7 @@ else:
 
 if use_cuda:
 	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(0,2))
+	net = torch.nn.DataParallel(net, device_ids=range(0,8))
 	cudnn.benchmark = True
 
 criterion = nn.CrossEntropyLoss()
@@ -374,9 +374,17 @@ def train(epoch):
 
 		loss = criterion(outputs, targets)
 		loss.backward()
+
+		'''
+		mask_channel = cn.set_mask(cn.set_mask(mask_channel, 3, 1), 4, 0)
+		net = cn.net_mask_mul(net, mask_channel)
+		net = cn.add_network(net, net2)
+		'''
+		
+		#mask_channel = cn.set_mask(mask_channel, 4, 1)
+		#net = cn.net_mask_mul(net, mask_channel)
+
 		optimizer.step()
-		if blocking != 0:
-			block_network()
 
 		train_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
@@ -406,10 +414,6 @@ def test():
 
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
-		'''f = open('result_original.txt','a+')
-		print('{:.5f}'.format(100. * correct / len(test_loader.dataset)), end='\t', file=f)
-		f.close()'''
-
 
 	# Save checkpoint.
 	acc = 100.*correct/total
@@ -421,7 +425,7 @@ def test():
 		}
 		if not os.path.isdir('checkpoint'):
 			os.mkdir('checkpoint')
-		#torch.save(state, './checkpoint/ckpt_20180609_half_blocked.t0')
+		torch.save(state, './checkpoint/ckpt_20180722_half_blocked.t0')
 		best_acc = acc
 	
 	return acc

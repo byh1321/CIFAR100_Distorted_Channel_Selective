@@ -3,7 +3,7 @@ some parts of code are extracted from "https://github.com/kuangliu/pytorch-cifar
 I modified some parts for our experiment
 '''
 ############################################################################################
-# example : python3 -W ignore prune.py --pr 80 --prindex 0.0301 --network ckpt_20180609_half_clean_10_blur_best1
+# example : python3 -W ignore prune.py --pr 80 --prindex 0.0301 --network ckpt_20180609_half_clean_10_blur_best1.t0 -r
 ############################################################################################
 
 
@@ -60,11 +60,11 @@ best_acc_90 = 0
 use_cuda = torch.cuda.is_available()
 
 transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
-                                      transforms.RandomHorizontalFlip(),
-                                      transforms.ToTensor(),
-                                      transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+									  transforms.RandomHorizontalFlip(),
+									  transforms.ToTensor(),
+									  transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
 transform_test = transforms.Compose([transforms.ToTensor(),
-                                     transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+									 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
 
 cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_transform=None, download=True)
 cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
@@ -95,9 +95,9 @@ cifar_train_gaussian_016_blur_06_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/h
 cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.16_blur_0.8_train_targets.csv") 
 cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
 
-train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train_blur_06, cifar_train_gaussian_016_blur_06_mixed]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 #train_loader = torch.utils.data.DataLoader(cifar_train_blur_03,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-test_loader = torch.utils.data.DataLoader(cifar_test_blur_06,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 mode = args.mode
 
@@ -395,56 +395,61 @@ def test():
 		}
 		if not os.path.isdir('checkpoint'):
 			os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/'+args.network[0:20] + '_prune_{}'.format(args.pr) + '.t0')
-			best_acc = acc
+		torch.save(state, './checkpoint/ckpt_prune_{}'.format(args.pr) + '.t0')
+		best_acc = acc
 
-			return acc
+		return acc
 
 # Retraining
-			def retrain(epoch,mask_conv0,mask_conv3,mask_conv7,mask_conv10,mask_conv14,mask_conv17,mask_conv20,mask_conv24,mask_conv27,mask_conv30,mask_conv34,mask_conv37,mask_conv40,mask_fc1,mask_fc4,mask_fc6):
-				print('\nEpoch: %d' % epoch)
+def retrain(epoch,mask_conv0,mask_conv3,mask_conv7,mask_conv10,mask_conv14,mask_conv17,mask_conv20,mask_conv24,mask_conv27,mask_conv30,mask_conv34,mask_conv37,mask_conv40,mask_fc1,mask_fc4,mask_fc6):
+	print('\nEpoch: %d' % epoch)
 	global best_acc
-	   net.train()
-	   train_loss = 0
-	   total = 0
-	   correct = 0
-	   try:
-	   mask = torch.load('mask_{}.dat'.format(args.pr))
-	   mask_conv0 = mask['mask_conv0']
-	   mask_conv3 = mask['mask_conv3']
-	   mask_conv7 = mask['mask_conv7']
-	   mask_conv10 = mask['mask_conv10']
-	   mask_conv14 = mask['mask_conv14']
-	   mask_conv17 = mask['mask_conv17']
-	   mask_conv20 = mask['mask_conv20']
-	   mask_conv24 = mask['mask_conv24']
-	   mask_conv27 = mask['mask_conv27']
-	   mask_conv30 = mask['mask_conv30']
-	   mask_conv34 = mask['mask_conv34']
-	   mask_conv37 = mask['mask_conv37']
-	   mask_conv40 = mask['mask_conv40']
-	   mask_fc1 = mask['mask_fc1']
-	   mask_fc4 = mask['mask_fc4']
-	   mask_fc6 = mask['mask_fc6']
-	   except:
-		   pass
-	   for batch_idx, (inputs, targets) in enumerate(train_loader):
-		   if use_cuda:
-	inputs, targets = inputs.cuda(), targets.cuda()
-	optimizer.zero_grad()
-	inputs, targets = Variable(inputs), Variable(targets)
-	outputs = net(inputs)
+	net.train()
+	train_loss = 0
+	total = 0
+	correct = 0
+	try:
+		mask = torch.load('mask_{}.dat'.format(args.pr))
+		mask_conv0 = mask['mask_conv0']
+		mask_conv3 = mask['mask_conv3']
+		mask_conv7 = mask['mask_conv7']
+		mask_conv10 = mask['mask_conv10']
+		mask_conv14 = mask['mask_conv14']
+		mask_conv17 = mask['mask_conv17']
+		mask_conv20 = mask['mask_conv20']
+		mask_conv24 = mask['mask_conv24']
+		mask_conv27 = mask['mask_conv27']
+		mask_conv30 = mask['mask_conv30']
+		mask_conv34 = mask['mask_conv34']
+		mask_conv37 = mask['mask_conv37']
+		mask_conv40 = mask['mask_conv40']
+		mask_fc1 = mask['mask_fc1']
+		mask_fc4 = mask['mask_fc4']
+		mask_fc6 = mask['mask_fc6']
+	except:
+		pass
+	f = open('testout2.txt','w')
+	print(mask_conv0, file = f)
+
+	for batch_idx, (inputs, targets) in enumerate(train_loader):
+		if use_cuda:
+			inputs, targets = inputs.cuda(), targets.cuda()
+		optimizer.zero_grad()
+		inputs, targets = Variable(inputs), Variable(targets)
+		outputs = net(inputs)
 		loss = criterion(outputs, targets)
+		loss.backward()
 
-		   loss.backward()
-
-	for child in net.children():
-		for param in child.conv1[0].parameters():
-	param.grad.data = torch.mul(param.grad.data, mask_conv0)
-	param.data = torch.mul(param.data,mask_conv0)
-	for child in net.children():
-		for param in child.conv2[0].parameters():
-	param.grad.data = torch.mul(param.grad.data, mask_conv3)
+		for child in net.children():
+			for param in child.conv1[0].parameters():
+				param.grad.data = torch.mul(param.grad.data, mask_conv0)
+				print(param.data, file = f)
+				f.close()
+				exit()
+				param.data = torch.mul(param.data,mask_conv0)
+		for child in net.children():
+			for param in child.conv2[0].parameters():
+				param.grad.data = torch.mul(param.grad.data, mask_conv3)
 				param.data = torch.mul(param.data,mask_conv3)
 		for child in net.children():
 			for param in child.conv3[0].parameters():
@@ -774,11 +779,12 @@ if prune:
 
 	for epoch in range(0, 30):
 		retrain(epoch,mask_conv0,mask_conv3,mask_conv7,mask_conv10,mask_conv14,mask_conv17,mask_conv20,mask_conv24,mask_conv27,mask_conv30,mask_conv34,mask_conv37,mask_conv40,mask_fc1,mask_fc4,mask_fc6)
-
+		'''
 		mask = torch.load('mask_null.dat')
 		mask = cn.set_mask(cn.set_mask(mask, 3, 1), 4, 0)
 		net = cn.net_mask_mul(net, mask)
 		net = cn.add_network(net, net2) 
+		'''
 
 		test()
 

@@ -19,7 +19,7 @@ import struct
 import random
 
 parser = argparse.ArgumentParser(description='load and make new network')
-#parser.add_argument('--se', default=0, type=int, help='start epoch')
+parser.add_argument('--mode', default=0, type=int, help='mode 1 -> for 0.125, mode 2 -> for 0.25, mode 3 -> for full channel')
 parser.add_argument('--block1', default='NULL', help='input block1 ckpt name', metavar="FILE")
 parser.add_argument('--block2', default='NULL', help='input block2 ckpt name', metavar="FILE")
 parser.add_argument('--block3', default='NULL', help='input block3 ckpt name', metavar="FILE")
@@ -223,9 +223,6 @@ def quant(input):
 	#input = torch.round(input / (2 ** (-aprec))) * (2 ** (-aprec))
 	return input
 
-mask = torch.load('mask_null.dat')
-mask_rand = torch.load('mask_rand2.dat')
-layer = torch.load('layer_null.dat')
 
 def set_mask(block, val):
 	if block == 0:
@@ -329,58 +326,56 @@ def set_mask(block, val):
 			mask[13][i,0:255] = val 
 			mask[14][i,0:255] = val 
 		mask[15][:,0:255] = val 
-	return mask
 
-def block_network(net):
+def net_mask_mul(net, mask):
 	for child in net.children():
 		for param in child.conv1[0].parameters():
-			param.data = torch.mul(param.data,mask[0])
+			param.data = torch.mul(param.data,mask[0].cuda())
 	for child in net.children():
 		for param in child.conv2[0].parameters():
-			param.data = torch.mul(param.data,mask[1])
+			param.data = torch.mul(param.data,mask[1].cuda())
 	for child in net.children():
 		for param in child.conv3[0].parameters():
-			param.data = torch.mul(param.data,mask[2])
+			param.data = torch.mul(param.data,mask[2].cuda())
 	for child in net.children():
 		for param in child.conv4[0].parameters():
-			param.data = torch.mul(param.data,mask[3])
+			param.data = torch.mul(param.data,mask[3].cuda())
 	for child in net.children():
 		for param in child.conv5[0].parameters():
-			param.data = torch.mul(param.data,mask[4])
+			param.data = torch.mul(param.data,mask[4].cuda())
 	for child in net.children():
 		for param in child.conv6[0].parameters():
-			param.data = torch.mul(param.data,mask[5])
+			param.data = torch.mul(param.data,mask[5].cuda())
 	for child in net.children():
 		for param in child.conv7[0].parameters():
-			param.data = torch.mul(param.data,mask[6])
+			param.data = torch.mul(param.data,mask[6].cuda())
 	for child in net.children():
 		for param in child.conv8[0].parameters():
-			param.data = torch.mul(param.data,mask[7])
+			param.data = torch.mul(param.data,mask[7].cuda())
 	for child in net.children():
 		for param in child.conv9[0].parameters():
-			param.data = torch.mul(param.data,mask[8])
+			param.data = torch.mul(param.data,mask[8].cuda())
 	for child in net.children():
 		for param in child.conv10[0].parameters():
-			param.data = torch.mul(param.data,mask[9])
+			param.data = torch.mul(param.data,mask[9].cuda())
 	for child in net.children():
 		for param in child.conv11[0].parameters():
-			param.data = torch.mul(param.data,mask[10])
+			param.data = torch.mul(param.data,mask[10].cuda())
 	for child in net.children():
 		for param in child.conv12[0].parameters():
-			param.data = torch.mul(param.data,mask[11])
+			param.data = torch.mul(param.data,mask[11].cuda())
 	for child in net.children():
 		for param in child.conv13[0].parameters():
-			param.data = torch.mul(param.data,mask[12])
-
+			param.data = torch.mul(param.data,mask[12].cuda())
 	for child in net.children():
 		for param in child.fc1[1].parameters():
-			param.data = torch.mul(param.data,mask[13])
+			param.data = torch.mul(param.data,mask[13].cuda())
 	for child in net.children():
 		for param in child.fc2[1].parameters():
-			param.data = torch.mul(param.data,mask[14])
+			param.data = torch.mul(param.data,mask[14].cuda())
 	for child in net.children():
 		for param in child.fc3[0].parameters():
-			param.data = torch.mul(param.data,mask[15])
+			param.data = torch.mul(param.data,mask[15].cuda())
 	return net
 
 def add_network(net):
@@ -433,7 +428,6 @@ def add_network(net):
 	for child in net.children():
 		for param in child.fc3[0].parameters():
 			param.data = torch.add(param.data,layer[15])
-	return net
 
 def add_mask(net, mask):
 	for child in net.children():
@@ -485,7 +479,6 @@ def add_mask(net, mask):
 	for child in net.children():
 		for param in child.fc3[0].parameters():
 			param.data = torch.add(param.data,mask[15])
-	return net
 
 def save_network(net):
 	for child in net.children():
@@ -538,11 +531,10 @@ def save_network(net):
 		for param in child.fc3[0].parameters():
 			layer[15] = param.data
 
-
 def printweight(net):
 	for child in net.children():
 		for param in child.conv1[0].parameters():
-			f = open('test_1.csv','w+')
+			f = open('test_1.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -551,7 +543,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv2[0].parameters():
-			f = open('test_2.csv','w+')
+			f = open('test_2.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -560,7 +552,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv3[0].parameters():
-			f = open('test_3.csv','w+')
+			f = open('test_3.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -569,7 +561,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv4[0].parameters():
-			f = open('test_4.csv','w+')
+			f = open('test_4.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -578,7 +570,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv5[0].parameters():
-			f = open('test_5.csv','w+')
+			f = open('test_5.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -587,7 +579,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv6[0].parameters():
-			f = open('test_6.csv','w+')
+			f = open('test_6.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -596,7 +588,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv7[0].parameters():
-			f = open('test_7.csv','w+')
+			f = open('test_7.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -605,7 +597,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv8[0].parameters():
-			f = open('test_8.csv','w+')
+			f = open('test_8.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -614,7 +606,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv9[0].parameters():
-			f = open('test_9.csv','w+')
+			f = open('test_9.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -623,7 +615,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv10[0].parameters():
-			f = open('test_10.csv','w+')
+			f = open('test_10.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -632,7 +624,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv11[0].parameters():
-			f = open('test_11.csv','w+')
+			f = open('test_11.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -641,7 +633,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv12[0].parameters():
-			f = open('test_12.csv','w+')
+			f = open('test_12.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -650,7 +642,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.conv13[0].parameters():
-			f = open('test_13.csv','w+')
+			f = open('test_13.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -659,7 +651,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.fc1[1].parameters():
-			f = open('test_fc1.csv','w+')
+			f = open('test_fc1.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -668,7 +660,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.fc2[1].parameters():
-			f = open('test_fc2.csv','w+')
+			f = open('test_fc2.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -677,7 +669,7 @@ def printweight(net):
 			f.close()
 	for child in net.children():
 		for param in child.fc3[0].parameters():
-			f = open('test_fc3.csv','w+')
+			f = open('test_fc3.txt','w+')
 			param_out = param.clone()
 			param_out = param_out.view(1,-1)
 			for i in range(0,param_out.size()[1]):
@@ -685,17 +677,13 @@ def printweight(net):
 			print('fc layer 3 weight printed')
 			f.close()
 
-'''
-set_block(0,0)
-set_block()
-print(type(net1))
-printweight(net1)
-'''
-
 if __name__ == '__main__':
 	if use_cuda:
 		cudnn.benchmark = True
 
+	mask = torch.load('mask_null.dat')
+	mask_rand = torch.load('mask_rand2.dat')
+	layer = torch.load('layer_null.dat')
 	try:
 		checkpoint = torch.load('./checkpoint/'+args.block1)
 		net1 = checkpoint['net']
@@ -735,50 +723,83 @@ if __name__ == '__main__':
 		exit()
 	
 	#######################################################
-	#Enable this part for blur 06
-	'''
-	set_mask(3,1)
-	set_mask(4,0)
-	for i in range(16):
-		mask[i] = torch.mul(mask[i],mask_rand[i])
-	add_mask(net1,mask) 
-	'''
+	#Enable this part for blur 06, gau 008
+	#'''
+	if args.mode == 1:
+		mask = set_mask(3,1)
+		mask = set_mask(4,0)
+		for i in range(16):
+			mask[i] = torch.mul(mask[i],mask_rand[i])
+		add_mask(net1,mask) 
+	#'''
 	#######################################################
 
 	#######################################################
-	#Enable this part for blur 08
-	'''	
-	set_mask(3,1)
-	net1 = block_network(net1)
-	set_mask(2,1)
-	set_mask(3,0)
-	for i in range(16):
-		mask[i] = torch.mul(mask[i],mask_rand[i])
-	add_mask(net1,mask) 
-	'''
-	#######################################################
-	
-	#######################################################
-	#Enable this part for blur 10
-		
-	set_mask(2,1)
-	net1 = block_network(net1)
-	set_mask(0,1)
-	set_mask(2,0)
-	for i in range(16):
-		mask[i] = torch.mul(mask[i],mask_rand[i])
-	add_mask(net1,mask) 
-	
+	#Enable this part for blur 06, gau 008 threshold check
+	#'''
+	if args.mode == 4:
+		mask = set_mask(3,1)
+		mask = set_mask(4,0)
+		net1 = net_mask_mul(net1,mask)
+	#'''
 	#######################################################
 
+	#######################################################
+	#Enable this part for blur 08, gau 016
+	#'''
+	if args.mode == 2:
+		mask = set_mask(3,1)
+		net1 = net_mask_mul(net1, mask)
+		mask = set_mask(2,1)
+		mask = set_mask(3,0)
+		for i in range(16):
+			mask[i] = torch.mul(mask[i],mask_rand[i])
+		add_mask(net1,mask) 
+	#'''
+	#######################################################
+
+	#######################################################
+	#Enable this part for blur 08, gau 016 threshold check
+	#'''
+	if args.mode == 5:
+		mask = set_mask(2,1)
+		mask = set_mask(3,0)
+		net1 = net_mask_mul(net1,mask)
+	#'''
+	#######################################################
+	
+	#######################################################
+	#Enable this part for blur 10, gau 025
+	#'''	
+	if args.mode == 3:
+		mask = set_mask(2,1)
+		net1 = net_mask_mul(net1, mask)
+		mask = set_mask(0,1)
+		mask = set_mask(2,0)
+		for i in range(16):
+			mask[i] = torch.mul(mask[i],mask_rand[i])
+		add_mask(net1,mask) 
+	#'''
+	#######################################################
+
+	#######################################################
+	#Enable this part for blur 10, gau 025 threshold check
+	#'''
+	if args.mode == 6:
+		mask = set_mask(0,1)
+		mask = set_mask(2,0)
+		net1 = net_mask_mul(net1,mask)
+	#'''
+	#######################################################
+	
 	#######################################################
 	#Enable this part for gaussian 016
 	'''
-	set_mask(3,1)
-	net1 = block_network(net1)
-	set_mask(0,0)
-	set_mask(2,1)
-	set_mask(3,0)
+	mask = set_mask(3,1)
+	net1 = net_mask_mul(net1)
+	mask = set_mask(0,0)
+	mask = set_mask(2,1)
+	mask = set_mask(3,0)
 	for i in range(16):
 		mask[i] = torch.mul(mask[i],mask_rand[i])
 	add_mask(net1,mask) 
@@ -788,10 +809,10 @@ if __name__ == '__main__':
 	#######################################################
 	#Enable this part for gaussian 025
 	'''
-	set_mask(2,1)
-	net1 = block_network(net1)
-	set_mask(0,1)
-	set_mask(2,0)
+	mask = set_mask(2,1)
+	net1 = net_mask_mul(net1)
+	mask = set_mask(0,1)
+	mask = set_mask(2,0)
 	for i in range(16):
 		mask[i] = torch.mul(mask[i],mask_rand[i])
 	add_mask(net1,mask) 
@@ -807,10 +828,10 @@ if __name__ == '__main__':
 			print(torch.sum(torch.abs(param)), file=f)
 	f.close()
 
-	set_mask(0,1)
-	set_mask(4,0)
-	net1 = block_network(net1)
-	#net2 = block_network(net2)
+	mask = set_mask(0,1)
+	mask = set_mask(4,0)
+	net1 = net_mask_mul(net1)
+	#net2 = net_mask_mul(net2)
 	#save_network(net2)
 	#net1 = add_network(net1)
 
@@ -821,6 +842,15 @@ if __name__ == '__main__':
 	f.close()
 	'''
 	#######################################################
+	'''
+	f = open('testout.txt','a+')
+	for child in net1.children():
+		for param in child.conv10[0].parameters():
+			for i in range(0,512):
+				for j in range(0,512):
+					print("data[{},{},:,:] = {}".format(i,j,param.data[i,j,:,:]), file=f)
+	f.close()
+	'''
 
 	if args.o == 'NULL':
 		pass
@@ -833,3 +863,4 @@ if __name__ == '__main__':
 		}
 	
 		torch.save(state, './checkpoint/'+args.o)
+	#printweight(net1)

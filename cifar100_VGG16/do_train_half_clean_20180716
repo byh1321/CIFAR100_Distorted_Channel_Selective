@@ -1,0 +1,5 @@
+#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.8 --ne=100 --bs=1024 --mode=1 --outputfile ckpt_20180716_half_clean.t0
+python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.08 --ne=100 --bs=1024 --mode=1 --network ckpt_20180716_half_clean.t0 --outputfile ckpt_20180716_half_clean.t0
+python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.008 --ne=100 --bs=1024 --mode=1 --network ckpt_20180716_half_clean.t0 --outputfile ckpt_20180716_half_clean.t0
+python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.001 --ne=100 --bs=128 --mode=1 --network ckpt_20180716_half_clean.t0 --outputfile ckpt_20180716_half_clean.t0
+python3 -W ignore prune_quant_auto_half_clean.py --resume --mode 0 --network ckpt_20180716_half_clean.t0 

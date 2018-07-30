@@ -219,264 +219,293 @@ def quant(input):
 
 def set_mask(mask, block, val):
 	if block == 0:
+		#weigth masking
 		mask[0][:,:,:,:] = val
-		mask[1][:,:,:,:] = val 
 		mask[2][:,:,:,:] = val 
-		mask[3][:,:,:,:] = val
-		mask[4][:,:,:,:] = val
-		mask[5][:,:,:,:] = val
+		mask[4][:,:,:,:] = val 
 		mask[6][:,:,:,:] = val
-		mask[7][:,:,:,:] = val
 		mask[8][:,:,:,:] = val
-		mask[9][:,:,:,:] = val
 		mask[10][:,:,:,:] = val
-		mask[11][:,:,:,:] = val
 		mask[12][:,:,:,:] = val
-		mask[13][:,:] = val 
-		mask[14][:,:] = val 
-		mask[15][:,:] = val 
+		mask[14][:,:,:,:] = val
+		mask[16][:,:,:,:] = val
+		mask[18][:,:,:,:] = val
+		mask[20][:,:,:,:] = val
+		mask[22][:,:,:,:] = val
+		mask[24][:,:,:,:] = val
+		mask[26][:,:] = val 
+		mask[28][:,:] = val 
+		mask[30][:,:] = val 
+
+		#bias masking
+		mask[1][:] = val
+		mask[3][:] = val 
+		mask[5][:] = val 
+		mask[7][:] = val
+		mask[9][:] = val
+		mask[11][:] = val
+		mask[13][:] = val
+		mask[15][:] = val
+		mask[17][:] = val
+		mask[19][:] = val
+		mask[21][:] = val
+		mask[23][:] = val
+		mask[25][:] = val
+		mask[27][:] = val 
+		mask[29][:] = val 
 	elif block == 1:
 		for i in range(56):
 			mask[0][i,:,:,:] = val
-			mask[1][i,0:55,:,:] = val 
-		for i in range(112):
 			mask[2][i,0:55,:,:] = val 
-			mask[3][i,0:111,:,:] = val
+		for i in range(112):
+			mask[4][i,0:55,:,:] = val 
+			mask[6][i,0:111,:,:] = val
 		for i in range(224):
-			mask[4][i,0:111,:,:] = val
-			mask[5][i,0:223,:,:] = val
-			mask[6][i,0:223,:,:] = val
+			mask[8][i,0:111,:,:] = val
+			mask[10][i,0:223,:,:] = val
+			mask[12][i,0:223,:,:] = val
 		for i in range(448):
-			mask[7][i,0:223,:,:] = val
-			mask[8][i,0:447,:,:] = val
-			mask[9][i,0:447,:,:] = val
-			mask[10][i,0:447,:,:] = val
-			mask[11][i,0:447,:,:] = val
-			mask[12][i,0:447,:,:] = val
-			mask[13][i,0:447] = val 
-			mask[14][i,0:447] = val 
-		mask[15][:,0:447] = val 
+			mask[14][i,0:223,:,:] = val
+			mask[16][i,0:447,:,:] = val
+			mask[18][i,0:447,:,:] = val
+			mask[20][i,0:447,:,:] = val
+			mask[22][i,0:447,:,:] = val
+			mask[24][i,0:447,:,:] = val
+			mask[26][i,0:447] = val 
+			mask[28][i,0:447] = val 
+		mask[30][:,0:447] = val 
+
+		#bias masking
+		mask[1][56] = val
+		mask[3][56] = val 
+		mask[5][112] = val 
+		mask[7][112] = val
+		mask[9][224] = val
+		mask[11][224] = val
+		mask[13][224] = val
+		mask[15][448] = val
+		mask[17][448] = val
+		mask[19][448] = val
+		mask[21][448] = val
+		mask[23][448] = val
+		mask[25][448] = val
+		mask[27][448] = val 
+		mask[29][448] = val 
 	elif block == 2:
 		for i in range(48):
 			mask[0][i,:,:,:] = val
-			mask[1][i,0:47,:,:] = val 
-		for i in range(96):
 			mask[2][i,0:47,:,:] = val 
-			mask[3][i,0:95,:,:] = val
+		for i in range(96):
+			mask[4][i,0:47,:,:] = val 
+			mask[6][i,0:95,:,:] = val
 		for i in range(192):
-			mask[4][i,0:95,:,:] = val
-			mask[5][i,0:191,:,:] = val
-			mask[6][i,0:191,:,:] = val
+			mask[8][i,0:95,:,:] = val
+			mask[10][i,0:191,:,:] = val
+			mask[12][i,0:191,:,:] = val
 		for i in range(384):
-			mask[7][i,0:191,:,:] = val
-			mask[8][i,0:383,:,:] = val
-			mask[9][i,0:383,:,:] = val
-			mask[10][i,0:383,:,:] = val
-			mask[11][i,0:383,:,:] = val
-			mask[12][i,0:383,:,:] = val
-			mask[13][i,0:383] = val 
-			mask[14][i,0:383] = val 
-		mask[15][:,0:383] = val 
+			mask[14][i,0:191,:,:] = val
+			mask[16][i,0:383,:,:] = val
+			mask[18][i,0:383,:,:] = val
+			mask[20][i,0:383,:,:] = val
+			mask[22][i,0:383,:,:] = val
+			mask[24][i,0:383,:,:] = val
+			mask[26][i,0:383] = val 
+			mask[28][i,0:383] = val 
+		mask[30][:,0:383] = val 
+
+		#bias masking
+		mask[1][48] = val
+		mask[3][48] = val 
+		mask[5][96] = val 
+		mask[7][96] = val
+		mask[9][192] = val
+		mask[11][192] = val
+		mask[13][192] = val
+		mask[15][384] = val
+		mask[17][384] = val
+		mask[19][384] = val
+		mask[21][384] = val
+		mask[23][384] = val
+		mask[25][384] = val
+		mask[27][384] = val 
+		mask[29][384] = val 
+
 	elif block == 3:
 		for i in range(40):
 			mask[0][i,:,:,:] = val
-			mask[1][i,0:39,:,:] = val 
-		for i in range(80):
 			mask[2][i,0:39,:,:] = val 
-			mask[3][i,0:79,:,:] = val
+		for i in range(80):
+			mask[4][i,0:39,:,:] = val 
+			mask[6][i,0:79,:,:] = val
 		for i in range(160):
-			mask[4][i,0:79,:,:] = val
-			mask[5][i,0:159,:,:] = val
-			mask[6][i,0:159,:,:] = val
+			mask[8][i,0:79,:,:] = val
+			mask[10][i,0:159,:,:] = val
+			mask[12][i,0:159,:,:] = val
 		for i in range(320):
-			mask[7][i,0:159,:,:] = val
-			mask[8][i,0:319,:,:] = val
-			mask[9][i,0:319,:,:] = val
-			mask[10][i,0:319,:,:] = val
-			mask[11][i,0:319,:,:] = val
-			mask[12][i,0:319,:,:] = val
-			mask[13][i,0:319] = val 
-			mask[14][i,0:319] = val 
-		mask[15][:,0:319] = val 
+			mask[14][i,0:159,:,:] = val
+			mask[16][i,0:319,:,:] = val
+			mask[18][i,0:319,:,:] = val
+			mask[20][i,0:319,:,:] = val
+			mask[22][i,0:319,:,:] = val
+			mask[24][i,0:319,:,:] = val
+			mask[26][i,0:319] = val 
+			mask[28][i,0:319] = val 
+		mask[30][:,0:319] = val 
+
+		#bias masking
+		mask[1][40] = val
+		mask[3][40] = val 
+		mask[5][80] = val 
+		mask[7][80] = val
+		mask[9][160] = val
+		mask[11][160] = val
+		mask[13][160] = val
+		mask[15][320] = val
+		mask[17][320] = val
+		mask[19][320] = val
+		mask[21][320] = val
+		mask[23][320] = val
+		mask[25][320] = val
+		mask[27][320] = val 
+		mask[29][320] = val 
+
 	elif block == 4:
 		for i in range(32):
 			mask[0][i,:,:,:] = val
-			mask[1][i,0:31,:,:] = val 
-		for i in range(64):
 			mask[2][i,0:31,:,:] = val 
-			mask[3][i,0:63,:,:] = val
+		for i in range(64):
+			mask[4][i,0:31,:,:] = val 
+			mask[6][i,0:63,:,:] = val
 		for i in range(128):
-			mask[4][i,0:63,:,:] = val
-			mask[5][i,0:127,:,:] = val
-			mask[6][i,0:127,:,:] = val
+			mask[8][i,0:63,:,:] = val
+			mask[10][i,0:127,:,:] = val
+			mask[12][i,0:127,:,:] = val
 		for i in range(256):
-			mask[7][i,0:127,:,:] = val
-			mask[8][i,0:255,:,:] = val
-			mask[9][i,0:255,:,:] = val
-			mask[10][i,0:255,:,:] = val
-			mask[11][i,0:255,:,:] = val
-			mask[12][i,0:255,:,:] = val
-			mask[13][i,0:255] = val 
-			mask[14][i,0:255] = val 
-		mask[15][:,0:255] = val 
+			mask[14][i,0:127,:,:] = val
+			mask[16][i,0:255,:,:] = val
+			mask[18][i,0:255,:,:] = val
+			mask[20][i,0:255,:,:] = val
+			mask[22][i,0:255,:,:] = val
+			mask[24][i,0:255,:,:] = val
+			mask[26][i,0:255] = val 
+			mask[28][i,0:255] = val 
+		mask[30][:,0:255] = val 
+		
+		#bias masking
+		mask[1][32] = val
+		mask[3][32] = val 
+		mask[5][64] = val 
+		mask[7][64] = val
+		mask[9][128] = val
+		mask[11][128] = val
+		mask[13][128] = val
+		mask[15][256] = val
+		mask[17][256] = val
+		mask[19][256] = val
+		mask[21][256] = val
+		mask[23][256] = val
+		mask[25][256] = val
+		mask[27][256] = val 
+		mask[29][256] = val 
 	return mask
 
 def net_mask_mul(net, mask):
 	for child in net.children():
-		for param in child.conv1[0].parameters():
-			param.data = torch.mul(param.data,mask[0].cuda())
+		for param, i in zip(child.conv1[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[0].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[1].cuda())
 	for child in net.children():
-		for param in child.conv2[0].parameters():
-			param.data = torch.mul(param.data,mask[1].cuda())
+		for param, i in zip(child.conv2[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[2].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[3].cuda())
 	for child in net.children():
-		for param in child.conv3[0].parameters():
-			param.data = torch.mul(param.data,mask[2].cuda())
+		for param, i in zip(child.conv3[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[4].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[5].cuda())
 	for child in net.children():
-		for param in child.conv4[0].parameters():
-			param.data = torch.mul(param.data,mask[3].cuda())
+		for param, i in zip(child.conv4[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[6].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[7].cuda())
 	for child in net.children():
-		for param in child.conv5[0].parameters():
-			param.data = torch.mul(param.data,mask[4].cuda())
+		for param, i in zip(child.conv5[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[8].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[9].cuda())
 	for child in net.children():
-		for param in child.conv6[0].parameters():
-			param.data = torch.mul(param.data,mask[5].cuda())
+		for param, i in zip(child.conv6[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[10].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[11].cuda())
 	for child in net.children():
-		for param in child.conv7[0].parameters():
-			param.data = torch.mul(param.data,mask[6].cuda())
+		for param, i in zip(child.conv7[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[12].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[13].cuda())
 	for child in net.children():
-		for param in child.conv8[0].parameters():
-			param.data = torch.mul(param.data,mask[7].cuda())
+		for param, i in zip(child.conv8[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[14].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[15].cuda())
 	for child in net.children():
-		for param in child.conv9[0].parameters():
-			param.data = torch.mul(param.data,mask[8].cuda())
+		for param, i in zip(child.conv9[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[16].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[17].cuda())
 	for child in net.children():
-		for param in child.conv10[0].parameters():
-			param.data = torch.mul(param.data,mask[9].cuda())
+		for param, i in zip(child.conv10[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[18].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[19].cuda())
 	for child in net.children():
-		for param in child.conv11[0].parameters():
-			param.data = torch.mul(param.data,mask[10].cuda())
+		for param, i in zip(child.conv11[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[20].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[21].cuda())
 	for child in net.children():
-		for param in child.conv12[0].parameters():
-			param.data = torch.mul(param.data,mask[11].cuda())
+		for param, i in zip(child.conv12[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[22].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[23].cuda())
 	for child in net.children():
-		for param in child.conv13[0].parameters():
-			param.data = torch.mul(param.data,mask[12].cuda())
-
+		for param, i in zip(child.conv13[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[24].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[25].cuda())
 	for child in net.children():
-		for param in child.fc1[1].parameters():
-			param.data = torch.mul(param.data,mask[13].cuda())
+		for param, i in zip(child.fc1[1].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[26].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[27].cuda())
 	for child in net.children():
-		for param in child.fc2[1].parameters():
-			param.data = torch.mul(param.data,mask[14].cuda())
+		for param, i in zip(child.fc2[1].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[28].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[29].cuda())
 	for child in net.children():
-		for param in child.fc3[0].parameters():
-			param.data = torch.mul(param.data,mask[15].cuda())
-	return net
-
-def save_network(net, layer):
-	for child in net.children():
-		for param in child.conv1[0].parameters():
-			layer[0] = param.data
-	for child in net.children():
-		for param in child.conv2[0].parameters():
-			layer[1] = param.data		
-	for child in net.children():
-		for param in child.conv3[0].parameters():
-			layer[2] = param.data		
-	for child in net.children():
-		for param in child.conv4[0].parameters():
-			layer[3] = param.data		
-	for child in net.children():
-		for param in child.conv5[0].parameters():
-			layer[4] = param.data	
-	for child in net.children():
-		for param in child.conv6[0].parameters():
-			layer[5] = param.data
-	for child in net.children():
-		for param in child.conv7[0].parameters():
-			layer[6] = param.data
-	for child in net.children():
-		for param in child.conv8[0].parameters():
-			layer[7] = param.data
-	for child in net.children():
-		for param in child.conv9[0].parameters():
-			layer[8] = param.data
-	for child in net.children():
-		for param in child.conv10[0].parameters():
-			layer[9] = param.data
-	for child in net.children():
-		for param in child.conv11[0].parameters():
-			layer[10] = param.data
-	for child in net.children():
-		for param in child.conv12[0].parameters():
-			layer[11] = param.data
-	for child in net.children():
-		for param in child.conv13[0].parameters():
-			layer[12] = param.data
-
-	for child in net.children():
-		for param in child.fc1[1].parameters():
-			layer[13] = param.data
-	for child in net.children():
-		for param in child.fc2[1].parameters():
-			layer[14] = param.data
-	for child in net.children():
-		for param in child.fc3[0].parameters():
-			layer[15] = param.data
-	return layer
-
-def add_network(net, net2):
-	layer = torch.load('layer_null.dat')
-	layer = save_network(net2, layer)
-	for child in net.children():
-		for param in child.conv1[0].parameters():
-			param.data = torch.add(param.data,layer[0])
-	for child in net.children():
-		for param in child.conv2[0].parameters():
-			param.data = torch.add(param.data,layer[1])
-	for child in net.children():
-		for param in child.conv3[0].parameters():
-			param.data = torch.add(param.data,layer[2])
-	for child in net.children():
-		for param in child.conv4[0].parameters():
-			param.data = torch.add(param.data,layer[3])
-	for child in net.children():
-		for param in child.conv5[0].parameters():
-			param.data = torch.add(param.data,layer[4])
-	for child in net.children():
-		for param in child.conv6[0].parameters():
-			param.data = torch.add(param.data,layer[5])
-	for child in net.children():
-		for param in child.conv7[0].parameters():
-			param.data = torch.add(param.data,layer[6])
-	for child in net.children():
-		for param in child.conv8[0].parameters():
-			param.data = torch.add(param.data,layer[7])
-	for child in net.children():
-		for param in child.conv9[0].parameters():
-			param.data = torch.add(param.data,layer[8])
-	for child in net.children():
-		for param in child.conv10[0].parameters():
-			param.data = torch.add(param.data,layer[9])
-	for child in net.children():
-		for param in child.conv11[0].parameters():
-			param.data = torch.add(param.data,layer[10])
-	for child in net.children():
-		for param in child.conv12[0].parameters():
-			param.data = torch.add(param.data,layer[11])
-	for child in net.children():
-		for param in child.conv13[0].parameters():
-			param.data = torch.add(param.data,layer[12])
-
-	for child in net.children():
-		for param in child.fc1[1].parameters():
-			param.data = torch.add(param.data,layer[13])
-	for child in net.children():
-		for param in child.fc2[1].parameters():
-			param.data = torch.add(param.data,layer[14])
-	for child in net.children():
-		for param in child.fc3[0].parameters():
-			param.data = torch.add(param.data,layer[15])
+		for param, i in zip(child.fc3[0].parameters(), range(0,2)):
+			if i==0:
+				param.data = torch.mul(param.data,mask[30].cuda())
+			if i==1:
+				param.data = torch.mul(param.data,mask[31].cuda())
 	return net
 
 def printweight(net):
