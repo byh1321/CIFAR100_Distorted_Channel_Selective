@@ -30,9 +30,8 @@ args = parser.parse_args()
 use_cuda = torch.cuda.is_available()
 best_acc = 0  # best test accuracy
 
-#traindir = os.path.join("/home/yhbyun/imagenet/")
-traindir = os.path.join('/home/yhbyun/Imagenet2010/','train')
-valdir = os.path.join("/home/mhha/", 'val')
+traindir = os.path.join("/home/yhbyun/imagenet/")
+valdir = os.path.join("/home/yhbyun/Imagenet2010/", 'val')
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 #train_loader = torch.utils.data.DataLoader(datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize])),batch_size=args.bs, shuffle=False,num_workers=8, pin_memory=True)
 train_loader = torch.utils.data.DataLoader(datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomResizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize])),batch_size=args.bs, shuffle=False,num_workers=8, pin_memory=True)
@@ -43,7 +42,7 @@ val_loader = torch.utils.data.DataLoader(
 			transforms.ToTensor(),
 			normalize,
 		])),
-		batch_size=200, shuffle=False,
+		batch_size=1, shuffle=False,
 		num_workers=4, pin_memory=True)
 
 class VGG16(nn.Module):
@@ -299,8 +298,142 @@ def accuracy(output, target, topk=(1,)):
 
 ######################################################################################
 
+def paramsget():
+	params = net.conv1[0].weight.view(-1,)
+	params = torch.cat((params,net.conv2[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv3[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv4[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv5[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv6[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv7[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv8[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv9[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv10[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv11[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv12[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.conv13[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc1[1].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc2[1].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc3[0].weight.view(-1,)),0)
+	#net = checkpoint['net']
+	return params
+
+def findThreshold(params):
+	thres=0
+	while 1:
+		tmp = (torch.abs(params.data)<thres).type(torch.FloatTensor)
+		result = torch.sum(tmp)/params.size()[0]
+		if (args.pr/100)<result:
+			print("threshold : {}".format(thres))
+			return thres
+		else:
+			thres += 0.0001
+
+def getPruningMask(thres):
+	mask = torch.load('mask_null.dat')
+	mask[0] = torch.abs(net.conv1[0].weight.data)>thres
+	mask[1] = torch.abs(net.conv2[0].weight.data)>thres
+	mask[2] = torch.abs(net.conv3[0].weight.data)>thres
+	mask[3] = torch.abs(net.conv4[0].weight.data)>thres
+	mask[4] = torch.abs(net.conv5[0].weight.data)>thres
+	mask[5] = torch.abs(net.conv6[0].weight.data)>thres
+	mask[6] = torch.abs(net.conv7[0].weight.data)>thres
+	mask[7] = torch.abs(net.conv8[0].weight.data)>thres
+	mask[8] = torch.abs(net.conv9[0].weight.data)>thres
+	mask[9] = torch.abs(net.conv10[0].weight.data)>thres
+	mask[10] = torch.abs(net.conv11[0].weight.data)>thres
+	mask[11] = torch.abs(net.conv12[0].weight.data)>thres
+	mask[12] = torch.abs(net.conv13[0].weight.data)>thres
+	mask[13] = torch.abs(net.fc1[1].weight.data)>thres
+	mask[14] = torch.abs(net.fc2[1].weight.data)>thres
+	mask[15] = torch.abs(net.fc3[0].weight.data)>thres
+	mask[0] = mask[0].type(torch.FloatTensor)
+	mask[1] = mask[1].type(torch.FloatTensor)
+	mask[2] = mask[2].type(torch.FloatTensor)
+	mask[3] = mask[3].type(torch.FloatTensor)
+	mask[4] = mask[4].type(torch.FloatTensor)
+	mask[5] = mask[5].type(torch.FloatTensor)
+	mask[6] = mask[6].type(torch.FloatTensor)
+	mask[7] = mask[7].type(torch.FloatTensor)
+	mask[8] = mask[8].type(torch.FloatTensor)
+	mask[9] = mask[9].type(torch.FloatTensor)
+	mask[10] = mask[10].type(torch.FloatTensor)
+	mask[11] = mask[11].type(torch.FloatTensor)
+	mask[12] = mask[12].type(torch.FloatTensor)
+	mask[13] = mask[13].type(torch.FloatTensor)
+	mask[14] = mask[14].type(torch.FloatTensor)
+	mask[15] = mask[15].type(torch.FloatTensor)
+	return mask
+
+def pruneNetwork(mask):
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[0].cuda())
+			param.data = torch.mul(param.data,mask[0].cuda())
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[1].cuda())
+			param.data = torch.mul(param.data,mask[1].cuda())
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[2].cuda())
+			param.data = torch.mul(param.data,mask[2].cuda())
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[3].cuda())
+			param.data = torch.mul(param.data,mask[3].cuda())
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[4].cuda())
+			param.data = torch.mul(param.data,mask[4].cuda())
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[5].cuda())
+			param.data = torch.mul(param.data,mask[5].cuda())
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[6].cuda())
+			param.data = torch.mul(param.data,mask[6].cuda())
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[7].cuda())
+			param.data = torch.mul(param.data,mask[7].cuda())
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[8].cuda())
+			param.data = torch.mul(param.data,mask[8].cuda())
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[9].cuda())
+			param.data = torch.mul(param.data,mask[9].cuda())
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[10].cuda())
+			param.data = torch.mul(param.data,mask[10].cuda())
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[11].cuda())
+			param.data = torch.mul(param.data,mask[11].cuda())
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[12].cuda())
+			param.data = torch.mul(param.data,mask[12].cuda())
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[13].cuda())
+			param.data = torch.mul(param.data,mask[13].cuda())
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[14].cuda())
+			param.data = torch.mul(param.data,mask[14].cuda())
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[15].cuda())
+			param.data = torch.mul(param.data,mask[15].cuda())
+	return
+
 def train(epoch):
-	global best_acc
 	batch_time = AverageMeter()
 	data_time = AverageMeter()
 	losses = AverageMeter()
@@ -348,18 +481,6 @@ def train(epoch):
 				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 				   batch_time=batch_time,
 				   data_time=data_time, loss=losses, top1=top1, top5=top5))
-	# Save checkpoint.
-	acc = 100.*correct/total
-	if acc > best_acc:
-		print('Saving..')
-		state = {
-			'net': net2.module if use_cuda else net,
-			'acc': acc,
-		}
-		if not os.path.isdir('checkpoint'):
-			os.mkdir('checkpoint')
-		torch.save(state, './checkpoint/ckpt_20180726.t0')
-		best_acc = acc
 
 def test():
 	global best_acc
@@ -383,7 +504,7 @@ def test():
 
 		progress_bar(batch_idx, len(val_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*float(correct)/float(total), correct, total))
-	'''
+
 	# Save checkpoint.
 	acc = 100.*correct/total
 	if acc > best_acc:
@@ -396,7 +517,60 @@ def test():
 			os.mkdir('checkpoint')
 		torch.save(state, './checkpoint/ckpt_20180726.t0')
 		best_acc = acc
-	'''
+
+def retrain(epoch):
+	batch_time = AverageMeter()
+	data_time = AverageMeter()
+	losses = AverageMeter()
+	top1 = AverageMeter()
+	top5 = AverageMeter()
+
+	# switch to train mode
+	net.train()
+
+	end = time.time()
+	for batch_idx, (inputs, targets) in enumerate(train_loader):
+		# measure data loading time
+		data_time.update(time.time() - end)
+
+		if use_cuda is not None:
+			inputs, targets = inputs.cuda(), targets.cuda()
+
+		# compute output
+		outputs = net(inputs)
+		loss = criterion(outputs, targets)
+
+		# measure accuracy and record loss
+		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
+		losses.update(loss.item(), inputs.size(0))
+		top1.update(prec1[0], inputs.size(0))
+		top5.update(prec5[0], inputs.size(0))
+
+		# compute gradient and do SGD step
+		optimizer.zero_grad()
+		loss.backward()
+
+		quantize()
+
+		pruneNetwork(mask):
+
+		optimizer.step()
+
+		# measure elapsed time
+		batch_time.update(time.time() - end)
+		end = time.time()
+
+		#progress_bar(batch_idx, len(train_loader), 'Loss: {loss.val:.4f} | Acc: %.3f%% (%d/%d)'
+		#	% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+		progress_bar(batch_idx, len(train_loader), 
+				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+				  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+				   batch_time=batch_time,
+				   data_time=data_time, loss=losses, top1=top1, top5=top5))
 
 def roundmax(input):
 	'''
@@ -420,6 +594,5 @@ elif mode == 1: # mode=1 is training & inference @ each epoch
 		train(epoch)
 
 		test()
-		print("epoch : {}".format(epoch))
 else:
 	pass

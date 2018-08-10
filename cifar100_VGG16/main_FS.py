@@ -90,7 +90,7 @@ cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/h
 cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
 
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-#test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 if args.testsel == 0:
 	test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 1:
@@ -214,6 +214,8 @@ class CNN(nn.Module):
 		)
 
 	def forward(self,x):
+		x = quant(x)
+		x = roundmax(x)
 		tmp = Variable(torch.zeros(1,3,32,32).cuda())
 		f = fft.Fft2d()
 		fft_rout, fft_iout = f(x, tmp)
@@ -222,13 +224,36 @@ class CNN(nn.Module):
 		tmp = torch.add(torch.add(mag[:,0,:,:],mag[:,1,:,:]),mag[:,2,:,:])
 		#print(mag.size())
 		#print(tmp.size())
-		f = open(args.outputfile,'a+')
-		for i in range(0,mag.size()[2]):
-			for j in range(0,mag.size()[3]):
-				print(tmp[0,i,j].data[0]/3,file = f)
+		#####################################
+		# print original image
+		#'''
+		f = open('Fixedimage.txt','a+')
+		for i in range(0,32):
+			for j in range(0,32):
+				tmp2 = torch.add(torch.add(x[0,0,i,j],x[0,1,i,j]),x[0,2,i,j])
+				print(tmp2.data[0]/3,file = f, end='\t')
 				#print(mag[0,1,i,j].data[0],file = f)
 				#print(mag[0,2,i,j].data[0],file = f)
+			print('',file=f)
 		f.close()
+		#'''
+		#####################################
+
+		#####################################
+		# print fft image
+		#'''
+		f = open('Fixedfft.txt','a+')
+		for i in range(0,mag.size()[2]):
+			for j in range(0,mag.size()[3]):
+				print(tmp[0,i,j].data[0]/3,file = f, end='\t')
+				#print(mag[0,1,i,j].data[0],file = f)
+				#print(mag[0,2,i,j].data[0],file = f)
+			print('',file=f)
+		f.close()
+		#'''
+		#####################################
+
+		exit()
 		'''
 		if args.fixed:
 			x = roundmax(x)
@@ -326,6 +351,20 @@ class CNN(nn.Module):
 
 		return out22
 		'''
+
+def roundmax(input):
+	
+	maximum = 2**args.iwidth-1
+	minimum = -maximum-1
+	input = F.relu(torch.add(input, -minimum))
+	input = F.relu(torch.add(torch.neg(input), maximum-minimum))
+	input = torch.add(torch.neg(input), maximum)
+	
+	return input	
+
+def quant(input):
+	input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
+	return input
 
 # Model
 if args.resume:

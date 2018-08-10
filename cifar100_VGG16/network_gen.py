@@ -845,7 +845,7 @@ if __name__ == '__main__':
 	f.close()
 	'''
 	#######################################################
-	print("a")
+	#'''
 	f = open('testout.txt','a+')
 	for child in net1.children():
 		for param in child.conv2[0].parameters():
@@ -853,8 +853,7 @@ if __name__ == '__main__':
 				for j in range(0,64):
 					print("data[{},{},:,:] = {}".format(i,j,param.data[i,j,:,:]), file=f)
 	f.close()
-	print("b")
-	
+	#'''
 
 	if args.o == 'NULL':
 		pass
