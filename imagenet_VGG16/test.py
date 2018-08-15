@@ -46,7 +46,7 @@ train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, sh
 
 #'''
 valdir = os.path.join("/home/mhha/", 'val')
-val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=80, shuffle=False,num_workers=4, pin_memory=True)
+val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=1, shuffle=False,num_workers=4, pin_memory=True)
 #'''
 '''
 valdir = os.path.join("/home/mhha/", 'val')
@@ -269,9 +269,17 @@ class VGG16(nn.Module):
 				nn.init.constant_(m.weight, 1)
 				nn.init.constant_(m.bias, 0)
 			elif isinstance(m, nn.Linear):
-				print(m)
+				#print(m)
 				nn.init.normal_(m.weight, 0, 0.01)
 				nn.init.constant_(m.bias, 0)
+				'''
+				f = open('fcparam.txt','w')
+				for param in m.parameters():
+					print(param.data)
+				#print(m.parameters())
+				#print(m.data.cpu(), file=f)
+				f.close()
+				'''
 
 if args.mode == 0:
 	print('==> Resuming from checkpoint..')
@@ -279,6 +287,13 @@ if args.mode == 0:
 	checkpoint = torch.load('./checkpoint/ckpt_20180813.t0')
 	#checkpoint = torch.load('./checkpoint/backup_ckpt_20180813.t0')
 	net = checkpoint['net']
+
+	f = open('fcparam.txt','w')
+	for i in range(0,1000):
+		for j in range(0,4096):
+			print(net.linear3[0].weight.data[i,j], file = f)
+	f.close()
+	exit()
 
 elif args.mode == 1:
 	if args.resume:
@@ -291,6 +306,7 @@ elif args.mode == 1:
 	else:
 		print('==> Building model..')
 		net = VGG16()
+		exit()
 		top1_acc = 0
 		top5_acc = 0
 
