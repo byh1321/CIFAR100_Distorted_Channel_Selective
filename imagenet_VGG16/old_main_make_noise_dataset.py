@@ -17,13 +17,9 @@ import torchvision.datasets as datasets
 import scipy.misc
 from scipy import ndimage
 
-import time
 import os
 import numpy as np
 import argparse
-
-from PIL import Image
-import glob
 
 use_cuda = torch.cuda.is_available()
 
@@ -33,6 +29,14 @@ parser.add_argument('--blur_std', default=0, type=float, help='std of blur noise
 
 args = parser.parse_args()
 
+transform_train = transforms.Compose([transforms.ToTensor(),
+					  transforms.Normalize(mean=[0.5, 0.5, 0.5],std=[0.5, 0.5, 0.5])])
+transform_test = transforms.Compose([transforms.ToTensor(),
+					 transforms.Normalize(mean=[0.5, 0.5, 0.5],std=[0.5, 0.5, 0.5])])
+
+#cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_transform=None, download=True)
+#cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
+
 f = open('foldernames.txt','r')
 clean = f.readlines()
 f.close()
@@ -40,8 +44,8 @@ f = open('dirty_foldernames.txt','r')
 dirty = f.readlines()
 f.close()
 
-def imshow(img,folder_idx, img_count):
-	npimg = np.array(img)
+def imshow(img,batch_idx,folder_idx):
+	npimg = img.numpy()
 	#print(npimg.shape)
 	npimg_size = npimg.size
 	npimg_shape = npimg.shape
@@ -77,25 +81,28 @@ def imshow(img,folder_idx, img_count):
 	if not os.path.isdir(foldername):
 		os.mkdir(foldername)
 		assert os.path.isdir(foldername), 'Error: no checkpoint directory found!'
-	scipy.misc.toimage(npimg).save(foldername+"/imagenet_gaussian_{}_blur_{}_train_{i}.png".format(args.gaussian_std,args.blur_std,i=img_count))
+	scipy.misc.toimage(np.transpose(npimg, (1,2,0))).save(foldername+"/imagenet_gaussian_{}_blur_{}_train_{i}.png".format(args.gaussian_std,args.blur_std,i=batch_idx))
 	
 
-print(time.ctime())
+
 for folder_idx in range(0,1000):
 	
-	image_loader = []
-	
 	str_end = len(clean[folder_idx])-1
-	foldername = clean[folder_idx][0:str_end]
+	filename = clean[folder_idx][0:str_end]
+	direc = os.path.join(filename)
 
-	for filename in glob.glob(foldername+'/*.JPEG'): #assuming gif
-		im=Image.open(filename)
-		image_loader.append(im)
+	dataset = datasets.ImageFolder(
+		direc,
+		transforms.Compose([
+			transforms.ToTensor(),
+		]))
+
+	loader = torch.utils.data.DataLoader(dataset,batch_size=1, shuffle=False,num_workers=2,drop_last=False)
+	#test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=2,drop_last=False)
+
+	for batch_idx, (inputs, targets) in enumerate(loader):
+		imshow(torchvision.utils.make_grid(inputs), batch_idx, folder_idx)
 	
-	img_count = 0
-	for img in image_loader:
-		imshow(img, folder_idx, img_count)
-		img_count += 1
 	progress_bar(folder_idx, 1000);
 
 print('\n')

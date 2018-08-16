@@ -33,37 +33,16 @@ use_cuda = torch.cuda.is_available()
 top1_acc = 0  # best test accuracy
 top5_acc = 0  # best test accuracy
 
-#traindir = os.path.join("/home/yhbyun/imagenet/")
-traindir = os.path.join('/data/ImageNet2012/','train')
-#valdir = os.path.join('/home/yhbyun/Imagenet2010/','val')
-#valdset = cd.IMAGENET2010VAL("/home/yhbyun/examples/imagenet/ILSVRC2010_validation_ground_truth.csv")
+traindir = os.path.join('/home/yhbyun/Imagenet2012/','train')
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_dataset = datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomSizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize,]))
 
-#train_loader = torch.utils.data.DataLoader(datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize])),batch_size=args.bs, shuffle=False,num_workers=8, pin_memory=True)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, shuffle=True,num_workers=8, pin_memory=True)
 
-#'''
 valdir = os.path.join("/home/mhha/", 'val')
-val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=80, shuffle=False,num_workers=4, pin_memory=True)
-#'''
-'''
-valdir = os.path.join("/home/mhha/", 'val')
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=128, shuffle=False,num_workers=4, pin_memory=True)
 
-val_loader = torch.utils.data.DataLoader(
-        datasets.ImageFolder(valdir, transforms.Compose([
-            transforms.Scale(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            normalize,
-        ])),
-        batch_size=80, shuffle=False,
-        num_workers=4, pin_memory=True)
-'''
-
-#val_loader = torch.utils.data.DataLoader(valdset, batch_size=1, shuffle=False,	num_workers=8, pin_memory=True)
 
 class VGG16(nn.Module):
 	def __init__(self, init_weights=True):
@@ -269,7 +248,7 @@ class VGG16(nn.Module):
 				nn.init.constant_(m.weight, 1)
 				nn.init.constant_(m.bias, 0)
 			elif isinstance(m, nn.Linear):
-				print(m)
+				#print(m)
 				nn.init.normal_(m.weight, 0, 0.01)
 				nn.init.constant_(m.bias, 0)
 
@@ -390,10 +369,6 @@ def train(epoch):
 		optimizer.step()
 
 		# measure elapsed time
-
-		#progress_bar(batch_idx, len(train_loader), 'Loss: {loss.val:.4f} | Acc: %.3f%% (%d/%d)'
-		#	% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-
 		if batch_idx % 200 == 0:
 			batch_time.update(time.time() - end)
 			end = time.time()
@@ -405,63 +380,6 @@ def train(epoch):
 				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
 				   data_time=data_time, loss=losses, top1=top1, top5=top5))
-		'''
-		progress_bar(batch_idx, len(train_loader), 
-				  'Time {batch_time.val:.4f} ({batch_time.avg:.4f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   batch_time=batch_time,loss=losses, top1=top1, top5=top5))
-		'''
-	# Save checkpoint.
-	print('Saving..')
-	state = {
-		'net': net.module if use_cuda else net,
-		'top1_acc': 0,
-		'top5_acc': 0,
-	}
-	torch.save(state, './checkpoint/ckpt_20180813_'+str(top1.avg)+'.t0')
-	top1_acc =0 
-
-'''
-def test():
-	global top1_acc
-	global top5_acc
-	net.eval()
-	test_loss = 0
-	correct = 0
-	total = 0
-	for batch_idx, (inputs, targets) in enumerate(val_loader):
-		if use_cuda:
-			inputs, targets = inputs.cuda(), targets.cuda()
-		inputs, targets = Variable(inputs), Variable(targets)
-
-		outputs = net(inputs)
-
-		loss = criterion(outputs, targets)
-
-		test_loss += loss.data[0].item()
-		_, predicted = torch.max(outputs.data, 1)
-		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
-
-		progress_bar(batch_idx, len(val_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-			% (test_loss/(batch_idx+1), 100.*float(correct)/float(total), correct, total))
-
-	# Save checkpoint.
-	acc = 100.*correct/total
-	if acc > top1_acc:
-		print('Saving..')
-		state = {
-			'net': net.module if use_cuda else net,
-			'top1_acc': top1_acc,
-			'top5_acc': top5_acc,
-		}
-		if not os.path.isdir('checkpoint'):
-			os.mkdir('checkpoint')
-		torch.save(state, './checkpoint/ckpt_20180813.t0')
-		best_acc = top1_acc
-'''
 
 def test():
 	global top1_acc
@@ -485,38 +403,12 @@ def test():
 		loss = criterion(outputs, targets)
 
 		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
-		'''
-		if count == 100:
-			"""
-			for i in range(0,80):
-				print((outputs[i].cpu()==torch.max(outputs[i].cpu())).nonzero())
-				print(targets[i].cpu())
-				print('')
-			exit()
-			"""
-			print(outputs[0].cpu())
-		else:
-			count += 1
-		'''
-		#print((outputs.cpu()==torch.max(outputs.cpu())).nonzero())
-		#print((targets.cpu()==torch.max(targets.cpu())).nonzero())
 		
 		losses.update(loss.data[0], inputs.size(0))
 		top1.update(prec1[0], inputs.size(0))
 		top5.update(prec5[0], inputs.size(0))
 
 		# measure elapsed time
-
-		'''
-		test_loss += loss.data[0].item()
-		_, predicted = torch.max(outputs.data, 1)
-		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
-		
-
-		progress_bar(batch_idx, len(val_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-			% (test_loss/(batch_idx+1), 100.*float(correct)/float(total), correct, total))
-		'''
 
 		if batch_idx % 50 == 0:
 			batch_time.update(time.time() - end)
@@ -528,17 +420,7 @@ def test():
 				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 				   batch_idx, len(val_loader), batch_time=batch_time, loss=losses,
 				   top1=top1, top5=top5))
-		
-		'''
-		progress_bar(batch_idx, len(val_loader), 
-				  'Time {batch_time.val:.4f} ({batch_time.avg:.4f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   batch_time=batch_time,loss=losses, top1=top1, top5=top5))
-		'''
 
-	'''
 	# Save checkpoint.
 	if top1.avg > top1_acc:
 		if mode == 0:
@@ -554,21 +436,17 @@ def test():
 				os.mkdir('checkpoint')
 			torch.save(state, './checkpoint/ckpt_20180813.t0')
 			top1_acc = top1.avg
-	'''
-
 
 def roundmax(input):
-	'''
 	maximum = 2 ** args.iwidth - 1
 	minimum = -maximum - 1
 	input = F.relu(torch.add(input, -minimum))
 	input = F.relu(torch.add(torch.neg(input), maximum - minimum))
 	input = torch.add(torch.neg(input), maximum)
-	'''
 	return input
 
 def quant(input):
-	#input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
+	input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
 	return input
 
 mode = args.mode
@@ -576,7 +454,7 @@ if mode == 0: # only inference
 	test()
 elif mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
-		#print(time.ctime())
+		print(time.ctime())
 		train(epoch)
 
 		test()

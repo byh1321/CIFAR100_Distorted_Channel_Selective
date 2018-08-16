@@ -1,0 +1,6 @@
+for a in *.tar
+do
+    a_dir=`expr $a : '\(.*\).tar'`
+    mkdir $a_dir 2>/dev/null
+    tar -xvf $a -C $a_dir
+done

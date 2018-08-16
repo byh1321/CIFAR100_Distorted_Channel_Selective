@@ -1,0 +1,10 @@
+rm *0.JPEG
+rm *1.JPEG
+rm *2.JPEG
+rm *3.JPEG
+rm *4.JPEG
+rm *5.JPEG
+rm *6.JPEG
+rm *7.JPEG
+rm *8.JPEG
+rm *9.JPEG

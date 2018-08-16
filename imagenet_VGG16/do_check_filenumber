@@ -1,0 +1,1 @@
+for dir in $( find . -type d -print ); do files=$( find $dir -maxdepth 1 -type f | wc -l ); echo "$files : $dir" >> counting_files_each_subdirectory; done

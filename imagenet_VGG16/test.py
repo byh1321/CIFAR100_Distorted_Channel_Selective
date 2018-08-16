@@ -290,8 +290,7 @@ if args.mode == 0:
 
 	f = open('fcparam.txt','w')
 	for i in range(0,1000):
-		for j in range(0,4096):
-			print(net.linear3[0].weight.data[i,j], file = f)
+		print(net.linear3[0].weight[i,0].cpu(), file = f)
 	f.close()
 	exit()
 
