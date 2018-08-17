@@ -1,9 +1,9 @@
-ulimit -n 1500
+#ulimit -n 1500
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0 --blur_std 0.8 --test 1 
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0 --blur_std 0.8 --train 1 
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.16 --blur_std 0.8 --train 1 
 
-python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.08 --blur_std 0  
+#python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.08 --blur_std 0  
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.16 --blur_std 0 
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.25 --blur_std 0 
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0 --blur_std 0.6
@@ -12,3 +12,5 @@ python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.08 --blur_std 0
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.16 --blur_std 0.8
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0 --blur_std 1.0
 #python3 -W ignore main_make_noise_dataset.py --gaussian_std 0.25 --blur_std 1.0
+
+python3 -W ignore old_main_make_noise_dataset.py --gaussian_std 0.08 --blur_std 0 --train 1
