@@ -12,6 +12,9 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 
+import scipy.misc
+from scipy import ndimage
+import numpy as np
 
 def get_mean_and_std(dataset):
     '''Compute the mean and std value of dataset.'''
@@ -49,6 +52,7 @@ term_width = int(term_width)
 TOTAL_BAR_LENGTH = 65.
 last_time = time.time()
 begin_time = last_time
+
 def progress_bar(current, total, msg=None):
     global last_time, begin_time
     if current == 0:
@@ -123,3 +127,17 @@ def format_time(seconds):
     if f == '':
         f = '0ms'
     return f
+
+##########################################################################
+# Codes bel this line is coded by YH.Byun
+
+def print_4Dtensor_to_png(tensor, filename):
+	npimg = np.array(tensor,dtype=float)
+	npimg = npimg.squeeze(0)
+	scipy.misc.toimage(npimg).save(filename+".png")
+
+def genblurkernel(sigma):
+	order = 0
+	radius = int(4 * float(sigma) + 0.5)
+	kernel = scipy.ndimage.filters._gaussian_kernel1d(sigma, order, radius)
+	return kernel

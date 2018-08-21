@@ -426,7 +426,7 @@ def test():
 		if mode == 0:
 			return
 		else:
-			print('Saving..')
+			print('Saving.. Acc : {}'.format(top1.avg))
 			state = {
 				'net': net.module if use_cuda else net,
 				'top1_acc': top1.avg,

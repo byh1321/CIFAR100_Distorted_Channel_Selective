@@ -27,7 +27,7 @@ def genblurkernel(sigma):
 	kernel = scipy.ndimage.filters._gaussian_kernel1d(sigma, order, radius)
 	return kernel
 
-print(genblurkernel(0.8))
+#print(genblurkernel(0.8))
 
 '''
 sigma = 0.6

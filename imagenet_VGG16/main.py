@@ -30,7 +30,7 @@ args = parser.parse_args()
 use_cuda = torch.cuda.is_available()
 best_acc = 0  # best test accuracy
 
-traindir = os.path.join("/home/yhbyun/imagenet/")
+traindir = os.path.join('/home/yhbyun/Imagenet2012/','train')
 valdir = os.path.join("/home/yhbyun/Imagenet2010/", 'val')
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 #train_loader = torch.utils.data.DataLoader(datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize])),batch_size=args.bs, shuffle=False,num_workers=8, pin_memory=True)
