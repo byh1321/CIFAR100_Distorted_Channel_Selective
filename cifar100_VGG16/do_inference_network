@@ -12,13 +12,21 @@ do
 	#python3 -W ignore main_network_test.py --network ckpt_20180626_016_gaussian.t0 --testsel $i 
 	#python3 -W ignore main_network_test.py --network ckpt_20180626_025_gaussian.t0 --testsel $i 
 
-	python3 -W ignore main_network_test.py --network ckpt_20180722_half_clean_10_blur_prune_80_pprec_15.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180722_half_clean_08_blur_prune_80_pprec_15.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180722_half_clean_06_blur_prune_80_pprec_15.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180722_half_clean_prune_80_pprec_15.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180722_half_clean_008_gaussian_prune_80_pprec_15.t0 --testsel $i
-	python3 -W ignore main_network_test.py --network ckpt_20180722_half_clean_016_gaussian_prune_80_pprec_15.t0 --testsel $i 
-	python3 -W ignore main_network_test.py --network ckpt_20180722_half_clean_025_gaussian_prune_80_pprec_15.t0 --testsel $i 
+	#python3 -W ignore main_network_test.py --network ckpt_20180903_half_clean_15_blur.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180903_half_clean_10_blur.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180903_half_clean_05_blur.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180903_half_clean.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180903_half_clean_008_gaussian.t0 --testsel $i
+	#python3 -W ignore main_network_test.py --network ckpt_20180903_half_clean_016_gaussian.t0 --testsel $i 
+	#python3 -W ignore main_network_test.py --network ckpt_20180903_half_clean_025_gaussian.t0 --testsel $i 
+
+	python3 -W ignore main_network_test.py --network ckpt_20180903_full_15_blur.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180903_full_10_blur.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180903_full_05_blur.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180903_full_clean.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180903_full_008_gaussian.t0 --testsel $i
+	python3 -W ignore main_network_test.py --network ckpt_20180903_full_016_gaussian.t0 --testsel $i 
+	python3 -W ignore main_network_test.py --network ckpt_20180903_full_025_gaussian.t0 --testsel $i 
 
 	#python3 -W ignore main_network_test.py --network ckpt_20180425.t0 --testsel $i
 	#python3 -W ignore main_network_test.py --network ckpt_20180626_025_gaussian.t0 --testsel $i

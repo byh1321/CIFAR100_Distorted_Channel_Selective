@@ -44,6 +44,7 @@ parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - 
 parser.add_argument('--count', type=int, default=50000, metavar='N',help='number of test image')
 parser.add_argument('--dirty', type=int, default=0, metavar='N',help='dirty dataset -> dirty = 1')
 parser.add_argument('--testsel', type=int, default=0, metavar='N',help='choose testset')
+parser.add_argument('--trainsel', type=int, default=0, metavar='N',help='choose trainset')
 parser.add_argument('--outputfile', default='garbage.txt', help='output file name', metavar="FILE")
 
 args = parser.parse_args()
@@ -71,39 +72,72 @@ cifar_train_gaussian_025 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/1
 cifar_train_gaussian_016 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_train_targets.csv")
 cifar_train_gaussian_008 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_train_targets.csv")
 
+cifar_test_blur_30 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_3.0_test_targets.csv")
+cifar_test_blur_20 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_2.0_test_targets.csv")
+cifar_test_blur_15 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.5_test_targets.csv")
 cifar_test_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_test_targets.csv")
 cifar_test_blur_08 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_test_targets.csv")
 cifar_test_blur_06 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_test_targets.csv")
+cifar_test_blur_05 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_test_targets.csv")
+cifar_test_blur_04 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_test_targets.csv")
 cifar_test_blur_03 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_test_targets.csv")
+cifar_test_blur_066 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_test_targets.csv")
+cifar_test_blur_033 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.33_test_targets.csv")
 
+cifar_train_blur_30 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_3.0_train_targets.csv")
+cifar_train_blur_20 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_2.0_train_targets.csv")
+cifar_train_blur_15 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.5_train_targets.csv")
 cifar_train_blur_10 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
 cifar_train_blur_08 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_train_targets.csv")
 cifar_train_blur_06 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_train_targets.csv")
+cifar_train_blur_05 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_train_targets.csv")
+cifar_train_blur_04 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_train_targets.csv")
 cifar_train_blur_03 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_train_targets.csv")
+cifar_train_blur_066 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_train_targets.csv")
+cifar_train_blur_033 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.33_train_targets.csv")
 
 cifar_train_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
 cifar_train_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
 
 cifar_train_gaussian_008_blur_03_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.3_train_targets.csv") 
 cifar_train_gaussian_016_blur_06_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.6_train_targets.csv") 
+cifar_train_gaussian_008_blur_033_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.33_train_targets.csv") 
+cifar_train_gaussian_016_blur_066_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.66_train_targets.csv") 
 cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.16_blur_0.8_train_targets.csv") 
 cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
+cifar_train_gaussian_025_blur_15_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.5_train_targets.csv") 
 
-train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=1, shuffle=True,num_workers=8,drop_last=False)
 test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
-if args.testsel == 0:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
-elif args.testsel == 1:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_08,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+
+if args.trainsel == 1:
+	train_loader = torch.utils.data.DataLoader(cifar_train_blur_30,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.trainsel == 2:
+	train_loader = torch.utils.data.DataLoader(cifar_train_blur_20,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.trainsel == 3:
+	train_loader = torch.utils.data.DataLoader(cifar_train_blur_05,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.trainsel == 4:
+	train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.trainsel == 5:
+	train_loader = torch.utils.data.DataLoader(cifar_train_gaussian_008,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.trainsel == 6:
+	train_loader = torch.utils.data.DataLoader(cifar_train_gaussian_016,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.trainsel == 7:
+	train_loader = torch.utils.data.DataLoader(cifar_train_gaussian_025,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+
+if args.testsel == 1:
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_30,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 2:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_06,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_20,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 3:
-	test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_05,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 4:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_008,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 5:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_016,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_008,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 6:
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_016,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+elif args.testsel == 7:
 	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 
 mode = args.mode
@@ -222,11 +256,23 @@ class CNN(nn.Module):
 		mag = torch.sqrt(torch.mul(fft_rout,fft_rout) + torch.mul(fft_iout,fft_iout))
 		tmp = torch.zeros(1,1,32,32).cuda()
 		tmp = torch.add(torch.add(mag[:,0,:,:],mag[:,1,:,:]),mag[:,2,:,:])
+		f = open(args.outputfile,'a+')
+		for i in range(0,32):
+			for j in range(0,32):
+				print(tmp[0,i,j].data[0]/3,file = f)
+		f.close()
+		'''
+		f = open('clean_train_freq.txt','w')
+		for i in range(0,32):
+			for j in range(0,32):
+				print(tmp.data[0,i,j]/3,file = f)
+		f.close()
+		'''
 		#print(mag.size())
 		#print(tmp.size())
 		#####################################
 		# print original image
-		#'''
+		'''
 		f = open('Fixedimage.txt','a+')
 		for i in range(0,32):
 			for j in range(0,32):
@@ -236,12 +282,12 @@ class CNN(nn.Module):
 				#print(mag[0,2,i,j].data[0],file = f)
 			print('',file=f)
 		f.close()
-		#'''
+		'''
 		#####################################
 
 		#####################################
 		# print fft image
-		#'''
+		'''
 		f = open('Fixedfft.txt','a+')
 		for i in range(0,mag.size()[2]):
 			for j in range(0,mag.size()[3]):
@@ -250,10 +296,9 @@ class CNN(nn.Module):
 				#print(mag[0,2,i,j].data[0],file = f)
 			print('',file=f)
 		f.close()
-		#'''
+		'''
 		#####################################
 
-		exit()
 		'''
 		if args.fixed:
 			x = roundmax(x)
@@ -412,8 +457,10 @@ def train(epoch):
 		total += targets.size(0)
 		correct += predicted.eq(targets.data).cpu().sum()
 
-		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+		#progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+		#	% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+		progress_bar(batch_idx, len(train_loader))
+
 
 
 def test():
@@ -424,7 +471,7 @@ def test():
 	correct = 0
 	total = 0
 	count = 0
-	for batch_idx, (inputs, targets) in enumerate(test_loader):
+	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
 		inputs, targets = Variable(inputs, volatile=True), Variable(targets)
@@ -447,7 +494,7 @@ def test():
 			acc=0
 			retur'''
 		net(inputs)
-		progress_bar(batch_idx, len(test_loader))
+		progress_bar(batch_idx, len(train_loader))
 		#print(len(test_loader))
 		#count = count + 1
 

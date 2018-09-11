@@ -1,0 +1,6 @@
+#source do_train_half_clean_05_blur_20180908
+source do_train_half_clean_10_blur_20180908
+source do_train_half_clean_15_blur_20180908
+source do_train_half_clean_008_gaussian_20180908
+source do_train_half_clean_016_gaussian_20180908
+source do_train_half_clean_025_gaussian_20180908

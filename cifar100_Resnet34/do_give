@@ -1,0 +1,11 @@
+#############################
+#for train, use this code.
+python main_give.py --mode 1 --lr 0.1 --bs 128 --ne 100
+#python main_give.py --mode 1 --lr 0.01 --bs 128 --ne 100 -r
+#python main_give.py --mode 1 --lr 0.001 --bs 128 --ne 100 -r
+#############################
+
+#############################
+#for test, use this code
+#python main_give.py -r --mode 0
+############################

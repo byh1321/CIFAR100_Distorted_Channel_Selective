@@ -1,7 +1,29 @@
-python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_10_blur_best1.t0 --testsel 0
-python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_08_blur_best1.t0 --testsel 1
-python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_06_blur_best1.t0 --testsel 2
-python3 -W ignore main_network_test.py --network ckpt_20180609_half_blocked.t0 --testsel 3
-python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_008_gaussian_best1.t0 --testsel 4
-python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_016_gaussian_best1.t0 --testsel 5
-python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_025_gaussian_best1.t0 --testsel 6
+#source do_train_half_clean_20180830
+#source do_train_half_clean_06_blur_20180830
+#source do_train_half_clean_008_gaussian_20180830
+#source do_train_half_clean_08_blur_20180830
+#source do_train_half_clean_016_gaussian_20180830
+#source do_train_half_clean_10_blur_20180830
+#source do_train_half_clean_025_gaussian_20180830
+
+#python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_10_blur_best1.t0 --testsel 0
+#python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_08_blur_best1.t0 --testsel 1
+#python3 -W ignore main_network_test.py --network ckpt_20180609_half_clean_06_blur_best1.t0 --testsel 2
+#python3 -W ignore main_network_test.py --network ckpt_20180609_half_blocked.t0 --testsel 3
+#python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_008_gaussian_best1.t0 --testsel 4
+#python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_016_gaussian_best1.t0 --testsel 5
+#python3 -W ignore main_network_test.py --network ckpt_20180620_half_clean_025_gaussian_best1.t0 --testsel 6
+#source do_train_0625_clean_20180905
+#source do_train_0625_clean_05_blur_20180905
+#source do_train_0625_clean_10_blur_20180905
+#source do_train_0625_clean_15_blur_20180905
+#source do_train_0625_clean_008_gaussian_20180905
+#source do_train_0625_clean_016_gaussian_20180905
+#source do_train_0625_clean_025_gaussian_20180905
+#source do_train_half_clean_05_blur_20180903
+#source do_train_half_clean_10_blur_20180903
+#source do_train_half_clean_15_blur_20180903
+#source do_train_half_clean_008_gaussian_20180903
+source do_train_half_clean_016_gaussian_20180903
+source do_train_half_clean_025_gaussian_20180903
+source do_inference_network

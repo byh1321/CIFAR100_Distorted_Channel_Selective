@@ -1,0 +1,24 @@
+python -W ignore main_test.py --mode 1 --lr 0.8 --bs 1024 --trainsel 0 --outputfile ckpt_test0.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.08 --bs 1024 --trainsel 0 --outputfile ckpt_test0.t0 --network ckpt_test0.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.008 --bs 1024 --trainsel 0 --outputfile ckpt_test0.t0 --network ckpt_test0.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.001 --bs 128 --trainsel 0 --outputfile ckpt_test0.t0 --network ckpt_test0.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.8 --bs 1024 --trainsel 1 --outputfile ckpt_test1.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.08 --bs 1024 --trainsel 1 --outputfile ckpt_test1.t0 --network ckpt_test1.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.008 --bs 1024 --trainsel 1 --outputfile ckpt_test1.t0 --network ckpt_test1.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.001 --bs 128 --trainsel 1 --outputfile ckpt_test1.t0 --network ckpt_test1.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.8 --bs 1024 --trainsel 2 --outputfile ckpt_test2.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.08 --bs 1024 --trainsel 2 --outputfile ckpt_test2.t0 --network ckpt_test2.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.008 --bs 1024 --trainsel 2 --outputfile ckpt_test2.t0 --network ckpt_test2.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.001 --bs 128 --trainsel 2 --outputfile ckpt_test2.t0 --network ckpt_test2.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.8 --bs 1024 --trainsel 3 --outputfile ckpt_test3.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.08 --bs 1024 --trainsel 3 --outputfile ckpt_test3.t0 --network ckpt_test3.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.008 --bs 1024 --trainsel 3 --outputfile ckpt_test3.t0 --network ckpt_test3.t0 --ne 20
+python -W ignore main_test.py --mode 1 --lr 0.001 --bs 128 --trainsel 3 --outputfile ckpt_test3.t0 --network ckpt_test3.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.8 --bs 1024 --trainsel 4 --outputfile ckpt_test4.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.08 --bs 1024 --trainsel 4 --outputfile ckpt_test4.t0 --network ckpt_test4.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.008 --bs 1024 --trainsel 4 --outputfile ckpt_test4.t0 --network ckpt_test4.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.001 --bs 128 --trainsel 4 --outputfile ckpt_test4.t0 --network ckpt_test4.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.8 --bs 1024 --trainsel 5 --outputfile ckpt_test5.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.08 --bs 1024 --trainsel 5 --outputfile ckpt_test5.t0 --network ckpt_test5.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.008 --bs 1024 --trainsel 5 --outputfile ckpt_test5.t0 --network ckpt_test5.t0 --ne 20
+#python -W ignore main_test.py --mode 1 --lr 0.001 --bs 128 --trainsel 5 --outputfile ckpt_test5.t0 --network ckpt_test5.t0 --ne 20

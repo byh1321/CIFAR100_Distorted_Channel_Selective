@@ -1,0 +1,7 @@
+python -W ignore main_FS.py --mode 0 --fixed 1 --iwidth 5 --aprec 7 --trainsel 0 --outputfile blur_10_train_freq.txt
+python -W ignore main_FS.py --mode 0 --fixed 1 --iwidth 5 --aprec 7 --trainsel 1 --outputfile blur_08_train_freq.txt
+python -W ignore main_FS.py --mode 0 --fixed 1 --iwidth 5 --aprec 7 --trainsel 2 --outputfile blur_06_train_freq.txt
+python -W ignore main_FS.py --mode 0 --fixed 1 --iwidth 5 --aprec 7 --trainsel 3 --outputfile clean_train_freq.txt
+python -W ignore main_FS.py --mode 0 --fixed 1 --iwidth 5 --aprec 7 --trainsel 4 --outputfile gau_008_train_freq.txt
+python -W ignore main_FS.py --mode 0 --fixed 1 --iwidth 5 --aprec 7 --trainsel 5 --outputfile gau_016_train_freq.txt
+python -W ignore main_FS.py --mode 0 --fixed 1 --iwidth 5 --aprec 7 --trainsel 6 --outputfile gau_025_train_freq.txt

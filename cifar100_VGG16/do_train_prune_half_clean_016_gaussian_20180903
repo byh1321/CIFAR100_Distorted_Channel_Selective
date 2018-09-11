@@ -1,0 +1,18 @@
+########################################
+# train 0.125 from pruned, qunted half
+#python3 -W ignore network_gen.py --block1 ckpt_20180903_prune_half_clean_008_gaussian_prune_80_pprec_15.t0 --o ckpt_20180903_prune_half_clean_016_gaussian.t0 --mode 2
+#python3 -W ignore main_prune_half_clean_016_gaussian_20180903.py --lr 0.8 --bs 1024 --mode 1 --ne 80 --outputfile ckpt_20180903_prune_half_clean_016_gaussian.t0
+#python3 -W ignore main_prune_half_clean_016_gaussian_20180903.py --lr 0.08 --bs 1024 --mode 1 --ne 80 -r --outputfile ckpt_20180903_prune_half_clean_016_gaussian.t0
+#python3 -W ignore main_prune_half_clean_016_gaussian_20180903.py --lr 0.008 --bs 1024 --mode 1 --ne 80 -r --outputfile ckpt_20180903_prune_half_clean_016_gaussian.t0
+#python3 -W ignore main_prune_half_clean_016_gaussian_20180903.py --lr 0.001 --bs 128 --mode 1 --ne 30 -r --outputfile ckpt_20180903_prune_half_clean_016_gaussian.t0
+#python3 -W ignore main_prune_half_clean_016_gaussian_20180903.py --mode 0 --network ckpt_20180903_prune_half_clean_016_gaussian.t0
+########################################
+
+########################################
+# retrain quant, prune
+#python3 -W ignore network_gen.py --block1 ckpt_20180903_prune_half_clean_016_gaussian.t0 --o thres_016.t0 --mode 5
+#python3 -W ignore main_prune_half_clean_016_gaussian_20180903.py --mode 3 --pr 80 --network thres_016.t0
+#cp ./checkpoint/ckpt_20180903_prune_half_clean_016_gaussian.t0 ./checkpoint/ckpt_20180903_prune_half_clean_016_gaussian_prune_80_pprec_15.t0
+python3 -W ignore main_prune_half_clean_016_gaussian_20180903.py --lr 0.008 --bs 1024 --mode 2 --pprec 15 --pr 80 --o ckpt_20180903_prune_half_clean_016_gaussian_prune_80_pprec_15.t0 --thres 0.0001 
+python -W ignore main_prune_half_clean_016_gaussian_20180903.py --mode 0 --network ckpt_20180903_prune_half_clean_016_gaussian_prune_80_pprec_15.t0 --pprec 15 --fixed 1 --aprec 10 --iwidth 5 -r
+########################################

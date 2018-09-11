@@ -1,0 +1,5 @@
+python3 main_vision.py --bs 128 --lr 0.2 --mode 1 --ne 100
+python3 main_vision.py --bs 128 --lr 0.02 --mode 1 --ne 100 -r
+python3 main_vision.py --bs 128 --lr 0.002 --mode 1 --ne 100 -r 
+python3 main_vision.py --bs 128 --lr 0.001 --mode 1 --ne 100 -r
+python3 main_vision.py --mode 0 -r

@@ -56,7 +56,7 @@ cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_
 cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
 
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=2048, shuffle=False,num_workers=8,drop_last=False)
 
 
 # Model
@@ -70,11 +70,12 @@ if args.resume:
 
 else:
 	print('==> Building model..')
-	net = RS.ResNet34()
+	net = RS.ResNet18()
+	print(net)
 
 if use_cuda:
 	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(0,1))
+	net = torch.nn.DataParallel(net, device_ids=range(0,8))
 	cudnn.benchmark = True
 
 criterion = nn.CrossEntropyLoss()

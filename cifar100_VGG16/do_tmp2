@@ -1,0 +1,7 @@
+#source do_train_full_05_blur_20180903
+#source do_train_full_10_blur_20180903
+source do_train_full_15_blur_20180903
+#source do_train_full_008_gaussian_20180903
+#source do_train_full_016_gaussian_20180903
+source do_train_full_025_gaussian_20180903
+source do_train_full_clean_20180903

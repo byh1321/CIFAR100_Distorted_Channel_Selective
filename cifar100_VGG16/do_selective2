@@ -1,0 +1,14 @@
+echo "blur15"
+python -W ignore main_selective2.py --modelsel 0
+echo "blur10"
+python -W ignore main_selective2.py --modelsel 1
+echo "blur05"
+python -W ignore main_selective2.py --modelsel 2
+echo "clean"
+python -W ignore main_selective2.py --modelsel 3
+echo "gau008"
+python -W ignore main_selective2.py --modelsel 4
+echo "gau016"
+python -W ignore main_selective2.py --modelsel 5
+echo "gau025"
+python -W ignore main_selective2.py --modelsel 6

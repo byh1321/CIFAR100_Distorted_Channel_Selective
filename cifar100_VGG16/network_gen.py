@@ -794,6 +794,32 @@ if __name__ == '__main__':
 		net1 = net_mask_mul(net1,mask)
 	#'''
 	#######################################################
+
+	#######################################################
+	#'''	
+	if args.mode == 7:
+		mask = set_mask(2,1)
+		net1 = net_mask_mul(net1, mask)
+		mask = set_mask(1,1)
+		mask = set_mask(2,0)
+		for i in range(16):
+			mask[i] = torch.mul(mask[i],mask_rand[i])
+		add_mask(net1,mask) 
+	#'''
+	#######################################################
+
+	#######################################################
+	#'''	
+	if args.mode == 8:
+		mask = set_mask(1,1)
+		net1 = net_mask_mul(net1, mask)
+		mask = set_mask(0,1)
+		mask = set_mask(1,0)
+		for i in range(16):
+			mask[i] = torch.mul(mask[i],mask_rand[i])
+		add_mask(net1,mask) 
+	#'''
+	#######################################################
 	
 	#######################################################
 	#Enable this part for gaussian 016

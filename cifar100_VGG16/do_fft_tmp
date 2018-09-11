@@ -1,0 +1,7 @@
+python -W ignore main_FS.py --trainsel 0 --outputfile blur30_train.txt --mode 0 --ne 1
+python -W ignore main_FS.py --trainsel 1 --outputfile blur20_train.txt --mode 0 --ne 1
+#python -W ignore main_FS.py --testsel 2 --outputfile blur05_test.txt --mode 0 --ne 1
+#python -W ignore main_FS.py --testsel 3 --outputfile clean_test.txt --mode 0 --ne 1
+#python -W ignore main_FS.py --testsel 4 --outputfile gau008_test.txt --mode 0 --ne 1
+#python -W ignore main_FS.py --testsel 5 --outputfile gau016_test.txt --mode 0 --ne 1
+#python -W ignore main_FS.py --testsel 6 --outputfile gau025_test.txt --mode 0 --ne 1
