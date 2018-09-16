@@ -1,0 +1,10 @@
+########################################
+# train 0.125 from pruned, qunted half
+#python3 -W ignore network_gen.py --block1 ckpt_20180908_half_clean_prune_80_pprec_15.t0 --o ckpt_20180908_half_clean_008_gaussian.t0 --mode 1
+python3 -W ignore main_half_clean_20180908.py --lr 0.8 --bs 1024 --mode 1 --ne 80
+python3 -W ignore main_half_clean_20180908.py --lr 0.08 --bs 1024 --mode 1 --ne 80 -r
+python3 -W ignore main_half_clean_20180908.py --lr 0.008 --bs 1024 --mode 1 --ne 80 -r
+python3 -W ignore main_half_clean_20180908.py --lr 0.001 --bs 128 --mode 1 --ne 30 -r
+python3 -W ignore main_half_clean_20180908.py --mode 0 --network ckpt_20180908_half_clean.t0
+########################################
+

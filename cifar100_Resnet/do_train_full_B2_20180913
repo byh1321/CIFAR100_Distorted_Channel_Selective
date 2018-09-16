@@ -1,0 +1,10 @@
+########################################
+# train 0.125 from pruned, qunted full
+#python3 -W ignore network_gen.py --block1 ckpt_20180913_full_B2_prune_80_pprec_15.t0 --o ckpt_20180913_full_B2_008_gaussian.t0 --mode 1
+python3 -W ignore main_full_B2_20180913.py --lr 0.8 --bs 1024 --mode 1 --ne 50
+python3 -W ignore main_full_B2_20180913.py --lr 0.08 --bs 1024 --mode 1 --ne 50 -r
+python3 -W ignore main_full_B2_20180913.py --lr 0.008 --bs 1024 --mode 1 --ne 50 -r
+python3 -W ignore main_full_B2_20180913.py --lr 0.001 --bs 128 --mode 1 --ne 10 -r
+python3 -W ignore main_full_B2_20180913.py --mode 0 --network ckpt_20180913_full_B2.t0
+########################################
+

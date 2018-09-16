@@ -24,6 +24,23 @@
 #source do_train_half_clean_10_blur_20180903
 #source do_train_half_clean_15_blur_20180903
 #source do_train_half_clean_008_gaussian_20180903
-source do_train_half_clean_016_gaussian_20180903
-source do_train_half_clean_025_gaussian_20180903
-source do_inference_network
+#source do_train_half_clean_B1_20180913
+#source do_train_half_clean_B2_20180913
+#source do_train_half_clean_B3_20180913
+#source do_train_full_B1_20180913
+#source do_train_full_B2_20180913
+#source do_train_full_clean_20180913
+
+#source do_train_half_clean_G1_20180914
+#source do_train_half_clean_G2_20180914
+#echo "half G2 done"
+#source do_train_half_clean_G3_20180914
+#echo "half G3 done"
+source do_train_full_G1_20180914
+echo "full G1 done"
+source do_train_full_G2_20180914
+echo "full G2 done"
+source do_train_full_G3_20180914
+echo "full G3 done"
+source do_train_full_all_20180913
+echo "full all done"

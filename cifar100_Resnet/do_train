@@ -1,0 +1,9 @@
+python3 -W ignore main.py --bs 1024 --lr 0.8 --mode 1 --ne 100
+python3 -W ignore main.py --bs 1024 --lr 0.08 --mode 1 --ne 100 -r
+python3 -W ignore main.py --bs 1024 --lr 0.008 --mode 1 --ne 100 -r 
+python3 -W ignore main.py --bs 128 --lr 0.001 --mode 1 --ne 100 -r 
+python3 -W ignore main.py --mode 0 -r
+
+#python3 -W ignore main.py --bs 1024 --lr 0.8 --mode 1 --ne 100
+
+#python3 -W ignore main_vision.py --bs 1024 --lr 0.8 --mode 1 --ne 100

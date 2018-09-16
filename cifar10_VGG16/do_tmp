@@ -1,6 +1,46 @@
-source do_train_half_clean_05_blur_20180906
-source do_train_half_clean_10_blur_20180906
-source do_train_half_clean_15_blur_20180906
-source do_train_half_clean_008_gaussian_20180906
-source do_train_half_clean_016_gaussian_20180906
-source do_train_half_clean_025_gaussian_20180906
+#source do_train_half_clean_05_blur_20180906
+#source do_train_half_clean_10_blur_20180906
+#source do_train_half_clean_15_blur_20180906
+#source do_train_half_clean_008_gaussian_20180906
+#source do_train_half_clean_016_gaussian_20180906
+#source do_train_half_clean_025_gaussian_20180906
+#source do_train_half_clean_B1_20180913
+#echo "half clean b1 done"
+#source do_train_half_clean_B2_20180913
+#echo "half clean b2 done"
+#source do_train_half_clean_B3_20180913
+#echo "half clean b3 done"
+#source do_train_full_clean_20180913
+#echo "full clean done"
+#source do_train_full_B1_20180913
+#echo "full b1 done"
+#source do_train_full_B2_20180913
+#echo "full b2 done"
+#source do_train_full_B3_20180913
+#echo "full b3 done"
+#source do_train_full_G1_20180913
+#echo "full g1 done"
+#source do_train_full_G2_20180913
+#echo "full g2 done"
+#source do_train_full_G3_20180913
+source do_train_half_clean_G1_20180914
+date
+echo "half G1 done"
+source do_train_half_clean_G2_20180914
+date
+echo "half G2 done"
+source do_train_half_clean_G3_20180914
+date
+echo "half G3 done"
+source do_train_full_G1_20180914
+date
+echo "full G1 done"
+source do_train_full_G2_20180914
+date
+echo "full G2 done"
+source do_train_full_G3_20180914
+date
+echo "full G3 done"
+source do_train_full_all_20180914
+date
+echo "full all done"

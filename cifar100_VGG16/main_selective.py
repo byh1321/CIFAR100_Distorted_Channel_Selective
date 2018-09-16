@@ -26,7 +26,6 @@ import cifar_dirty_train
 
 import struct
 import random
-import concate_network as cn
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -63,27 +62,37 @@ cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_t
 
 cifar_test_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_test_targets.csv")
 cifar_test_gaussian_016 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_test_targets.csv")
+cifar_test_gaussian_015 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.15_blur_0.0_test_targets.csv")
+cifar_test_gaussian_010 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.1_blur_0.0_test_targets.csv")
 cifar_test_gaussian_008 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_test_targets.csv")
+cifar_test_gaussian_005 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.05_blur_0.0_test_targets.csv")
 
 cifar_train_gaussian_025 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
 cifar_train_gaussian_016 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_train_targets.csv")
+cifar_train_gaussian_015 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.15_blur_0.0_train_targets.csv")
+cifar_train_gaussian_010 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.1_blur_0.0_train_targets.csv")
 cifar_train_gaussian_008 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_train_targets.csv")
+cifar_train_gaussian_005 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.05_blur_0.0_train_targets.csv")
 
-cifar_test_blur_15 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.5_test_targets.csv")
 cifar_test_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_test_targets.csv")
+cifar_test_blur_09 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.9_test_targets.csv")
 cifar_test_blur_08 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_test_targets.csv")
+cifar_test_blur_0675 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.675_test_targets.csv")
 cifar_test_blur_06 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_test_targets.csv")
 cifar_test_blur_05 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_test_targets.csv")
+cifar_test_blur_045 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.45_test_targets.csv")
 cifar_test_blur_04 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_test_targets.csv")
 cifar_test_blur_03 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_test_targets.csv")
 cifar_test_blur_066 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_test_targets.csv")
 cifar_test_blur_033 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.33_test_targets.csv")
 
-cifar_train_blur_15 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.5_train_targets.csv")
 cifar_train_blur_10 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
+cifar_train_blur_09 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.9_train_targets.csv")
 cifar_train_blur_08 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_train_targets.csv")
+cifar_train_blur_0675 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.675_train_targets.csv")
 cifar_train_blur_06 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_train_targets.csv")
 cifar_train_blur_05 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_train_targets.csv")
+cifar_train_blur_045 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.45_train_targets.csv")
 cifar_train_blur_04 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_train_targets.csv")
 cifar_train_blur_03 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_train_targets.csv")
 cifar_train_blur_066 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_train_targets.csv")
@@ -107,19 +116,19 @@ train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuff
 
 
 if args.testsel == 0:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_15,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_09,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 1:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_0675,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 2:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_05,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_045,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 3:
 	test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 4:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_008,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_005,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 5:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_016,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_010,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 6:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_015,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 
 
 #mask_amp = torch.ones(1250,512)
@@ -323,13 +332,24 @@ def quant(input):
 
 
 # Load checkpoint.
-check1 = torch.load('./checkpoint/ckpt_20180903_half_clean_15_blur.t0')
-check2 = torch.load('./checkpoint/ckpt_20180903_half_clean_10_blur.t0')
-check3 = torch.load('./checkpoint/ckpt_20180903_half_clean_05_blur.t0')
-check4 = torch.load('./checkpoint/ckpt_20180903_half_clean.t0')
-check5 = torch.load('./checkpoint/ckpt_20180903_half_clean_008_gaussian.t0')
-check6 = torch.load('./checkpoint/ckpt_20180903_half_clean_016_gaussian.t0')
-check7 = torch.load('./checkpoint/ckpt_20180903_half_clean_025_gaussian.t0')
+'''
+check1 = torch.load('./checkpoint/ckpt_20180913_half_clean_B3.t0')
+check2 = torch.load('./checkpoint/ckpt_20180913_half_clean_B2.t0')
+check3 = torch.load('./checkpoint/ckpt_20180913_half_clean_B1.t0')
+check4 = torch.load('./checkpoint/ckpt_20180913_half_clean.t0')
+check5 = torch.load('./checkpoint/ckpt_20180914_half_clean_G1.t0')
+check6 = torch.load('./checkpoint/ckpt_20180914_half_clean_G2.t0')
+check7 = torch.load('./checkpoint/ckpt_20180914_half_clean_G3.t0')
+'''
+#'''
+check1 = torch.load('./checkpoint/ckpt_20180913_full_B3.t0')
+check2 = torch.load('./checkpoint/ckpt_20180913_full_B2.t0')
+check3 = torch.load('./checkpoint/ckpt_20180913_full_B1.t0')
+check4 = torch.load('./checkpoint/ckpt_20180913_full_clean.t0')
+check5 = torch.load('./checkpoint/ckpt_20180914_full_G1.t0')
+check6 = torch.load('./checkpoint/ckpt_20180914_full_G2.t0')
+check7 = torch.load('./checkpoint/ckpt_20180914_full_G3.t0')
+#'''
 
 best_acc = 0 
 net1 = check1['net']
@@ -357,19 +377,19 @@ if use_cuda:
 	net7 = torch.nn.DataParallel(net7, device_ids=range(0,8))
 	cudnn.benchmark = True
 
-blur15 = np.genfromtxt('blur15.csv',delimiter=',')
-blur10 = np.genfromtxt('blur10.csv',delimiter=',')
-blur05 = np.genfromtxt('blur05.csv',delimiter=',')
+blur09 = np.genfromtxt('blur09_test.csv',delimiter=',')
+blur0675 = np.genfromtxt('blur0675_test.csv',delimiter=',')
+blur045 = np.genfromtxt('blur045_test.csv',delimiter=',')
 clean = np.genfromtxt('clean.csv',delimiter=',')
-gau008= np.genfromtxt('gau008.csv',delimiter=',')
-gau016= np.genfromtxt('gau016.csv',delimiter=',')
-gau025= np.genfromtxt('gau025.csv',delimiter=',')
-FS_array = np.append(blur15, blur10)
-FS_array = np.append(FS_array, blur05)
+gau005= np.genfromtxt('gau005.csv',delimiter=',')
+gau010= np.genfromtxt('gau010.csv',delimiter=',')
+gau015= np.genfromtxt('gau015.csv',delimiter=',')
+FS_array = np.append(blur09, blur0675)
+FS_array = np.append(FS_array, blur045)
 FS_array = np.append(FS_array, clean)
-FS_array = np.append(FS_array, gau008)
-FS_array = np.append(FS_array, gau016)
-FS_array = np.append(FS_array, gau025)
+FS_array = np.append(FS_array, gau005)
+FS_array = np.append(FS_array, gau010)
+FS_array = np.append(FS_array, gau015)
 '''
 f= open("result.txt",'w')
 for i in range(70000):
@@ -378,12 +398,12 @@ exit()
 f.close()
 '''
 
-bar1 = 224
-bar2 = 478
-bar3 = 1404
-bar4 = 2435
-bar5 = 3641
-bar6 = 4764
+bar1 = 380
+bar2 = 790
+bar3 = 1567
+bar4 = 1984 
+bar5 = 2831
+bar6 = 3654
 
 '''
 if args.amp:
