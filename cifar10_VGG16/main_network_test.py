@@ -85,7 +85,7 @@ cifar_train_blur_045 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614
 cifar_train_gaussian_008_blur_033_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.08_blur_0.33_train_targets.csv") 
 
 #train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_blur_045, cifar_train_blur_0675, cifar_train_blur_09, cifar_train_gaussian_008, cifar_train_gaussian_016, cifar_train_gaussian_025]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_blur_045, cifar_train_blur_0675, cifar_train_blur_09, cifar_train_gaussian_005, cifar_train_gaussian_010, cifar_train_gaussian_015]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 
 #train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_gaussian_025, cifar_train_blur_10, cifar_train_gaussian_blur_mixed]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 #test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)

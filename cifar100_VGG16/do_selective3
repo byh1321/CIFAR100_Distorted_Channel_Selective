@@ -1,0 +1,27 @@
+#!/bin/bash
+for (( i=0; i<7; i++ ))
+do
+	python3 -W ignore main_selective3.py --network ckpt_20180913_full_B3.t0 --testsel $i
+	python3 -W ignore main_selective3.py --network ckpt_20180913_full_B2.t0 --testsel $i
+	python3 -W ignore main_selective3.py --network ckpt_20180913_full_B1.t0 --testsel $i
+	python3 -W ignore main_selective3.py --network ckpt_20180914_full_clean.t0 --testsel $i
+	python3 -W ignore main_selective3.py --network ckpt_20180914_full_G1.t0 --testsel $i
+	python3 -W ignore main_selective3.py --network ckpt_20180914_full_G2.t0 --testsel $i 
+	python3 -W ignore main_selective3.py --network ckpt_20180914_full_G3.t0 --testsel $i 
+	python3 -W ignore main_selective3.py --network ckpt_20180913_full_all.t0 --testsel $i 
+
+	echo "testsel $i is done"
+done 
+
+
+
+
+
+
+
+
+
+
+
+
+

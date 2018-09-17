@@ -54,27 +54,20 @@ transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
 									  transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
 transform_test = transforms.Compose([transforms.ToTensor(),
 									 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
-cifar_train = dset.CIFAR10("./", train=True, transform=transform_train, target_transform=None, download=True)
+#cifar_train = dset.CIFAR10("./", train=True, transform=transform_train, target_transform=None, download=True)
 cifar_test = dset.CIFAR10("./", train=False, transform=transform_test, target_transform=None, download=True)
 
-cifar_test_gaussian_015 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_test_targets.csv")
-cifar_test_gaussian_010 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_test_targets.csv")
-cifar_test_gaussian_005 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_test_targets.csv")
+cifar_train = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/dirtydataset/shrink_cifar10_gaussian_0.0_blur_0.0_train_targets.csv")
+cifar_train_gaussian_015 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/dirtydataset/shrink_cifar10_gaussian_0.15_blur_0.0_train_targets.csv")
+cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/dirtydataset/shrink_cifar10_gaussian_0.1_blur_0.0_train_targets.csv")
+cifar_train_gaussian_005 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/dirtydataset/shrink_cifar10_gaussian_0.05_blur_0.0_train_targets.csv")
 
-cifar_train_gaussian_015 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_train_targets.csv")
-cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_train_targets.csv")
-cifar_train_gaussian_005 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_train_targets.csv")
-
-cifar_test_blur_09 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.9_test_targets.csv")
-cifar_test_blur_0675 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.675_test_targets.csv")
-cifar_test_blur_045 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.45_test_targets.csv")
-
-cifar_train_blur_09 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.9_train_targets.csv")
-cifar_train_blur_0675 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.675_train_targets.csv")
-cifar_train_blur_045 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.45_train_targets.csv")
+cifar_train_blur_09 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/dirtydataset/shrink_cifar10_gaussian_0.0_blur_0.9_train_targets.csv")
+cifar_train_blur_0675 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/dirtydataset/shrink_cifar10_gaussian_0.0_blur_0.675_train_targets.csv")
+cifar_train_blur_045 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/dirtydataset/shrink_cifar10_gaussian_0.0_blur_0.45_train_targets.csv")
 #train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_gaussian_005]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_005,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
+train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_blur_045, cifar_train_blur_0675, cifar_train_blur_09, cifar_train_gaussian_005, cifar_train_gaussian_010, cifar_train_gaussian_015]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 class ResNet18(nn.Module):
 	def __init__(self):
@@ -437,32 +430,32 @@ def set_mask(mask, block, val):
 		mask[19][:,:,:,:] = val
 		mask[20][:,:] = val 
 	elif block == 1:
-		mask[0][0:55,:,:,:] = val
-		mask[1][0:55,0:55,:,:] = val 
-		mask[2][0:55,0:55,:,:] = val 
-		mask[3][0:55,0:55,:,:] = val
-		mask[4][0:55,0:55,:,:] = val
+		mask[0][0:57,:,:,:] = val
+		mask[1][0:57,0:57,:,:] = val 
+		mask[2][0:57,0:57,:,:] = val 
+		mask[3][0:57,0:57,:,:] = val
+		mask[4][0:57,0:57,:,:] = val
 
-		mask[5][0:111,0:55,:,:] = val
-		mask[6][0:111,0:111,:,:] = val
-		mask[7][0:111,0:111,:,:] = val
-		mask[8][0:111,0:111,:,:] = val
+		mask[5][0:115,0:57,:,:] = val
+		mask[6][0:115,0:115,:,:] = val
+		mask[7][0:115,0:115,:,:] = val
+		mask[8][0:115,0:115,:,:] = val
 
-		mask[9][0:223,0:111,:,:] = val
-		mask[10][0:223,0:223,:,:] = val
-		mask[11][0:223,0:223,:,:] = val
-		mask[12][0:223,0:223,:,:] = val
+		mask[9][0:231,0:115,:,:] = val
+		mask[10][0:231,0:231,:,:] = val
+		mask[11][0:231,0:231,:,:] = val
+		mask[12][0:231,0:231,:,:] = val
 
-		mask[13][0:447,0:223,:,:] = val
-		mask[14][0:447,0:447,:,:] = val
-		mask[15][0:447,0:447,:,:] = val
-		mask[16][0:447,0:447,:,:] = val
+		mask[13][0:465,0:231,:,:] = val
+		mask[14][0:465,0:465,:,:] = val
+		mask[15][0:465,0:465,:,:] = val
+		mask[16][0:465,0:465,:,:] = val
 
-		mask[17][0:111,0:55,:,:] = val
-		mask[18][0:223,0:111,:,:] = val
-		mask[19][0:447,0:223,:,:] = val
+		mask[17][0:115,0:57,:,:] = val
+		mask[18][0:231,0:115,:,:] = val
+		mask[19][0:465,0:231,:,:] = val
 
-		mask[20][:,0:447] = val 
+		mask[20][:,0:465] = val 
 	elif block == 2:
 		mask[0][0:47,:,:,:] = val
 		mask[1][0:47,0:47,:,:] = val 
@@ -749,13 +742,13 @@ def net_mask_mul(mask):
 if args.mode == 0:
 	print('==> Resuming from checkpoint..')
 	assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-	checkpoint = torch.load('./checkpoint/ckpt_20180914_full_G1.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20180916_full_all.t0')
 	net = checkpoint['net']
 
 elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
-		checkpoint = torch.load('./checkpoint/ckpt_20180914_full_G1.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20180916_full_all.t0')
 		net = checkpoint['net']
 		best_acc = checkpoint['acc']
 	else:
@@ -899,7 +892,7 @@ def test():
 			}
 			if not os.path.isdir('checkpoint'):
 				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20180914_full_G1.t0')
+			torch.save(state, './checkpoint/ckpt_20180916_full_all.t0')
 			best_acc = acc
 	
 	return acc

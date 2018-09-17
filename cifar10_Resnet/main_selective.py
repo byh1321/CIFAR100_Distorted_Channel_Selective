@@ -61,47 +61,20 @@ cifar_train = dset.CIFAR10("./", train=True, transform=transform_train, target_t
 cifar_test = dset.CIFAR10("./", train=False, transform=transform_test, target_transform=None, download=True)
 
 cifar_test_gaussian_015 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_test_targets.csv")
-cifar_test_gaussian_010 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.10_blur_0.0_test_targets.csv")
+cifar_test_gaussian_010 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_test_targets.csv")
 cifar_test_gaussian_005 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_test_targets.csv")
 
 cifar_train_gaussian_015 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_train_targets.csv")
-cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.10_blur_0.0_train_targets.csv")
+cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_train_targets.csv")
 cifar_train_gaussian_005 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_train_targets.csv")
 
-cifar_test_blur_10 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_1.0_test_targets.csv")
 cifar_test_blur_09 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.9_test_targets.csv")
-cifar_test_blur_08 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/A2S/cifar10_VGG16/cifar10_gaussian_0.0_blur_0.8_test_targets.csv")
 cifar_test_blur_0675 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.675_test_targets.csv")
-cifar_test_blur_06 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.6_test_targets.csv")
-cifar_test_blur_05 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.5_test_targets.csv")
 cifar_test_blur_045 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.45_test_targets.csv")
-cifar_test_blur_04 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.4_test_targets.csv")
-cifar_test_blur_03 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.3_test_targets.csv")
-cifar_test_blur_066 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.66_test_targets.csv")
-cifar_test_blur_033 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.33_test_targets.csv")
 
-cifar_train_blur_10 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_1.0_train_targets.csv")
 cifar_train_blur_09 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.9_train_targets.csv")
-cifar_train_blur_08 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/A2S/cifar10_VGG16/cifar10_gaussian_0.0_blur_0.8_train_targets.csv")
 cifar_train_blur_0675 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.675_train_targets.csv")
-cifar_train_blur_06 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.6_train_targets.csv")
-cifar_train_blur_05 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.5_train_targets.csv")
 cifar_train_blur_045 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.45_train_targets.csv")
-cifar_train_blur_04 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.4_train_targets.csv")
-cifar_train_blur_03 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.3_train_targets.csv")
-cifar_train_blur_066 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.66_train_targets.csv")
-cifar_train_blur_033 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.33_train_targets.csv")
-
-cifar_train_gaussian_025 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.25_blur_0.0_train_targets.csv")
-cifar_train_blur_10 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_1.0_train_targets.csv")
-
-cifar_train_gaussian_008_blur_03_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.08_blur_0.3_train_targets.csv") 
-cifar_train_gaussian_016_blur_06_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.16_blur_0.6_train_targets.csv") 
-cifar_train_gaussian_008_blur_033_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.08_blur_0.33_train_targets.csv") 
-cifar_train_gaussian_016_blur_066_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.16_blur_0.66_train_targets.csv") 
-cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/A2S/cifar10_VGG16/cifar10_gaussian_0.16_blur_0.8_train_targets.csv") 
-cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.25_blur_1.0_train_targets.csv") 
-cifar_train_gaussian_025_blur_15_mixed = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.25_blur_1.5_train_targets.csv") 
 
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 #test_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_test_blur_10, cifar_test_blur_08, cifar_test_blur_06, cifar_test, cifar_test_gaussian_008, cifar_test_gaussian_016, cifar_test_gaussian_025]),batch_size=1, shuffle=False,num_workers=8,drop_last=False)
@@ -469,10 +442,11 @@ def quant(input):
 
 
 # Load checkpoint.
+'''
 check1 = torch.load('./checkpoint/ckpt_20180913_full_B3.t0')
 check2 = torch.load('./checkpoint/ckpt_20180913_full_B2.t0')
 check3 = torch.load('./checkpoint/ckpt_20180913_full_B1.t0')
-check4 = torch.load('./checkpoint/ckpt_20180914_full_clean.t0')
+check4 = torch.load('./checkpoint/ckpt_20180913_full_clean.t0')
 check5 = torch.load('./checkpoint/ckpt_20180914_full_G1.t0')
 check6 = torch.load('./checkpoint/ckpt_20180914_full_G2.t0')
 check7 = torch.load('./checkpoint/ckpt_20180914_full_G3.t0')
@@ -485,7 +459,7 @@ check4 = torch.load('./checkpoint/ckpt_20180914_half_clean.t0')
 check5 = torch.load('./checkpoint/ckpt_20180914_half_clean_G1.t0')
 check6 = torch.load('./checkpoint/ckpt_20180914_half_clean_G2.t0')
 check7 = torch.load('./checkpoint/ckpt_20180914_half_clean_G3.t0')
-'''
+#'''
 best_acc = 0 
 net1 = check1['net']
 net2 = check2['net']
@@ -515,7 +489,7 @@ if use_cuda:
 blur09 = np.genfromtxt('cifar10_blur09_test.csv',delimiter=',')
 blur0675 = np.genfromtxt('cifar10_blur0675_test.csv',delimiter=',')
 blur045 = np.genfromtxt('cifar10_blur045_test.csv',delimiter=',')
-clean = np.genfromtxt('cifar10_clean._testcsv',delimiter=',')
+clean = np.genfromtxt('cifar10_clean_test.csv',delimiter=',')
 gau005= np.genfromtxt('cifar10_gau005_test.csv',delimiter=',')
 gau010= np.genfromtxt('cifar10_gau010_test.csv',delimiter=',')
 gau015= np.genfromtxt('cifar10_gau015_test.csv',delimiter=',')
@@ -638,7 +612,7 @@ def test():
 		test_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += predicted.eq(targets.data).cpu().sum().item()
 
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))

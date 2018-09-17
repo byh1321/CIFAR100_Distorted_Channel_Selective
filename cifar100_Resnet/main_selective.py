@@ -26,7 +26,6 @@ import cifar_dirty_train
 
 import struct
 import random
-import concate_network as cn
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -476,6 +475,7 @@ def quant(input):
 
 
 # Load checkpoint.
+'''
 check1 = torch.load('./checkpoint/ckpt_20180913_full_B3.t0')
 check2 = torch.load('./checkpoint/ckpt_20180913_full_B2.t0')
 check3 = torch.load('./checkpoint/ckpt_20180913_full_B1.t0')
@@ -483,6 +483,14 @@ check4 = torch.load('./checkpoint/ckpt_20180913_full_clean.t0')
 check5 = torch.load('./checkpoint/ckpt_20180914_full_G1.t0')
 check6 = torch.load('./checkpoint/ckpt_20180914_full_G2.t0')
 check7 = torch.load('./checkpoint/ckpt_20180914_full_G3.t0')
+'''
+check1 = torch.load('./checkpoint/ckpt_20180913_half_clean_B3.t0')
+check2 = torch.load('./checkpoint/ckpt_20180913_half_clean_B2.t0')
+check3 = torch.load('./checkpoint/ckpt_20180913_half_clean_B1.t0')
+check4 = torch.load('./checkpoint/ckpt_20180913_half_clean.t0')
+check5 = torch.load('./checkpoint/ckpt_20180914_half_clean_G1.t0')
+check6 = torch.load('./checkpoint/ckpt_20180914_half_clean_G2.t0')
+check7 = torch.load('./checkpoint/ckpt_20180914_half_clean_G3.t0')
 
 best_acc = 0 
 net1 = check1['net']
@@ -636,7 +644,7 @@ def test():
 		test_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += predicted.eq(targets.data).cpu().sum().item()
 
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))

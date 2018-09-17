@@ -871,9 +871,6 @@ def test():
 	test_loss = 0
 	correct = 0
 	total = 0
-	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(mask_channel, 3, 1)
-	net_mask_mul(mask_channel)
 	for batch_idx, (inputs, targets) in enumerate(test_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()

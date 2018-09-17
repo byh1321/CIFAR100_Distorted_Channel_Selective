@@ -1,8 +1,8 @@
 """
 some parts of code are extracted from "https://github.com/kuangliu/pytorch-cifar"
 I modified some parts for our experiment
-Different from main_selective.py, if you choose one network, the result shows the acc of the network which is selected by FFT classifier
 """
+
 from __future__ import print_function
 
 import numpy as np
@@ -26,7 +26,6 @@ import cifar_dirty_train
 
 import struct
 import random
-import concate_network as cn
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -39,7 +38,6 @@ parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter
 parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
 parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
-parser.add_argument('--modelsel', type=int, default=0, metavar='N',help='choose model')
 parser.add_argument('--testsel', type=int, default=0, metavar='N',help='choose testset')
 parser.add_argument('--amp', type=int, default=0, metavar='N',help='amp = 1, multiply mask to the feature')
 parser.add_argument('--network', default='NULL', help='input network ckpt name', metavar="FILE")
@@ -63,11 +61,17 @@ cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_t
 
 cifar_test_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_test_targets.csv")
 cifar_test_gaussian_016 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_test_targets.csv")
+cifar_test_gaussian_015 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.15_blur_0.0_test_targets.csv")
+cifar_test_gaussian_010 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.1_blur_0.0_test_targets.csv")
 cifar_test_gaussian_008 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_test_targets.csv")
+cifar_test_gaussian_005 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.05_blur_0.0_test_targets.csv")
 
 cifar_train_gaussian_025 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
 cifar_train_gaussian_016 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_train_targets.csv")
+cifar_train_gaussian_015 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.15_blur_0.0_train_targets.csv")
+cifar_train_gaussian_010 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.1_blur_0.0_train_targets.csv")
 cifar_train_gaussian_008 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_train_targets.csv")
+cifar_train_gaussian_005 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.05_blur_0.0_train_targets.csv")
 
 cifar_test_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_test_targets.csv")
 cifar_test_blur_09 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.9_test_targets.csv")
@@ -105,26 +109,27 @@ cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/h
 cifar_train_gaussian_025_blur_15_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.5_train_targets.csv") 
 
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-test_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_test_blur_10, cifar_test_blur_08, cifar_test_blur_06, cifar_test, cifar_test_gaussian_008, cifar_test_gaussian_016, cifar_test_gaussian_025]),batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+#test_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_test_blur_10, cifar_test_blur_08, cifar_test_blur_06, cifar_test, cifar_test_gaussian_008, cifar_test_gaussian_016, cifar_test_gaussian_025]),batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 #test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 #test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 '''
 if args.testsel == 0:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_15,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_09,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 1:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_10,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_0675,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 2:
-	test_loader = torch.utils.data.DataLoader(cifar_test_blur_05,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_blur_045,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 3:
 	test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 4:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_008,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_005,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 5:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_016,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_010,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 elif args.testsel == 6:
-	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_025,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
+	test_loader = torch.utils.data.DataLoader(cifar_test_gaussian_015,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 '''
+test_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_test_blur_09, cifar_test_blur_0675, cifar_test_blur_045, cifar_test, cifar_test_gaussian_005, cifar_test_gaussian_010, cifar_test_gaussian_015]),batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 
 #mask_amp = torch.ones(1250,512)
 #mask_amp[:,256:512] = 1.5
@@ -326,43 +331,29 @@ def quant(input):
 	return input
 
 
-# Load checkpoint.
-if args.modelsel == 0:
-	check = torch.load('./checkpoint/ckpt_20180903_half_clean_15_blur.t0')
-if args.modelsel == 1:
-	check = torch.load('./checkpoint/ckpt_20180903_half_clean_10_blur.t0')
-if args.modelsel == 2:
-	check = torch.load('./checkpoint/ckpt_20180903_half_clean_05_blur.t0')
-if args.modelsel == 3:
-	check = torch.load('./checkpoint/ckpt_20180903_half_clean.t0')
-if args.modelsel == 4:
-	check = torch.load('./checkpoint/ckpt_20180903_half_clean_008_gaussian.t0')
-if args.modelsel == 5:
-	check = torch.load('./checkpoint/ckpt_20180903_half_clean_016_gaussian.t0')
-if args.modelsel == 6:
-	check = torch.load('./checkpoint/ckpt_20180903_half_clean_025_gaussian.t0')
+checkpoint = torch.load('./checkpoint/'+args.network)
 
 best_acc = 0 
-net = check['net']
+net = checkpoint['net']
 
 if use_cuda:
 	net.cuda()
 	net = torch.nn.DataParallel(net, device_ids=range(0,8))
 	cudnn.benchmark = True
 
-blur15 = np.genfromtxt('blur15.csv',delimiter=',')
-blur10 = np.genfromtxt('blur10.csv',delimiter=',')
-blur05 = np.genfromtxt('blur05.csv',delimiter=',')
+blur09 = np.genfromtxt('blur09_test.csv',delimiter=',')
+blur0675 = np.genfromtxt('blur0675_test.csv',delimiter=',')
+blur045 = np.genfromtxt('blur045_test.csv',delimiter=',')
 clean = np.genfromtxt('clean.csv',delimiter=',')
-gau008= np.genfromtxt('gau008.csv',delimiter=',')
-gau016= np.genfromtxt('gau016.csv',delimiter=',')
-gau025= np.genfromtxt('gau025.csv',delimiter=',')
-FS_array = np.append(blur15, blur10)
-FS_array = np.append(FS_array, blur05)
+gau005= np.genfromtxt('gau005.csv',delimiter=',')
+gau010= np.genfromtxt('gau010.csv',delimiter=',')
+gau015= np.genfromtxt('gau015.csv',delimiter=',')
+FS_array = np.append(blur09, blur0675)
+FS_array = np.append(FS_array, blur045)
 FS_array = np.append(FS_array, clean)
-FS_array = np.append(FS_array, gau008)
-FS_array = np.append(FS_array, gau016)
-FS_array = np.append(FS_array, gau025)
+FS_array = np.append(FS_array, gau005)
+FS_array = np.append(FS_array, gau010)
+FS_array = np.append(FS_array, gau015)
 '''
 f= open("result.txt",'w')
 for i in range(70000):
@@ -430,29 +421,27 @@ def test():
 	correct = 0
 	total = 0
 	idx = 0
-	#idx = 0
-	count = 0
 	for batch_idx, (inputs, targets) in enumerate(test_loader):
-		if args.modelsel == 0:
+		if args.testsel == 0:
 			if FS_array[idx] < bar[0]:
 				work = 1
 			else:
 				work = 0
-		elif args.modelsel == 6:
+		elif args.testsel == 6:
 			if FS_array[idx] > bar[5]:
 				work = 1
 			else:
 				work = 0
 		else:
-			if (bar[args.modelsel-1]<FS_array[idx])&(bar[args.modelsel]>FS_array[idx]):
+			if (bar[args.testsel-1]<FS_array[idx])&(bar[args.testsel]>FS_array[idx]):
 				work = 1
 			else:
 				work = 0	
 
 		if work == 1:
-			count = count+1
 			if use_cuda:
 				inputs, targets = inputs.cuda(), targets.cuda()
+
 			inputs, targets = Variable(inputs, volatile=True), Variable(targets)
 			outputs = net(inputs)
 
@@ -463,10 +452,25 @@ def test():
 			total += targets.size(0)
 			correct += predicted.eq(targets.data).cpu().sum()
 
-			progress_bar(count, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-				% (test_loss/(count+1), 100.*correct/total, correct, total))
+			progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+				% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
 		idx = idx + 1
 
+	# Save checkpoint.
+	acc = 100.*correct/total
+	'''
+	if acc > best_acc:
+	#	print('Saving..')
+		state = {
+			'net': net.module if use_cuda else net,
+			'acc': acc,
+		}
+		if not os.path.isdir('checkpoint'):
+			os.mkdir('checkpoint')
+		#torch.save(state, './checkpoint/ckpt_20180425.t0')
+		best_acc = acc
+	'''
+	return acc
 
 # Truncate weight param
 pprec = args.pprec
@@ -522,7 +526,7 @@ if args.fixed:
                         param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
 
 test()
-print("")
+print('')
 # Train+inference vs. Inference
 #test()
 

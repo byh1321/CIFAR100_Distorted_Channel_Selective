@@ -58,11 +58,11 @@ cifar_train = dset.CIFAR10("./", train=True, transform=transform_train, target_t
 cifar_test = dset.CIFAR10("./", train=False, transform=transform_test, target_transform=None, download=True)
 
 cifar_test_gaussian_015 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_test_targets.csv")
-cifar_test_gaussian_010 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.10_blur_0.0_test_targets.csv")
+cifar_test_gaussian_010 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_test_targets.csv")
 cifar_test_gaussian_005 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_test_targets.csv")
 
 cifar_train_gaussian_015 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_train_targets.csv")
-cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.10_blur_0.0_train_targets.csv")
+cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_train_targets.csv")
 cifar_train_gaussian_005 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_train_targets.csv")
 
 cifar_test_blur_09 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.9_test_targets.csv")

@@ -26,7 +26,6 @@ import cifar_dirty_train
 
 import struct
 import random
-import concate_network as cn
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -58,50 +57,24 @@ transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
 transform_test = transforms.Compose([transforms.ToTensor(),
 									 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
 
-cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_transform=None, download=True)
-cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
+cifar_train = dset.CIFAR10("./", train=True, transform=transform_train, target_transform=None, download=True)
+cifar_test = dset.CIFAR10("./", train=False, transform=transform_test, target_transform=None, download=True)
 
 cifar_test_gaussian_015 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_test_targets.csv")
-cifar_test_gaussian_010 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.10_blur_0.0_test_targets.csv")
+cifar_test_gaussian_010 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_test_targets.csv")
 cifar_test_gaussian_005 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_test_targets.csv")
 
 cifar_train_gaussian_015 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.15_blur_0.0_train_targets.csv")
-cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.10_blur_0.0_train_targets.csv")
+cifar_train_gaussian_010 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.1_blur_0.0_train_targets.csv")
 cifar_train_gaussian_005 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.05_blur_0.0_train_targets.csv")
 
-cifar_test_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_test_targets.csv")
-cifar_test_blur_09 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.9_test_targets.csv")
-cifar_test_blur_08 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_test_targets.csv")
-cifar_test_blur_0675 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.675_test_targets.csv")
-cifar_test_blur_06 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_test_targets.csv")
-cifar_test_blur_05 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_test_targets.csv")
-cifar_test_blur_045 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.45_test_targets.csv")
-cifar_test_blur_04 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_test_targets.csv")
-cifar_test_blur_03 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_test_targets.csv")
-cifar_test_blur_066 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_test_targets.csv")
-cifar_test_blur_033 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.33_test_targets.csv")
+cifar_test_blur_09 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.9_test_targets.csv")
+cifar_test_blur_0675 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.675_test_targets.csv")
+cifar_test_blur_045 = cifar_dirty_test.CIFAR10DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.45_test_targets.csv")
 
-cifar_train_blur_10 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
-cifar_train_blur_09 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.9_train_targets.csv")
-cifar_train_blur_08 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_train_targets.csv")
-cifar_train_blur_0675 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.675_train_targets.csv")
-cifar_train_blur_06 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_train_targets.csv")
-cifar_train_blur_05 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_train_targets.csv")
-cifar_train_blur_045 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.45_train_targets.csv")
-cifar_train_blur_04 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_train_targets.csv")
-cifar_train_blur_03 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_train_targets.csv")
-cifar_train_blur_066 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_train_targets.csv")
-cifar_train_blur_033 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.33_train_targets.csv")
-
-cifar_train_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
-cifar_train_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
-
-cifar_train_gaussian_008_blur_03_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.3_train_targets.csv") 
-cifar_train_gaussian_016_blur_06_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.6_train_targets.csv") 
-cifar_train_gaussian_008_blur_033_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.33_train_targets.csv") 
-cifar_train_gaussian_016_blur_066_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.66_train_targets.csv") 
-cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.16_blur_0.8_train_targets.csv") 
-cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
+cifar_train_blur_09 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.9_train_targets.csv")
+cifar_train_blur_0675 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.675_train_targets.csv")
+cifar_train_blur_045 = cifar_dirty_train.CIFAR10DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar10_gaussian_0.0_blur_0.45_train_targets.csv")
 
 #train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_gaussian_025, cifar_train_blur_10, cifar_train_gaussian_blur_mixed]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
@@ -127,194 +100,330 @@ elif args.testsel == 6:
 #mask_amp = torch.ones(1250,512)
 #mask_amp[:,256:512] = 1.5
 
-class CNN(nn.Module):
+class ResNet18(nn.Module):
 	def __init__(self):
-		super(CNN,self).__init__()
+		super(ResNet18,self).__init__()
 		self.conv1 = nn.Sequential(
-			nn.Conv2d(3,64,3,padding=1,bias=False), #layer0
-			nn.BatchNorm2d(64), # batch norm is added because dataset is changed
-			nn.ReLU(inplace=True),
+			nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
+			nn.MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1),
 		)
-		self.conv2 = nn.Sequential(
-			nn.Conv2d(64,64,3,padding=1, bias=False), #layer3
-			nn.BatchNorm2d(64),
-			nn.ReLU(inplace=True),
+		self.layer1_basic1 = nn.Sequential(
+			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
 		)
-		self.maxpool1 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 16*16* 64
+		self.layer1_basic2 = nn.Sequential(
+			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 		)
-		self.conv3 = nn.Sequential(
-			nn.Conv2d(64,128,3,padding=1, bias=False), #layer7
-			nn.BatchNorm2d(128),
-			nn.ReLU(inplace=True),
+		self.layer1_relu1 = nn.Sequential(
+			nn.ReLU(inplace=False),
 		)
-		self.conv4 = nn.Sequential(
-			nn.Conv2d(128,128,3,padding=1, bias=False),#layer10
-			nn.BatchNorm2d(128),
-			nn.ReLU(inplace=True),
+		self.layer1_basic3 = nn.Sequential(
+			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
 		)
-		self.maxpool2 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 8*8*128
+		self.layer1_basic4 = nn.Sequential(
+			nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 		)
-		self.conv5 = nn.Sequential(
-			nn.Conv2d(128,256,3,padding=1, bias=False), #layer14
-			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=True),
+		self.layer1_relu2 = nn.Sequential(
+			nn.ReLU(inplace=False),
 		)
-		self.conv6 = nn.Sequential(
-			nn.Conv2d(256,256,3,padding=1, bias=False), #layer17
-			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=True),
+
+		self.layer2_basic1 = nn.Sequential(
+			nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1, bias=False),
+			nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
 		)
-		self.conv7 = nn.Sequential(
-			nn.Conv2d(256,256,3,padding=1, bias=False), #layer20
-			nn.BatchNorm2d(256),
-			nn.ReLU(inplace=True),
+		self.layer2_downsample = nn.Sequential(
+			nn.Conv2d(64, 128, kernel_size=1, stride=2, bias=False),
+			nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 		)
-		self.maxpool3 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 4*4*256
+		self.layer2_basic2 = nn.Sequential(
+			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 		)
-		self.conv8 = nn.Sequential(
-			nn.Conv2d(256,512,3,padding=1, bias=False), #layer24
-			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=True),
+		self.layer2_relu1 = nn.Sequential(
+			nn.ReLU(inplace=False),
 		)
-		self.conv9 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer27
-			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=True),
+		self.layer2_basic3 = nn.Sequential(
+			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
 		)
-		self.conv10 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer30
-			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=True),
+		self.layer2_basic4 = nn.Sequential(
+			nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 		)
-		self.maxpool4 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 2*2*512
+		self.layer2_relu2 = nn.Sequential(
+			nn.ReLU(inplace=False),
 		)
-		self.conv11 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer34
-			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=True),
+		self.layer3_basic1 = nn.Sequential(
+			nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1, bias=False),
+			nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
 		)
-		self.conv12 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer37
-			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=True),
+		self.layer3_downsample = nn.Sequential(
+			nn.Conv2d(128, 256, kernel_size=1, stride=2, bias=False),
+			nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 		)
-		self.conv13 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer40
-			nn.BatchNorm2d(512),
-			nn.ReLU(inplace=True),
+		self.layer3_basic2 = nn.Sequential(
+			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 		)
-		self.maxpool5 = nn.Sequential(
-			nn.MaxPool2d(2,2) # 1*1*512
+		self.layer3_relu1 = nn.Sequential(
+			nn.ReLU(inplace=False),
 		)
-		self.fc1 = nn.Sequential(
-			nn.Dropout(p=0.5),
-			nn.Linear(512,512, bias=False), #fc_layer1
-			nn.ReLU(inplace=True),
+		self.layer3_basic3 = nn.Sequential(
+			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
 		)
-		self.fc2 = nn.Sequential(
-			nn.Dropout(p=0.5),
-			nn.Linear(512,512, bias=False), #fc_layer4
-			nn.ReLU(inplace=True),
+		self.layer3_basic4 = nn.Sequential(
+			nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
 		)
-		self.fc3 = nn.Sequential(
-			nn.Linear(512,10, bias=False) #fc_layer6
+		self.layer3_relu2 = nn.Sequential(
+			nn.ReLU(inplace=False),
 		)
+
+		self.layer4_basic1 = nn.Sequential(
+			nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=1, bias=False),
+			nn.BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
+		)
+		self.layer4_downsample = nn.Sequential(
+			nn.Conv2d(256, 512, kernel_size=1, stride=2, bias=False),
+			nn.BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+		)
+		self.layer4_basic2 = nn.Sequential(
+			nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
+		)
+		self.layer4_relu1 = nn.Sequential(
+			nn.ReLU(inplace=False),
+		)
+		self.layer4_basic3 = nn.Sequential(
+			nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
+		)
+		self.layer4_basic4 = nn.Sequential(
+			nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
+			nn.BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+			nn.ReLU(inplace=False),
+		)
+		self.layer4_relu2 = nn.Sequential(
+			nn.ReLU(inplace=False),
+		)
+		self.linear = nn.Sequential(
+			nn.Linear(512, 10, bias=False)
+		)
+		self._initialize_weights()
 
 	def forward(self,x):
 		if args.fixed:
-			x = roundmax(x)
 			x = quant(x)
-		out1 = self.conv1(x) # 1250*64*32*32
-		
-		if args.fixed:
-			out1 = quant(out1) 
-			out1 = roundmax(out1)
+			x = roundmax(x)
 
-		out2 = self.conv2(out1) # 1250*64*32*32
-		if args.fixed:
-			out2 = quant(out2)
-			out2 = roundmax(out2)
+		out = x.clone()
+		out = self.conv1(out)
 
-		out3 = self.maxpool1(out2)
-		out4 = self.conv3(out3) # 1250*128*16*16
-		if args.fixed:
-			out4 = quant(out4) 
-			out4 = roundmax(out4)
-		out5 = self.conv4(out4) # 1250*128*16*16
-		if args.fixed:
-			out5 = quant(out5) 
-			out5 = roundmax(out5)
+		residual = out
 
-		out6 = self.maxpool2(out5)
-		out7 = self.conv5(out6) # 1250*256*8*8
 		if args.fixed:
-			out7 = quant(out7) 
-			out7 = roundmax(out7)
-		out8 = self.conv6(out7) # 1250*256*8*8
-		if args.fixed:
-			out8 = quant(out8) 
-			out8 = roundmax(out8)
-		out9 = self.conv7(out8) # 1250*256*8*8
-		if args.fixed:
-			out9 = quant(out9) 
-			out9 = roundmax(out9)
+			out = quant(out)
+			out = roundmax(out)
 
-		out10 = self.maxpool3(out9)
-		out11 = self.conv8(out10) # 1250*512*4*4
-		if args.fixed:
-			out11 = quant(out11) 
-			out11 = roundmax(out11)
-		out12 = self.conv9(out11) # 1250*512*4*4
-		if args.fixed:
-			out12 = quant(out12) 
-			out12 = roundmax(out12)
-		out13 = self.conv10(out12) # 1250*512*4*
-		if args.fixed:
-			out13 = quant(out13) 
-			out13 = roundmax(out13)
+		out = self.layer1_basic1(out)
 
-		out14 = self.maxpool4(out13)
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
 
-		out15 = self.conv11(out14) # 1250*512*2*
-		if args.fixed:
-			out15 = quant(out15) 
-			out15 = roundmax(out15)
-		out16 = self.conv12(out15) # 1250*512*2*
-		if args.fixed:
-			out16 = quant(out16) 
-			out16 = roundmax(out16)
-		out17 = self.conv13(out16) # 1250*512*2*
-		if args.fixed:
-			out17 = quant(out17) 
-			out17 = roundmax(out17)
+		out = self.layer1_basic2(out)
 
-		out18 = self.maxpool5(out17)
-		
-		out19 = out18.view(out18.size(0),-1)
-		
-		#f = open('testout.csv','a+')
-		#print(out19,file=f)	
-		#out19.data = torch.mul(out19.data, mask_amp.cuda())
-		#print(out19,file=f)
-		#f.close()
-		out20 = self.fc1(out19) # 1250*512
 		if args.fixed:
-			out20 = quant(out20) 
-			out20 = roundmax(out20)
-		out21 = self.fc2(out20) # 1250*512
-		if args.fixed:
-			out21 = quant(out21) 
-			out21 = roundmax(out21)
-		out22 = self.fc3(out21) # 1250*10
-		if args.fixed:
-			out22 = quant(out22) 
-			out22 = roundmax(out22)
+			residual = quant(residual)
+			residual = roundmax(residual)
 
-		return out22
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out += residual
+		out = self.layer1_relu1(out)
+		residual = out
+
+		out = self.layer1_basic3(out)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out = self.layer1_basic4(out)
+
+		if args.fixed:
+			residual = quant(residual)
+			residual = roundmax(residual)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out += residual
+		out = self.layer1_relu2(out)
+		residual = self.layer2_downsample(out)
+
+		out = self.layer2_basic1(out)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out = self.layer2_basic2(out)
+
+		if args.fixed:
+			residual = quant(residual)
+			residual = roundmax(residual)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out += residual
+
+		out = self.layer2_relu1(out)
+		residual = out
+
+		out = self.layer2_basic3(out)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out = self.layer2_basic4(out)
+
+		if args.fixed:
+			residual = quant(residual)
+			residual = roundmax(residual)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out += residual
+		out = self.layer2_relu2(out)
+
+		residual = self.layer3_downsample(out)
+
+		out = self.layer3_basic1(out)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out = self.layer3_basic2(out)
+
+		if args.fixed:
+			residual = quant(residual)
+			residual = roundmax(residual)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out += residual
+		out = self.layer3_relu1(out)
+
+		residual = out
+
+		out = self.layer3_basic3(out)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out = self.layer3_basic4(out)
+
+		if args.fixed:
+			residual = quant(residual)
+			residual = roundmax(residual)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out += residual
+		out = self.layer3_relu2(out)
+
+		residual = self.layer4_downsample(out)
+
+		out = self.layer4_basic1(out)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out = self.layer4_basic2(out)
+
+		if args.fixed:
+			residual = quant(residual)
+			residual = roundmax(residual)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+		out += residual
+		out = self.layer4_relu1(out)
+		residual = out
+
+		out = self.layer4_basic3(out)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out = self.layer4_basic4(out)
+
+		if args.fixed:
+			residual = quant(residual)
+			residual = roundmax(residual)
+
+		if args.fixed:
+			out = quant(out)
+			out = roundmax(out)
+
+		out += residual
+		out = self.layer4_relu2(out)
+		out = F.avg_pool2d(out, 2)
+		out = out.view(out.size(0), -1)
+		#print(out.size())
+		out = self.linear(out)
+
+		return out
+
+	def _initialize_weights(self):
+		for m in self.modules():
+			if isinstance(m, nn.Conv2d):
+				#print(m)
+				nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+
+				#if m.bias is not None:
+					#nn.init.constant_(m.bias, 0)
+			elif isinstance(m, nn.BatchNorm2d):
+				nn.init.constant_(m.weight, 1)
+				#nn.init.constant_(m.bias, 0)
+			elif isinstance(m, nn.Linear):
+				#print(m)
+				nn.init.normal_(m.weight, 0, 0.01)
+				#nn.init.constant_(m.bias, 0)
 
 def roundmax(input):
 	maximum = 2**args.iwidth-1
@@ -406,7 +515,7 @@ def test():
 		test_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += predicted.eq(targets.data).cpu().sum().item()
 
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))

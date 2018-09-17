@@ -1,0 +1,5 @@
+python3 -W ignore main_full_all_20180916.py --lr 0.8 --bs 1024 --mode 1 --ne 40
+python3 -W ignore main_full_all_20180916.py --lr 0.08 --bs 1024 --mode 1 --ne 40 -r 
+python3 -W ignore main_full_all_20180916.py --lr 0.008 --bs 1024 --mode 1 --ne 40 -r
+python3 -W ignore main_full_all_20180916.py --lr 0.001 --bs 128 --mode 1 --ne 10 -r
+python3 -W ignore main_full_all_20180916.py --mode 0 --network ckpt_20180916_full_all.t0

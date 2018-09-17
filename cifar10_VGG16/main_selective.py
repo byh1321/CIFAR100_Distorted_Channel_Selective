@@ -307,6 +307,7 @@ def quant(input):
 
 
 # Load checkpoint.
+'''
 check1 = torch.load('./checkpoint/ckpt_20180913_full_B3.t0')
 check2 = torch.load('./checkpoint/ckpt_20180913_full_B2.t0')
 check3 = torch.load('./checkpoint/ckpt_20180913_full_B1.t0')
@@ -323,7 +324,7 @@ check4 = torch.load('./checkpoint/ckpt_20180913_half_clean.t0')
 check5 = torch.load('./checkpoint/ckpt_20180914_half_clean_G1.t0')
 check6 = torch.load('./checkpoint/ckpt_20180914_half_clean_G2.t0')
 check7 = torch.load('./checkpoint/ckpt_20180914_half_clean_G3.t0')
-'''
+#'''
 
 best_acc = 0 
 net1 = check1['net']
@@ -354,10 +355,10 @@ if use_cuda:
 blur09 = np.genfromtxt('cifar10_blur09_test.csv',delimiter=',')
 blur0675 = np.genfromtxt('cifar10_blur0675_test.csv',delimiter=',')
 blur045 = np.genfromtxt('cifar10_blur045_test.csv',delimiter=',')
-clean = np.genfromtxt('cifar10_clean._testcsv',delimiter=',')
-gau005= np.genfromtxt('cifar10_gau008_test.csv',delimiter=',')
-gau010= np.genfromtxt('cifar10_gau016_test.csv',delimiter=',')
-gau015= np.genfromtxt('cifar10_gau025_test.csv',delimiter=',')
+clean = np.genfromtxt('cifar10_clean_test.csv',delimiter=',')
+gau005= np.genfromtxt('cifar10_gau005_test.csv',delimiter=',')
+gau010= np.genfromtxt('cifar10_gau010_test.csv',delimiter=',')
+gau015= np.genfromtxt('cifar10_gau015_test.csv',delimiter=',')
 FS_array = np.append(blur09, blur0675)
 FS_array = np.append(FS_array, blur045)
 FS_array = np.append(FS_array, clean)
