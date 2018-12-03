@@ -31,7 +31,7 @@ use_cuda = torch.cuda.is_available()
 best_acc = 0  # best test accuracy
 
 traindir = os.path.join('/home/yhbyun/Imagenet2012/','train')
-valdir = os.path.join("/home/yhbyun/Imagenet2010/", 'val')
+valdir = os.path.join("/home/mhha/", 'val')
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 #train_loader = torch.utils.data.DataLoader(datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize])),batch_size=args.bs, shuffle=False,num_workers=8, pin_memory=True)
 train_loader = torch.utils.data.DataLoader(datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomResizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize])),batch_size=args.bs, shuffle=False,num_workers=8, pin_memory=True)
@@ -42,8 +42,8 @@ val_loader = torch.utils.data.DataLoader(
 			transforms.ToTensor(),
 			normalize,
 		])),
-		batch_size=1, shuffle=False,
-		num_workers=4, pin_memory=True)
+		batch_size=200, shuffle=False,
+		num_workers=8, pin_memory=True)
 
 class VGG16(nn.Module):
 	def __init__(self):
@@ -226,14 +226,14 @@ class VGG16(nn.Module):
 if args.mode == 0:
 	print('==> Resuming from checkpoint..')
 	assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-	checkpoint = torch.load('./checkpoint/ckpt_20180726.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20180813.t0')
 	net = checkpoint['net']
 
 elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20180726.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20180813.t0')
 		best_acc = checkpoint['acc'] 
 		net = checkpoint['net']
 	else:
@@ -241,7 +241,7 @@ elif args.mode == 1:
 		net = VGG16()
 
 elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20180726.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20180813.t0')
 	net = checkpoint['net']
 	if args.resume:
 		print('==> Resuming from checkpoint..')
@@ -507,16 +507,19 @@ def test():
 
 	# Save checkpoint.
 	acc = 100.*correct/total
-	if acc > best_acc:
-		print('Saving..')
-		state = {
-			'net': net2.module if use_cuda else net,
-			'acc': acc,
-		}
-		if not os.path.isdir('checkpoint'):
-			os.mkdir('checkpoint')
-		torch.save(state, './checkpoint/ckpt_20180726.t0')
-		best_acc = acc
+	if args.mode == 0:
+		pass
+	else:
+		if acc > best_acc:
+			print('Saving..')
+			state = {
+				'net': net.module if use_cuda else net,
+				'acc': acc,
+			}
+			if not os.path.isdir('checkpoint'):
+				os.mkdir('checkpoint')
+			#torch.save(state, './checkpoint/ckpt_20180726.t0')
+			best_acc = acc
 
 def retrain(epoch):
 	batch_time = AverageMeter()
@@ -550,9 +553,9 @@ def retrain(epoch):
 		optimizer.zero_grad()
 		loss.backward()
 
-		quantize()
+		#quantize()
 
-		pruneNetwork(mask):
+		#pruneNetwork(mask)
 
 		optimizer.step()
 
