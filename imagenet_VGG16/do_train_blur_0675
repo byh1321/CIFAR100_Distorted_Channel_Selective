@@ -1,4 +1,4 @@
-python -W ignore main_full_B2.py --mode 1 --lr 0.1 --bs 128 --ne 15 --blur 0.675 -r
+#python -W ignore main_full_B2.py --mode 1 --lr 0.1 --bs 128 --ne 15 --blur 0.675 -r
 python -W ignore main_full_B2.py --mode 1 --lr 0.01 --bs 128 --ne 15 --blur 0.675 -r
 python -W ignore main_full_B2.py --mode 1 --lr 0.001 --bs 128 --ne 15 --blur 0.675 -r
 python -W ignore main_full_B2.py --mode 0 -r --blur 0.675

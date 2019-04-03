@@ -48,14 +48,14 @@ use_cuda = torch.cuda.is_available()
 top1_acc = 0  # best test accuracy
 top5_acc = 0  # best test accuracy
 
-traindir = os.path.join('/home/yhbyun/Imagenet2012/','train')
+traindir = os.path.join('/usr/share/ImageNet/train')
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_dataset = datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomSizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize,]))
 
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, shuffle=True,num_workers=8, pin_memory=True)
 
-valdir = os.path.join("/home/mhha/", 'val')
+valdir = os.path.join('/usr/share/ImageNet/val')
 val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=128, shuffle=False,num_workers=8, pin_memory=True)
 
 global glob_gau

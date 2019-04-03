@@ -1,0 +1,4 @@
+python -W ignore main_half_clean_G3.py --mode 1 --lr 0.1 --bs 256 --ne 15 -r --gau 0.25
+python -W ignore main_half_clean_G3.py --mode 1 --lr 0.01 --bs 256 --ne 15 -r --gau 0.25
+python -W ignore main_half_clean_G3.py --mode 1 --lr 0.001 --bs 256 --ne 15 -r --gau 0.25
+python -W ignore main_half_clean_G3.py --mode 0 -r

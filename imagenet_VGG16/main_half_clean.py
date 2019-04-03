@@ -40,7 +40,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20181006_blur_0675.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190103_half_clean.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -165,8 +165,10 @@ class VGG16(nn.Module):
 
 		elif (glob_blur == 0)&(glob_gau == 1):
 			#gaussian noise add
-			gau_kernel = torch.randn(x.size()) * args.gau
+			
+			gau_kernel = torch.randn(x.size())*args.gau
 			x = Variable(gau_kernel.cuda()) + x
+			
 
 		elif (glob_gau == 0)&(glob_blur == 1):
 			#blur noise add
@@ -194,7 +196,7 @@ class VGG16(nn.Module):
 			blur_kernel = blur_kernel.view(3,3,kernel_size,kernel_size)
 			blur_padding = int((blur_kernel_partial.size()[0]-1)/2)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
-			gau_kernel = torch.randn(x.size()) * args.gau
+			gau_kernel = torch.randn(x.size())*args.gau
 			x = Variable(gau_kernel.cuda()) + x
 		else:
 			print("Something is wrong in noise adding part")
@@ -332,7 +334,7 @@ elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20190103_half_clean.t0')
 		net = checkpoint['net']
 		#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 		#net2 = ckpt['net']
@@ -345,7 +347,7 @@ elif args.mode == 1:
 		top5_acc = 0
 
 elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190103_half_clean.t0')
 	net = checkpoint['net']
 	#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 	#net2 = ckpt['net']
@@ -428,9 +430,9 @@ def train(epoch):
 	net.train()
 
 	end = time.time()
-	#mask_channel = torch.load('mask_null.dat')
 	#mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	#mask_channel = set_mask(mask_channel, 4, 1)
+	mask_channel = torch.load('mask_null.dat')
+	mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		glob_blur = 0
 
@@ -454,7 +456,7 @@ def train(epoch):
 		optimizer.zero_grad()
 		loss.backward()
 
-		#net_mask_mul(mask_channel)
+		net_mask_mul(mask_channel)
 		#add_network() 
 
 		optimizer.step()
@@ -471,7 +473,7 @@ def train(epoch):
 				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
 				   data_time=data_time, loss=losses, top1=top1, top5=top5))
 
-	for batch_idx, (inputs, targets) in enumerate(train_loader):
+	'''for batch_idx, (inputs, targets) in enumerate(train_loader):
 		glob_blur = 1
 
 		# measure data loading time
@@ -510,7 +512,7 @@ def train(epoch):
 				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
 				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
-				   data_time=data_time, loss=losses, top1=top1, top5=top5))
+				   data_time=data_time, loss=losses, top1=top1, top5=top5))'''
 
 def test():
 	global top1_acc
@@ -526,8 +528,11 @@ def test():
 	
 	end = time.time()
 	count = 0
+	mask_channel = torch.load('mask_null.dat')
+	mask_channel = set_mask(mask_channel, 4, 1)
+	net_mask_mul(mask_channel)
 	for batch_idx, (inputs, targets) in enumerate(val_loader):
-		glob_blur = 1
+		glob_blur = 0
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
 		inputs, targets = Variable(inputs), Variable(targets)
@@ -569,7 +574,7 @@ def test():
 			}
 			if not os.path.isdir('checkpoint'):
 				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20181006_blur_0675.t0')
+			torch.save(state, './checkpoint/ckpt_20190103_half_clean.t0')
 			top1_acc = top1.avg
 
 def retrain(epoch):
@@ -611,7 +616,7 @@ def retrain(epoch):
 		optimizer.zero_grad()
 		loss.backward()
 
-		quantize()
+		#quantize()
 
 		net_mask_mul(mask_channel)
 		#add_network()
@@ -662,8 +667,8 @@ def findThreshold(params):
 		tmp = (torch.abs(params.data)>thres).type(torch.FloatTensor)
 		#result = torch.sum(tmp)/params.size()[0]*64/28
 		#result = torch.sum(tmp)/params.size()[0]*64/11
-		result = torch.sum(tmp)/params.size()[0]*64/9
-		#result = torch.sum(tmp)/params.size()[0]*4 #for half clean
+		#result = torch.sum(tmp)/params.size()[0]*64/9
+		result = torch.sum(tmp)/params.size()[0]*4 #for half clean
 		#result = torch.sum(tmp)/params.size()[0] # for full size
 		if ((100-args.pr)/100)>result:
 			print("threshold : {}".format(thres))
@@ -1058,7 +1063,7 @@ elif mode == 1: # mode=1 is training & inference @ each epoch
 
 		test()
 elif mode == 2: # retrain for quantization and pruning
-	for epoch in range(0,10):
+	for epoch in range(0,50):
 		print("epoch : {}".format(epoch))
 		print(time.ctime())
 		retrain(epoch, mask_prune) 
