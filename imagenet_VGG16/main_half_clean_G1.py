@@ -40,7 +40,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20190103_half_clean.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190103_half_clean_G1.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -530,11 +530,14 @@ def test():
 	
 	end = time.time()
 	count = 0
-	mask_channel = torch.load('mask_null.dat')
-	#mask_channel = set_mask(mask_channel, 4, 1)
-	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	net_mask_mul(mask_channel)
-	add_network()
+	if args.mode == 0:
+		pass
+	else:
+		mask_channel = torch.load('mask_null.dat')
+		#mask_channel = set_mask(mask_channel, 4, 1)
+		mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+		net_mask_mul(mask_channel)
+		add_network()
 	for batch_idx, (inputs, targets) in enumerate(val_loader):
 		glob_gau = 1
 		if use_cuda:

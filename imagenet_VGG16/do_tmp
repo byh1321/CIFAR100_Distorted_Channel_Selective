@@ -1,3 +1,10 @@
-source do_train_gau_008
-source do_train_gau_016
-source do_train_gau_025
+python -W ignore main.py --mode 0 -r
+python -W ignore main_full_B1.py --mode 0 -r --blur 0.45
+python -W ignore main_full_B2.py --mode 0 -r --blur 0.9
+python -W ignore main_full_B3.py --mode 0 -r --blur 1.35
+python -W ignore main_full_G1.py --mode 0 -r --gau 0.08
+python -W ignore main_full_G2.py --mode 0 -r --gau 0.16
+python -W ignore main_full_G3.py --mode 0 -r --gau 0.25
+python -W ignore main_half_clean_G1.py --mode 0 -r --gau 0.08
+python -W ignore main_half_clean_G2.py --mode 0 -r --gau 0.16
+python -W ignore main_half_clean_G3.py --mode 0 -r --gau 0.25

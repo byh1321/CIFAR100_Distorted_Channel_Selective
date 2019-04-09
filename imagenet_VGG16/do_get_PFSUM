@@ -1,0 +1,18 @@
+#clean image
+#python main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_clean.txt
+
+#gau image
+echo "gau 0.08"
+python main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_008.txt --gau 0.08
+echo "gau 0.16"
+python main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_016.txt --gau 0.16
+echo "gau 0.25"
+python main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_025.txt --gau 0.25
+
+#blur image
+echo "blur 0.45"
+python main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_blur_045.txt --blur 0.45
+echo "blur 0.675"
+python main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_blur_0675.txt --blur 0.675
+echo "blur 0.9"
+python main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_blur_09.txt --blur 0.9
