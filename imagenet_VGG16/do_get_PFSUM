@@ -1,0 +1,25 @@
+#clean image
+python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_clean.txt --samplesize 50000
+
+#gau image
+#echo "gau 0.08"
+#python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_008.txt --gau 0.08
+#echo "gau 0.16"
+#python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_016.txt --gau 0.16
+#echo "gau 0.25"
+#python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_025.txt --gau 0.25
+#echo "gau 0.5"
+#python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_05.txt --gau 0.5
+#echo "gau 1"
+#python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_1.txt --gau 1
+
+#blur image
+echo "blur 3"
+python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_blur_3.txt --blur 3 --samplesize 50000
+echo "blur 1.5"
+python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_blur_15.txt --blur 1.5 --samplesize 50000
+
+echo "gau 0.3"
+python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_03.txt --gau 0.3 --samplesize 50000
+echo "gau 0.6"
+python -W ignore main_PFSUM.py --mode 1 --ne 1 --outputfile PFSUM_gau_06.txt --gau 0.6 --samplesize 50000

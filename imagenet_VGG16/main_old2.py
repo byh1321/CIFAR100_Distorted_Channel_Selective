@@ -28,11 +28,12 @@ parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--se', default=0, type=int, help='start epoch')
 parser.add_argument('--ne', default=0, type=int, help='number of epoch')
-parser.add_argument('--pr', default=0, type=int, help='pruning') # mode=1 is pruning, mode=0 is no pruning
-parser.add_argument('--ldpr', default=0, type=int, help='pruning') # mode=1 load pruned trained data. mode=0 is trained, but not pruned data
+parser.add_argument('--pr', default=0, type=int, help='pruning')
+parser.add_argument('--ldpr', default=0, type=int, help='pruning')
 parser.add_argument('--bs', default=128, type=int, help='batch size')
-parser.add_argument('--mode', default=1, type=int, help='train or inference') #mode=1 is train, mode=0 is inference
-parser.add_argument('--print', default=0, type=int, help='print input and dirty img to png') #mode=1 is train, mode=0 is inference
+parser.add_argument('--mode', default=1, type=int, help='train or inference')
+parser.add_argument('--print', default=0, type=int, help='print input and dirty img to png')
+parser.add_argument('--samplesize', default=0, type=int, help='set sample size')
 parser.add_argument('--prindex', default=0.0005, type=float)
 parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter precision for layer weight')
 parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
@@ -40,7 +41,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20181006_blur_0675.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190427.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -48,20 +49,16 @@ use_cuda = torch.cuda.is_available()
 top1_acc = 0  # best test accuracy
 top5_acc = 0  # best test accuracy
 
+
 traindir = os.path.join('/usr/share/ImageNet/train')
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_dataset = datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomSizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize,]))
 
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, shuffle=True,num_workers=8, pin_memory=True)
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, shuffle=True, num_workers=8, pin_memory=True)
 
 valdir = os.path.join('/usr/share/ImageNet/val')
 val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=128, shuffle=False,num_workers=8, pin_memory=True)
-
-global glob_gau
-global glob_blur
-glob_gau = 0
-glob_blur = 0
 
 class VGG16(nn.Module):
 	def __init__(self, init_weights=True):
@@ -139,12 +136,12 @@ class VGG16(nn.Module):
 		self.fc1 = nn.Sequential(
 			nn.Linear(25088, 4096, bias=False),
 			nn.ReLU(True),
-			nn.Dropout(),
+			nn.Dropout(p=0.5),
 		)
 		self.fc2 = nn.Sequential(
 			nn.Linear(4096, 4096, bias=False),
 			nn.ReLU(True),
-			nn.Dropout(),
+			nn.Dropout(p=0.5),
 		)
 		self.fc3 = nn.Sequential(
 			nn.Linear(4096, 1000, bias=False),
@@ -317,15 +314,14 @@ class VGG16(nn.Module):
 if args.mode == 0:
 	checkpoint = torch.load('./checkpoint/'+args.network)
 	net = checkpoint['net']
+	exit()
 
 elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20190427.t0')
 		net = checkpoint['net']
-		#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
-		#net2 = ckpt['net']
 		top1_acc = checkpoint['top1_acc'] 
 		top5_acc = checkpoint['top5_acc'] 
 	else:
@@ -335,10 +331,8 @@ elif args.mode == 1:
 		top5_acc = 0
 
 elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190427.t0')
 	net = checkpoint['net']
-	#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
-	#net2 = ckpt['net']
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		top1_acc = checkpoint['top1_acc'] 
@@ -355,7 +349,6 @@ elif args.mode == 3:
 	exit()
 
 if use_cuda:
-	#print(torch.cuda.device_count())
 	net.cuda()
 	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 	cudnn.benchmark = True
@@ -406,8 +399,6 @@ def accuracy(output, target, topk=(1,)):
 def train(epoch):
 	global top1_acc
 	global top5_acc
-	global glob_gau
-	global glob_blur
 	batch_time = AverageMeter()
 	data_time = AverageMeter()
 	losses = AverageMeter()
@@ -418,11 +409,7 @@ def train(epoch):
 	net.train()
 
 	end = time.time()
-	#mask_channel = torch.load('mask_null.dat')
-	#mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	#mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 0
 
 		# measure data loading time
 		data_time.update(time.time() - end)
@@ -444,52 +431,8 @@ def train(epoch):
 		optimizer.zero_grad()
 		loss.backward()
 
-		#net_mask_mul(mask_channel)
-		#add_network() 
-
 		optimizer.step()
 
-		if batch_idx % 200 == 0:
-			batch_time.update(time.time() - end)
-			end = time.time()
-			print('Epoch: [{0}][{1}/{2}]\t'
-				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-				  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
-				   data_time=data_time, loss=losses, top1=top1, top5=top5))
-
-	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 1
-
-		# measure data loading time
-		data_time.update(time.time() - end)
-
-		if use_cuda is not None:
-			inputs, targets = inputs.cuda(), targets.cuda()
-
-		# compute output
-		outputs = net(inputs)
-		loss = criterion(outputs, targets)
-
-		# measure accuracy and record loss
-		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
-		losses.update(loss.item(), inputs.size(0))
-		top1.update(prec1[0], inputs.size(0))
-		top5.update(prec5[0], inputs.size(0))
-
-		# compute gradient and do SGD step
-		optimizer.zero_grad()
-		loss.backward()
-
-		#net_mask_mul(mask_channel)
-		#add_network() 
-
-		optimizer.step()
-
-		# measure elapsed time
 		if batch_idx % 200 == 0:
 			batch_time.update(time.time() - end)
 			end = time.time()
@@ -505,8 +448,6 @@ def train(epoch):
 def test():
 	global top1_acc
 	global top5_acc
-	global glob_gau
-	global glob_blur
 	batch_time = AverageMeter()
 	data_time = AverageMeter()
 	losses = AverageMeter()
@@ -544,13 +485,13 @@ def test():
 				   batch_idx, len(val_loader), batch_time=batch_time, loss=losses,
 				   top1=top1, top5=top5))
 
+	print('Acc : {}'.format(top1.avg))
 	# Save checkpoint.
 	if top1.avg > top1_acc:
 		if mode == 0:
-			print('Acc : {}'.format(top1.avg))
-			return
+			pass
 		else:
-			print('Saving.. Acc : {}'.format(top1.avg))
+			print('Saving..')
 			state = {
 				'net': net.module if use_cuda else net,
 				'top1_acc': top1.avg,
@@ -558,12 +499,10 @@ def test():
 			}
 			if not os.path.isdir('checkpoint'):
 				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20181006_blur_0675.t0')
+			torch.save(state, './checkpoint/ckpt_20190427.t0')
 			top1_acc = top1.avg
 
 def retrain(epoch):
-	global glob_gau
-	global glob_blur
 	batch_time = AverageMeter()
 	data_time = AverageMeter()
 	losses = AverageMeter()
@@ -651,9 +590,9 @@ def findThreshold(params):
 		tmp = (torch.abs(params.data)>thres).type(torch.FloatTensor)
 		#result = torch.sum(tmp)/params.size()[0]*64/28
 		#result = torch.sum(tmp)/params.size()[0]*64/11
-		result = torch.sum(tmp)/params.size()[0]*64/9
+		#result = torch.sum(tmp)/params.size()[0]*64/9
 		#result = torch.sum(tmp)/params.size()[0]*4 #for half clean
-		#result = torch.sum(tmp)/params.size()[0] # for full size
+		result = torch.sum(tmp)/params.size()[0] # for full size
 		if ((100-args.pr)/100)>result:
 			print("threshold : {}".format(thres))
 			return thres
@@ -1047,7 +986,7 @@ elif mode == 1: # mode=1 is training & inference @ each epoch
 
 		test()
 elif mode == 2: # retrain for quantization and pruning
-	for epoch in range(0,10):
+	for epoch in range(0,50):
 		print("epoch : {}".format(epoch))
 		print(time.ctime())
 		retrain(epoch, mask_prune) 

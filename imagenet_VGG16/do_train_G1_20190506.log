@@ -1,0 +1,24 @@
+#cat do_train_G1 | grep python
+#python -W ignore main_transfer.py --mode 1 --lr 0.1 --bs 256 --ne 15 --gau 0.3 --network ckpt_20190501_G1.t0
+#python -W ignore main_transfer.py --mode 1 --lr 0.01 --bs 256 --ne 15 --gau 0.3 -r --network ckpt_20190501_G1.t0
+#python -W ignore main_transfer.py --mode 1 --lr 0.001 --bs 256 --ne 15 --gau 0.3 -r --network ckpt_20190501_G1.t0
+#python -W ignore main_transfer.py --mode 0 -r --gau 0.3 --network ckpt_20190501_G1.t0
+python -W ignore main_transfer.py --mode 0 -r --network ckpt_20190501_G1.t0
+Test: [0/391]	Time 27.131 (27.131)	Loss 0.6528 (0.6528)	Prec@1 86.719 (86.719)	Prec@5 93.750 (93.750)
+Test: [50/391]	Time 18.990 (23.060)	Loss 0.4559 (0.9721)	Prec@1 86.719 (75.368)	Prec@5 96.094 (92.126)
+Test: [100/391]	Time 18.381 (21.501)	Loss 0.7203 (0.9693)	Prec@1 80.469 (74.304)	Prec@5 96.875 (92.729)
+Test: [150/391]	Time 19.136 (20.909)	Loss 0.8027 (0.9675)	Prec@1 69.531 (74.643)	Prec@5 95.312 (92.912)
+Test: [200/391]	Time 18.168 (20.361)	Loss 1.3615 (1.1104)	Prec@1 58.594 (71.618)	Prec@5 89.844 (91.025)
+Test: [250/391]	Time 18.195 (20.000)	Loss 0.9162 (1.1840)	Prec@1 78.125 (70.232)	Prec@5 89.844 (89.894)
+Test: [300/391]	Time 18.215 (19.745)	Loss 1.1665 (1.2509)	Prec@1 77.344 (69.002)	Prec@5 86.719 (88.943)
+Test: [350/391]	Time 18.483 (19.587)	Loss 1.3173 (1.3018)	Prec@1 66.406 (68.031)	Prec@5 91.406 (88.163)
+Acc : 67.9959945678711
+Test: [0/391]	Time 28.069 (28.069)	Loss 3.0966 (3.0966)	Prec@1 48.438 (48.438)	Prec@5 63.281 (63.281)
+Test: [50/391]	Time 6.023 (17.046)	Loss 1.5655 (2.2411)	Prec@1 64.062 (52.911)	Prec@5 82.812 (75.230)
+Test: [100/391]	Time 5.966 (13.353)	Loss 2.6971 (2.2587)	Prec@1 42.188 (51.060)	Prec@5 72.656 (75.495)
+Test: [150/391]	Time 6.045 (11.526)	Loss 2.5838 (2.2800)	Prec@1 44.531 (50.652)	Prec@5 66.406 (75.310)
+Test: [200/391]	Time 5.999 (10.421)	Loss 2.1856 (2.4131)	Prec@1 45.312 (48.577)	Prec@5 78.906 (73.189)
+Test: [250/391]	Time 5.996 (9.683)	Loss 2.4481 (2.4460)	Prec@1 47.656 (48.129)	Prec@5 71.094 (72.345)
+Test: [300/391]	Time 5.938 (9.148)	Loss 2.0636 (2.5038)	Prec@1 58.594 (47.057)	Prec@5 75.781 (71.361)
+Test: [350/391]	Time 5.976 (8.751)	Loss 2.3996 (2.5356)	Prec@1 46.094 (46.368)	Prec@5 71.875 (70.709)
+Acc : 46.45399856567383

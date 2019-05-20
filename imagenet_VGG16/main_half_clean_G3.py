@@ -40,7 +40,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20190103_half_clean.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190103_half_clean_G3.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 

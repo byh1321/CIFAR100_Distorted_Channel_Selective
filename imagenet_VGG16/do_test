@@ -1,0 +1,64 @@
+#python -W ignore main.py --mode 0 -r --blur 3
+#echo "blur_3"
+#python -W ignore main.py --mode 0 -r --blur 1.5
+#echo "blur_1.5"
+#python -W ignore main.py --mode 0 -r
+#echo "clean"
+#python -W ignore main.py --mode 0 -r --gau 0.3 
+#echo "gau_0.3"
+#python -W ignore main.py --mode 0 -r --gau 0.6 
+#echo "gau_0.6"
+
+python -W ignore main_full_B3.py --mode 0 -r --blur 0.9
+python -W ignore main_full_B3.py --mode 0 -r --blur 0.675
+python -W ignore main_full_B3.py --mode 0 -r --blur 0.45
+python -W ignore main_full_B3.py --mode 0 -r
+python -W ignore main_full_B3.py --mode 0 -r --gau 0.08 
+python -W ignore main_full_B3.py --mode 0 -r --gau 0.16
+python -W ignore main_full_B3.py --mode 0 -r --gau 0.25
+echo "Acc B3"
+
+python -W ignore main_full_B2.py --mode 0 -r --blur 0.9
+python -W ignore main_full_B2.py --mode 0 -r --blur 0.675
+python -W ignore main_full_B2.py --mode 0 -r --blur 0.45
+python -W ignore main_full_B2.py --mode 0 -r
+python -W ignore main_full_B2.py --mode 0 -r --gau 0.08 
+python -W ignore main_full_B2.py --mode 0 -r --gau 0.16
+python -W ignore main_full_B2.py --mode 0 -r --gau 0.25
+echo "Acc B2"
+
+python -W ignore main_full_B1.py --mode 0 -r --blur 0.9
+python -W ignore main_full_B1.py --mode 0 -r --blur 0.675
+python -W ignore main_full_B1.py --mode 0 -r --blur 0.45
+python -W ignore main_full_B1.py --mode 0 -r
+python -W ignore main_full_B1.py --mode 0 -r --gau 0.08 
+python -W ignore main_full_B1.py --mode 0 -r --gau 0.16
+python -W ignore main_full_B1.py --mode 0 -r --gau 0.25
+echo "Acc B1"
+
+python -W ignore main_full_G1.py --mode 0 -r --blur 0.9
+python -W ignore main_full_G1.py --mode 0 -r --blur 0.675
+python -W ignore main_full_G1.py --mode 0 -r --blur 0.45
+python -W ignore main_full_G1.py --mode 0 -r
+python -W ignore main_full_G1.py --mode 0 -r --gau 0.08 
+python -W ignore main_full_G1.py --mode 0 -r --gau 0.16
+python -W ignore main_full_G1.py --mode 0 -r --gau 0.25
+echo "Acc G1"
+
+python -W ignore main_full_G2.py --mode 0 -r --blur 0.9
+python -W ignore main_full_G2.py --mode 0 -r --blur 0.675
+python -W ignore main_full_G2.py --mode 0 -r --blur 0.45
+python -W ignore main_full_G2.py --mode 0 -r
+python -W ignore main_full_G2.py --mode 0 -r --gau 0.08 
+python -W ignore main_full_G2.py --mode 0 -r --gau 0.16
+python -W ignore main_full_G2.py --mode 0 -r --gau 0.25
+echo "Acc G2"
+
+python -W ignore main_full_G3.py --mode 0 -r --blur 0.9
+python -W ignore main_full_G3.py --mode 0 -r --blur 0.675
+python -W ignore main_full_G3.py --mode 0 -r --blur 0.45
+python -W ignore main_full_G3.py --mode 0 -r
+python -W ignore main_full_G3.py --mode 0 -r --gau 0.08 
+python -W ignore main_full_G3.py --mode 0 -r --gau 0.16
+python -W ignore main_full_G3.py --mode 0 -r --gau 0.25
+echo "Acc G3"

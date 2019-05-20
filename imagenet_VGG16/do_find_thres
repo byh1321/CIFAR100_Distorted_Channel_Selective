@@ -1,0 +1,8 @@
+python FindPFSUMThres.py --min 20000 --max 30000 --interval 10 --input1 PFSUM_blur_3.txt --input2 PFSUM_blur_15.txt
+echo "blur3 and blur15"
+python FindPFSUMThres.py --min 50000 --max 100000 --interval 100 --input1 PFSUM_blur_15.txt --input2 PFSUM_clean.txt
+echo "blur15 and clean"
+python FindPFSUMThres.py --min 4000000 --max 5000000 --interval 1000 --input1 PFSUM_clean.txt --input2 PFSUM_gau_03.txt
+echo "clean and gau03"
+python FindPFSUMThres.py --min 6000000 --max 8000000 --interval 1000 --input1 PFSUM_gau_03.txt --input2 PFSUM_gau_06.txt
+echo "gau_03 and gau06"
