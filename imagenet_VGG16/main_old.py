@@ -11,10 +11,9 @@ import torch.nn.functional as F
 import torchvision.models as models
 import argparse
 import torch.optim as optim
-import pytorch_fft.fft as fft
-import utils
 
 from utils import progress_bar
+import utils
 
 import os
 
@@ -28,25 +27,23 @@ parser.add_argument('--mode', default=1, type=int, help='train or inference') #m
 parser.add_argument('--fixed', default=0, type=int, help='quantization') #mode=1 is train, mode=0 is inference
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--samplesize', default=0, type=int, help='set sample size')
-parser.add_argument('--outputfile', default='garbage.txt', help='output file name', metavar="FILE")
 
 args = parser.parse_args()
 
 use_cuda = torch.cuda.is_available()
 best_acc = 0  # best test accuracy
+top1_acc = 0  # best test accuracy
+top5_acc = 0  # best test accuracy
 
 traindir = os.path.join('/usr/share/ImageNet/train')
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_dataset = datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomSizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize,]))
 
-train_sub_dataset, dump = torch.utils.data.random_split(train_dataset,[args.samplesize,(len(train_dataset)-args.samplesize)])
-train_loader = torch.utils.data.DataLoader(train_sub_dataset, batch_size=1, shuffle=True, num_workers=8, pin_memory=True)
-#train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=1, shuffle=True,num_workers=8, pin_memory=True)
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, shuffle=True,num_workers=8, pin_memory=True)
 
 valdir = os.path.join('/usr/share/ImageNet/val')
-val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=128, shuffle=False,num_workers=1, pin_memory=True)
+val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=64, shuffle=False,num_workers=8, pin_memory=True)
 
 class VGG16(nn.Module):
 	def __init__(self):
@@ -166,40 +163,7 @@ class VGG16(nn.Module):
 			print("Something is wrong in noise adding part")
 			exit()
 
-		tmp = Variable(torch.zeros(1,3,224,224).cuda())
-		f = fft.Fft2d()
-		fft_rout, fft_iout = f(x, tmp)
-		mag = torch.sqrt(torch.mul(fft_rout,fft_rout) + torch.mul(fft_iout,fft_iout))
-		tmp = torch.zeros(1,1,224,224).cuda()
-		tmp = torch.add(torch.add(mag[:,0,:,:],mag[:,1,:,:]),mag[:,2,:,:])
-		tmp = torch.abs(tmp)
-		PFSUM = 0
-		for i in range(0,224):
-			for j in range(0,224):
-				if (i+j) < 111:
-					print_value = 0
-				elif (i-j) > 112:
-					print_value = 0
-				elif (j-i) > 112:
-					print_value = 0
-				elif (i+j) > 335:
-					print_value = 0
-				else:
-					PFSUM = PFSUM + tmp[0,i,j]
-		f = open(args.outputfile,'a+')
-		print(PFSUM.item(),file=f)
-		f.close()
 
-		'''
-		f = open(args.outputfile,'a+')
-		for i in range(0,224):
-			for j in range(0,224):
-				print(tmp[0,i,j].item()/3,file = f)
-		f.close()
-		exit()
-		'''
-
-		"""
 		if args.fixed:
 			x = quant(x)
 			x = roundmax(x)
@@ -300,8 +264,7 @@ class VGG16(nn.Module):
 		if args.fixed:
 			out = quant(out)
 			out = roundmax(out)
-		"""
-		out = torch.zeros(1000)
+
 		return out
 
 if args.mode == 0:
@@ -333,7 +296,7 @@ elif args.mode == 2:
 if use_cuda:
 	#print(torch.cuda.device_count())
 	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(0,1))
+	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 	cudnn.benchmark = True
 
 criterion = nn.CrossEntropyLoss()
@@ -534,7 +497,6 @@ def train(epoch):
 
 		# compute output
 		outputs = net(inputs)
-		'''
 		loss = criterion(outputs, targets)
 
 		# measure accuracy and record loss
@@ -563,10 +525,7 @@ def train(epoch):
 				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 				   batch_time=batch_time,
 				   data_time=data_time, loss=losses, top1=top1, top5=top5))
-		'''
-
-		progress_bar(batch_idx, len(train_loader))
-
+"""
 def test():
 	global best_acc
 	net.eval()
@@ -605,6 +564,63 @@ def test():
 				os.mkdir('checkpoint')
 			#torch.save(state, './checkpoint/ckpt_20180726.t0')
 			best_acc = acc
+"""
+def test():
+	global top1_acc
+	global top5_acc
+	batch_time = AverageMeter()
+	data_time = AverageMeter()
+	losses = AverageMeter()
+	top1 = AverageMeter()
+	top5 = AverageMeter()
+	net.eval()
+	
+	end = time.time()
+	count = 0
+	for batch_idx, (inputs, targets) in enumerate(val_loader):
+		if use_cuda:
+			inputs, targets = inputs.cuda(), targets.cuda()
+		inputs, targets = Variable(inputs), Variable(targets)
+
+		outputs = net(inputs)
+
+		loss = criterion(outputs, targets)
+
+		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
+		
+		losses.update(loss.data[0], inputs.size(0))
+		top1.update(prec1[0], inputs.size(0))
+		top5.update(prec5[0], inputs.size(0))
+
+		# measure elapsed time
+
+		if batch_idx % 50 == 0:
+			batch_time.update(time.time() - end)
+			end = time.time()
+			print('Test: [{0}/{1}]\t'
+				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+				   batch_idx, len(val_loader), batch_time=batch_time, loss=losses,
+				   top1=top1, top5=top5))
+
+	print('Acc : {}'.format(top1.avg))
+	# Save checkpoint.
+	if top1.avg > top1_acc:
+		if mode == 0:
+			pass
+		else:
+			print('Saving.. Acc : {}'.format(top1.avg))
+			state = {
+				'net': net.module if use_cuda else net,
+				'top1_acc': top1.avg,
+				'top5_acc': top5.avg,
+			}
+			if not os.path.isdir('checkpoint'):
+				os.mkdir('checkpoint')
+			#torch.save(state, './checkpoint/ckpt_20181006_gau_008.t0')
+			top1_acc = top1.avg
 
 def retrain(epoch):
 	batch_time = AverageMeter()
@@ -680,6 +696,7 @@ if mode == 0: # only inference
 elif mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
 		train(epoch)
-		exit()
+
+		test()
 else:
 	pass

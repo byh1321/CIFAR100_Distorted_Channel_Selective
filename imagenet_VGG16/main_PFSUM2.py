@@ -176,19 +176,25 @@ class VGG16(nn.Module):
 		PFSUM = 0
 		for i in range(0,224):
 			for j in range(0,224):
-				if (i+j) < 111:
+				if (i+j) < 167:
 					print_value = 0
-				elif (i-j) > 112:
+				elif (i-j) > 56:
 					print_value = 0
-				elif (j-i) > 112:
+				elif (j-i) > 56:
 					print_value = 0
-				elif (i+j) > 335:
+				elif (i+j) > 279:
 					print_value = 0
 				else:
 					PFSUM = PFSUM + tmp[0,i,j]
 		f = open(args.outputfile,'a+')
 		print(PFSUM.item(),file=f)
 		f.close()
+		#f = open(args.outputfile,'a+')
+		#try:
+		#	print(PFSUM.item(),file=f)
+		#except:
+		#	print(PFSUM,file=f)
+		#f.close()
 
 		'''
 		f = open(args.outputfile,'a+')
@@ -680,6 +686,7 @@ if mode == 0: # only inference
 elif mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
 		train(epoch)
+
 		exit()
 else:
 	pass

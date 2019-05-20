@@ -1,24 +1,32 @@
+'''
+some parts of code are extracted from "https://github.com/kuangliu/pytorch-cifar"
+I modified some parts for our experiment
+'''
+############################################################################################
+# example - for thres check : python3 -W ignore prune_quant_auto_half_clean.py --mode 0 --pr 80 --network ckpt_~ --outputfile ckpt_~ --pprec 7 -r
+# example - for retrain : python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 1024 --lr 0.8 --network ckpt_~ --outputfile ckpt_~ --pprec 7
+# python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 1024 --lr 0.08 -r 
+# python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 1024 --lr 0.008 -r
+# python3 -W ignore prune_quant_auto_half_clean.py --mode 2 --pr 80 --bs 128 --lr 0.001 -r
+############################################################################################
+
 from __future__ import print_function
 
-import time
+import numpy as np
+
 import torch
 import torch.nn as nn
-import torchvision.datasets as datasets
-import torch.backends.cudnn as cudnn
-import torchvision.transforms as transforms
-from torch.autograd import Variable
-import torch.nn.functional as F
-import torchvision.models as models
-import argparse
 import torch.optim as optim
-
-import imagenet_custom_dataset as cd
-
+import torchvision.datasets as dset
+import torch.backends.cudnn as cudnn
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+from torch.autograd import Variable
 from utils import progress_bar
 
-import numpy as np
-import utils
 import os
+import argparse
 
 import struct
 import random
@@ -29,141 +37,166 @@ parser.add_argument('--resume', '-r', action='store_true', help='resume from che
 parser.add_argument('--se', default=0, type=int, help='start epoch')
 parser.add_argument('--ne', default=0, type=int, help='number of epoch')
 parser.add_argument('--pr', default=0, type=int, help='pruning') # mode=1 is pruning, mode=0 is no pruning
-parser.add_argument('--ldpr', default=0, type=int, help='pruning') # mode=1 load pruned trained data. mode=0 is trained, but not pruned data
 parser.add_argument('--bs', default=128, type=int, help='batch size')
 parser.add_argument('--mode', default=1, type=int, help='train or inference') #mode=1 is train, mode=0 is inference
-parser.add_argument('--print', default=0, type=int, help='print input and dirty img to png') #mode=1 is train, mode=0 is inference
-parser.add_argument('--prindex', default=0.0005, type=float)
+parser.add_argument('--thres', default=0, type=float)
 parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter precision for layer weight')
 parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
 parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
+parser.add_argument('--network', default='ckpt_20180914_half_clean.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--outputfile', default='garbage.txt', help='output file name', metavar="FILE")
+parser.add_argument('--imgprint', default=0, type=int, help='print input and dirty img to png') #mode=1 is train, mode=0 is inference
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20181006_blur_0675.t0', help='input network ckpt name', metavar="FILE")
+
 
 args = parser.parse_args()
 
 use_cuda = torch.cuda.is_available()
-top1_acc = 0  # best test accuracy
-top5_acc = 0  # best test accuracy
+best_acc = 0  # best test accuracy
 
-traindir = os.path.join('/usr/share/ImageNet/train')
+use_cuda = torch.cuda.is_available()
 
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-train_dataset = datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomSizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize,]))
+transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
+									  transforms.RandomHorizontalFlip(),
+									  transforms.ToTensor(),
+									  transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+transform_test = transforms.Compose([transforms.ToTensor(),
+									 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
 
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, shuffle=True,num_workers=8, pin_memory=True)
+cifar_train = dset.CIFAR100("~/Dataset/CIFAR100/", train=True, transform=transform_train, target_transform=None, download=True)
+cifar_test = dset.CIFAR100("~/Dataset/CIFAR100/", train=False, transform=transform_test, target_transform=None, download=True)
 
-valdir = os.path.join('/usr/share/ImageNet/val')
-val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=128, shuffle=False,num_workers=8, pin_memory=True)
+train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 global glob_gau
 global glob_blur
 glob_gau = 0
 glob_blur = 0
 
-class VGG16(nn.Module):
-	def __init__(self, init_weights=True):
-		super(VGG16,self).__init__()
+mode = args.mode
+
+class CNN(nn.Module):
+	def __init__(self):
+		super(CNN,self).__init__()
 		self.conv1 = nn.Sequential(
-			nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False),
-			nn.BatchNorm2d(64),
-			nn.ReLU(True),
+			nn.Conv2d(3,64,3,padding=1,bias=False), #layer0
+			nn.BatchNorm2d(64), # batch norm is added because dataset is changed
+			nn.ReLU(inplace=True),
 		)
 		self.conv2 = nn.Sequential(
-			nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(64,64,3,padding=1, bias=False), #layer3
 			nn.BatchNorm2d(64),
-			nn.ReLU(True),
-			nn.MaxPool2d(kernel_size=2, stride=2),
+			nn.ReLU(inplace=True),
+		)
+		self.maxpool1 = nn.Sequential(
+			nn.MaxPool2d(2,2), # 16*16* 64
 		)
 		self.conv3 = nn.Sequential(
-			nn.Conv2d(64, 128, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(64,128,3,padding=1, bias=False), #layer7
 			nn.BatchNorm2d(128),
-			nn.ReLU(True),
+			nn.ReLU(inplace=True),
 		)
 		self.conv4 = nn.Sequential(
-			nn.Conv2d(128, 128, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(128,128,3,padding=1, bias=False),#layer10
 			nn.BatchNorm2d(128),
-			nn.ReLU(True),
-			nn.MaxPool2d(kernel_size=2, stride=2),
+			nn.ReLU(inplace=True),
+		)
+		self.maxpool2 = nn.Sequential(
+			nn.MaxPool2d(2,2), # 8*8*128
 		)
 		self.conv5 = nn.Sequential(
-			nn.Conv2d(128, 256, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(128,256,3,padding=1, bias=False), #layer14
 			nn.BatchNorm2d(256),
-			nn.ReLU(True),
+			nn.ReLU(inplace=True),
 		)
 		self.conv6 = nn.Sequential(
-			nn.Conv2d(256, 256, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(256,256,3,padding=1, bias=False), #layer17
 			nn.BatchNorm2d(256),
-			nn.ReLU(True),
+			nn.ReLU(inplace=True),
 		)
 		self.conv7 = nn.Sequential(
-			nn.Conv2d(256, 256, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(256,256,3,padding=1, bias=False), #layer20
 			nn.BatchNorm2d(256),
-			nn.ReLU(True),
-			nn.MaxPool2d(kernel_size=2, stride=2),
+			nn.ReLU(inplace=True),
+		)
+		self.maxpool3 = nn.Sequential(
+			nn.MaxPool2d(2,2), # 4*4*256
 		)
 		self.conv8 = nn.Sequential(
-			nn.Conv2d(256, 512, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(256,512,3,padding=1, bias=False), #layer24
 			nn.BatchNorm2d(512),
-			nn.ReLU(True),
+			nn.ReLU(inplace=True),
 		)
 		self.conv9 = nn.Sequential(
-			nn.Conv2d(512, 512, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(512,512,3,padding=1, bias=False), #layer27
 			nn.BatchNorm2d(512),
-			nn.ReLU(True),
+			nn.ReLU(inplace=True),
 		)
 		self.conv10 = nn.Sequential(
-			nn.Conv2d(512, 512, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(512,512,3,padding=1, bias=False), #layer30
 			nn.BatchNorm2d(512),
-			nn.ReLU(True),
-			nn.MaxPool2d(kernel_size=2, stride=2),
+			nn.ReLU(inplace=True),
+		)
+		self.maxpool4 = nn.Sequential(
+			nn.MaxPool2d(2,2), # 2*2*512
 		)
 		self.conv11 = nn.Sequential(
-			nn.Conv2d(512, 512, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(512,512,3,padding=1, bias=False), #layer34
 			nn.BatchNorm2d(512),
-			nn.ReLU(True),
+			nn.ReLU(inplace=True),
 		)
 		self.conv12 = nn.Sequential(
-			nn.Conv2d(512, 512, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(512,512,3,padding=1, bias=False), #layer37
 			nn.BatchNorm2d(512),
-			nn.ReLU(True),
+			nn.ReLU(inplace=True),
 		)
 		self.conv13 = nn.Sequential(
-			nn.Conv2d(512, 512, kernel_size=3, padding=1, bias=False),
+			nn.Conv2d(512,512,3,padding=1, bias=False), #layer40
 			nn.BatchNorm2d(512),
-			nn.ReLU(True),
-			nn.MaxPool2d(kernel_size=2, stride=2),
+			nn.ReLU(inplace=True),
+		)
+		self.maxpool5 = nn.Sequential(
+			nn.MaxPool2d(2,2) # 1*1*512
 		)
 		self.fc1 = nn.Sequential(
-			nn.Linear(25088, 4096, bias=False),
-			nn.ReLU(True),
-			nn.Dropout(),
+			nn.Dropout(p=0.5),
+			nn.Linear(512,512, bias=False), #fc_layer1
+			nn.ReLU(inplace=True),
 		)
 		self.fc2 = nn.Sequential(
-			nn.Linear(4096, 4096, bias=False),
-			nn.ReLU(True),
-			nn.Dropout(),
+			nn.Dropout(p=0.5),
+			nn.Linear(512,512, bias=False), #fc_layer4
+			nn.ReLU(inplace=True),
 		)
 		self.fc3 = nn.Sequential(
-			nn.Linear(4096, 1000, bias=False),
+			nn.Linear(512,100, bias=False) #fc_layer6
 		)
-		self._initialize_weights()
 
 	def forward(self,x):
-		if (args.gau==0)&(args.blur==0):
+		global glob_gau
+		global glob_blur
+
+		if args.imgprint == 1:
+			npimg = np.array(x,dtype=float)
+			npimg = npimg.squeeze(0)
+			scipy.misc.toimage(npimg).save("img0.png")
+
+		#Noise generation part
+		if (glob_gau==0)&(glob_blur==0):
 			#no noise
 			pass
 
-		elif (args.blur == 0)&(args.gau != 0):
+		elif (glob_blur == 0)&(glob_gau == 1):
 			#gaussian noise add
 			
 			gau_kernel = torch.randn(x.size())*args.gau
 			x = Variable(gau_kernel.cuda()) + x
 			
 
-		elif (args.gau == 0)&(args.blur != 0):
+		elif (glob_gau == 0)&(glob_blur == 1):
 			#blur noise add
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -177,7 +210,7 @@ class VGG16(nn.Module):
 			#x = torch.nn.functional.conv2d(x, weight=blur_kernel.cuda(), padding=blur_padding)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
 
-		elif (args.gau != 0) & (args.blur != 0):
+		elif (glob_gau == 1) & (glob_blur == 1):
 			#both gaussian and blur noise added
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -194,436 +227,109 @@ class VGG16(nn.Module):
 		else:
 			print("Something is wrong in noise adding part")
 			exit()
-		fixed = 0
-		if fixed:
-			x = quant(x)
+
+		if args.imgprint == 1:
+			npimg = np.array(x,dtype=float)
+			npimg = npimg.squeeze(0)
+			scipy.misc.toimage(npimg).save("img1.png")
+			exit()
+
+		if args.fixed:
 			x = roundmax(x)
-
-		out = self.conv1(x)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv2(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv3(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv4(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv5(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv6(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv7(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv8(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv9(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv10(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv11(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv12(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.conv13(out)
-		out = out.view(out.size(0), -1)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.fc1(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.fc2(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		out = self.fc3(out)
-
-		if fixed:
-			out = quant(out)
-			out = roundmax(out)
-
-		return out
-
-	def _initialize_weights(self):
-		for m in self.modules():
-			if isinstance(m, nn.Conv2d):
-				#print(m)
-				nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-
-				#if m.bias is not None:
-					#nn.init.constant_(m.bias, 0)
-			elif isinstance(m, nn.BatchNorm2d):
-				nn.init.constant_(m.weight, 1)
-				#nn.init.constant_(m.bias, 0)
-			elif isinstance(m, nn.Linear):
-				#print(m)
-				nn.init.normal_(m.weight, 0, 0.01)
-				#nn.init.constant_(m.bias, 0)
-
-if args.mode == 0:
-	checkpoint = torch.load('./checkpoint/'+args.network)
-	net = checkpoint['net']
-
-elif args.mode == 1:
-	if args.resume:
-		print('==> Resuming from checkpoint..')
-		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
-		net = checkpoint['net']
-		#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
-		#net2 = ckpt['net']
-		top1_acc = checkpoint['top1_acc'] 
-		top5_acc = checkpoint['top5_acc'] 
-	else:
-		print('==> Building model..')
-		net = VGG16()
-		top1_acc = 0
-		top5_acc = 0
-
-elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
-	net = checkpoint['net']
-	#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
-	#net2 = ckpt['net']
-	if args.resume:
-		print('==> Resuming from checkpoint..')
-		top1_acc = checkpoint['top1_acc'] 
-		top5_acc = checkpoint['top5_acc'] 
-	else:
-		top1_acc = 0
-		top5_acc = 0
-
-elif args.mode == 3:
-	checkpoint = torch.load('./checkpoint/'+args.network)
-	net = checkpoint['net']
-	params = paramsget()
-	thres = findThreshold(params)
-	exit()
-
-if use_cuda:
-	#print(torch.cuda.device_count())
-	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
-	cudnn.benchmark = True
-
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
-
-start_epoch = args.se
-num_epoch = args.ne
-
-###################################################################################
-# Copied this part from https://github.com/pytorch/examples/blob/master/imagenet/main.py
-class AverageMeter(object):
-	"""Computes and stores the average and current value"""
-	def __init__(self):
-		self.reset()
-
-	def reset(self):
-		self.val = 0
-		self.avg = 0
-		self.sum = 0
-		self.count = 0
-
-	def update(self, val, n=1):
-		self.val = val
-		self.sum += val * n
-		self.count += n
-		self.avg = self.sum / self.count
-
-def accuracy(output, target, topk=(1,)):
-	"""Computes the precision@k for the specified values of k"""
-	with torch.no_grad():
-		maxk = max(topk)
-		batch_size = target.size(0)
-
-		_, pred = output.topk(maxk, 1, True, True)
-		pred = pred.t()
-		correct = pred.eq(target.view(1, -1).expand_as(pred))
-
-		res = []
-		for k in topk:
-			correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
-			res.append(correct_k.mul_(100.0 / batch_size))
-		return res
-
-######################################################################################
-
-def train(epoch):
-	global top1_acc
-	global top5_acc
-	global glob_gau
-	global glob_blur
-	batch_time = AverageMeter()
-	data_time = AverageMeter()
-	losses = AverageMeter()
-	top1 = AverageMeter()
-	top5 = AverageMeter()
-
-	# switch to train mode
-	net.train()
-
-	end = time.time()
-	#mask_channel = torch.load('mask_null.dat')
-	#mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	#mask_channel = set_mask(mask_channel, 4, 1)
-	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 0
-
-		# measure data loading time
-		data_time.update(time.time() - end)
-
-		if use_cuda is not None:
-			inputs, targets = inputs.cuda(), targets.cuda()
-
-		# compute output
-		outputs = net(inputs)
-		loss = criterion(outputs, targets)
-
-		# measure accuracy and record loss
-		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
-		losses.update(loss.item(), inputs.size(0))
-		top1.update(prec1[0], inputs.size(0))
-		top5.update(prec5[0], inputs.size(0))
-
-		# compute gradient and do SGD step
-		optimizer.zero_grad()
-		loss.backward()
-
-		#net_mask_mul(mask_channel)
-		#add_network() 
-
-		optimizer.step()
-
-		if batch_idx % 200 == 0:
-			batch_time.update(time.time() - end)
-			end = time.time()
-			print('Epoch: [{0}][{1}/{2}]\t'
-				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-				  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
-				   data_time=data_time, loss=losses, top1=top1, top5=top5))
-
-	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 1
-
-		# measure data loading time
-		data_time.update(time.time() - end)
-
-		if use_cuda is not None:
-			inputs, targets = inputs.cuda(), targets.cuda()
-
-		# compute output
-		outputs = net(inputs)
-		loss = criterion(outputs, targets)
-
-		# measure accuracy and record loss
-		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
-		losses.update(loss.item(), inputs.size(0))
-		top1.update(prec1[0], inputs.size(0))
-		top5.update(prec5[0], inputs.size(0))
-
-		# compute gradient and do SGD step
-		optimizer.zero_grad()
-		loss.backward()
-
-		#net_mask_mul(mask_channel)
-		#add_network() 
-
-		optimizer.step()
-
-		# measure elapsed time
-		if batch_idx % 200 == 0:
-			batch_time.update(time.time() - end)
-			end = time.time()
-			print('Epoch: [{0}][{1}/{2}]\t'
-				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-				  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
-				   data_time=data_time, loss=losses, top1=top1, top5=top5))
-
-def test():
-	global top1_acc
-	global top5_acc
-	global glob_gau
-	global glob_blur
-	batch_time = AverageMeter()
-	data_time = AverageMeter()
-	losses = AverageMeter()
-	top1 = AverageMeter()
-	top5 = AverageMeter()
-	net.eval()
-	
-	end = time.time()
-	count = 0
-	for batch_idx, (inputs, targets) in enumerate(val_loader):
-		if use_cuda:
-			inputs, targets = inputs.cuda(), targets.cuda()
-		inputs, targets = Variable(inputs), Variable(targets)
-
-		outputs = net(inputs)
-
-		loss = criterion(outputs, targets)
-
-		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
-		
-		losses.update(loss.data[0], inputs.size(0))
-		top1.update(prec1[0], inputs.size(0))
-		top5.update(prec5[0], inputs.size(0))
-
-		# measure elapsed time
-
-		if batch_idx % 50 == 0:
-			batch_time.update(time.time() - end)
-			end = time.time()
-			print('Test: [{0}/{1}]\t'
-				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   batch_idx, len(val_loader), batch_time=batch_time, loss=losses,
-				   top1=top1, top5=top5))
-
-	# Save checkpoint.
-	if top1.avg > top1_acc:
-		if mode == 0:
-			print('Acc : {}'.format(top1.avg))
-			return
-		else:
-			print('Saving.. Acc : {}'.format(top1.avg))
-			state = {
-				'net': net.module if use_cuda else net,
-				'top1_acc': top1.avg,
-				'top5_acc': top5.avg,
-			}
-			if not os.path.isdir('checkpoint'):
-				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20181006_blur_0675.t0')
-			top1_acc = top1.avg
-
-def retrain(epoch):
-	global glob_gau
-	global glob_blur
-	batch_time = AverageMeter()
-	data_time = AverageMeter()
-	losses = AverageMeter()
-	top1 = AverageMeter()
-	top5 = AverageMeter()
-
-	# switch to train mode
-	net.train()
-
-	end = time.time()
-
-	mask_channel = torch.load('mask_null.dat')
-	#mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	mask_channel = set_mask(mask_channel, 4, 1)
-
-	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		# measure data loading time
-		data_time.update(time.time() - end)
-
-		if use_cuda is not None:
-			inputs, targets = inputs.cuda(), targets.cuda()
-
-		# compute output
-		outputs = net(inputs)
-		loss = criterion(outputs, targets)
-
-		# measure accuracy and record loss
-		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
-		losses.update(loss.item(), inputs.size(0))
-		top1.update(prec1[0], inputs.size(0))
-		top5.update(prec5[0], inputs.size(0))
-
-		# compute gradient and do SGD step
-		optimizer.zero_grad()
-		loss.backward()
-
-		quantize()
-
-		net_mask_mul(mask_channel)
-		#add_network()
-
-		pruneNetwork(mask)
-
-		optimizer.step()
-
-		# measure elapsed time
-		batch_time.update(time.time() - end)
-		end = time.time()
-
-		if batch_idx % 200 == 0:
-			batch_time.update(time.time() - end)
-			end = time.time()
-			print('Epoch: [{0}][{1}/{2}]\t'
-				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-				  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
-				   data_time=data_time, loss=losses, top1=top1, top5=top5))
+			x = quant(x)
+		out1 = self.conv1(x) # 1250*64*32*32
+		if args.fixed:
+			out1 = quant(out1) 
+			out1 = roundmax(out1)
+
+		out2 = self.conv2(out1) # 1250*64*32*32
+		if args.fixed:
+			out2 = quant(out2)
+			out2 = roundmax(out2)
+
+		out3 = self.maxpool1(out2)
+		out4 = self.conv3(out3) # 1250*128*16*16
+		if args.fixed:
+			out4 = quant(out4) 
+			out4 = roundmax(out4)
+		out5 = self.conv4(out4) # 1250*128*16*16
+		if args.fixed:
+			out5 = quant(out5) 
+			out5 = roundmax(out5)
+
+		out6 = self.maxpool2(out5)
+		out7 = self.conv5(out6) # 1250*256*8*8
+		if args.fixed:
+			out7 = quant(out7) 
+			out7 = roundmax(out7)
+		out8 = self.conv6(out7) # 1250*256*8*8
+		if args.fixed:
+			out8 = quant(out8) 
+			out8 = roundmax(out8)
+		out9 = self.conv7(out8) # 1250*256*8*8
+		if args.fixed:
+			out9 = quant(out9) 
+			out9 = roundmax(out9)
+
+		out10 = self.maxpool3(out9)
+		out11 = self.conv8(out10) # 1250*512*4*4
+		if args.fixed:
+			out11 = quant(out11) 
+			out11 = roundmax(out11)
+		out12 = self.conv9(out11) # 1250*512*4*4
+		if args.fixed:
+			out12 = quant(out12) 
+			out12 = roundmax(out12)
+		out13 = self.conv10(out12) # 1250*512*4*
+		if args.fixed:
+			out13 = quant(out13) 
+			out13 = roundmax(out13)
+
+		out14 = self.maxpool4(out13)
+
+		out15 = self.conv11(out14) # 1250*512*2*
+		if args.fixed:
+			out15 = quant(out15) 
+			out15 = roundmax(out15)
+		out16 = self.conv12(out15) # 1250*512*2*
+		if args.fixed:
+			out16 = quant(out16) 
+			out16 = roundmax(out16)
+		out17 = self.conv13(out16) # 1250*512*2*
+		if args.fixed:
+			out17 = quant(out17) 
+			out17 = roundmax(out17)
+
+		out18 = self.maxpool5(out17)
+
+		out19 = out18.view(out18.size(0),-1)
+		out20 = self.fc1(out19) # 1250*512
+		if args.fixed:
+			out20 = quant(out20) 
+			out20 = roundmax(out20)
+		out21 = self.fc2(out20) # 1250*512
+		if args.fixed:
+			out21 = quant(out21) 
+			out21 = roundmax(out21)
+		out22 = self.fc3(out21) # 1250*10
+		'''
+		if args.fixed:
+			out22 = quant(out22) 
+			out22 = roundmax(out22)
+		'''
+		return out22
+
+def roundmax(input):
+	maximum = 2**args.iwidth-1
+	minimum = -maximum-1
+	input = F.relu(torch.add(input, -minimum))
+	input = F.relu(torch.add(torch.neg(input), maximum-minimum))
+	input = torch.add(torch.neg(input), maximum)
+	return input	
+
+def quant(input):
+	input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
+	return input
 
 def paramsget():
 	params = net.conv1[0].weight.view(-1,)
@@ -639,8 +345,8 @@ def paramsget():
 	params = torch.cat((params,net.conv11[0].weight.view(-1,)),0)
 	params = torch.cat((params,net.conv12[0].weight.view(-1,)),0)
 	params = torch.cat((params,net.conv13[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.fc1[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.fc2[0].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc1[1].weight.view(-1,)),0)
+	params = torch.cat((params,net.fc2[1].weight.view(-1,)),0)
 	params = torch.cat((params,net.fc3[0].weight.view(-1,)),0)
 	#net = checkpoint['net']
 	return params
@@ -651,8 +357,8 @@ def findThreshold(params):
 		tmp = (torch.abs(params.data)>thres).type(torch.FloatTensor)
 		#result = torch.sum(tmp)/params.size()[0]*64/28
 		#result = torch.sum(tmp)/params.size()[0]*64/11
-		result = torch.sum(tmp)/params.size()[0]*64/9
-		#result = torch.sum(tmp)/params.size()[0]*4 #for half clean
+		#result = torch.sum(tmp)/params.size()[0]*64/9
+		result = torch.sum(tmp)/params.size()[0]*4 #for half clean
 		#result = torch.sum(tmp)/params.size()[0] # for full size
 		if ((100-args.pr)/100)>result:
 			print("threshold : {}".format(thres))
@@ -675,8 +381,8 @@ def getPruningMask(thres):
 	mask[10] = torch.abs(net.conv11[0].weight.data)>thres
 	mask[11] = torch.abs(net.conv12[0].weight.data)>thres
 	mask[12] = torch.abs(net.conv13[0].weight.data)>thres
-	mask[13] = torch.abs(net.fc1[0].weight.data)>thres
-	mask[14] = torch.abs(net.fc2[0].weight.data)>thres
+	mask[13] = torch.abs(net.fc1[1].weight.data)>thres
+	mask[14] = torch.abs(net.fc2[1].weight.data)>thres
 	mask[15] = torch.abs(net.fc3[0].weight.data)>thres
 	mask[0] = mask[0].type(torch.FloatTensor)
 	mask[1] = mask[1].type(torch.FloatTensor)
@@ -751,11 +457,11 @@ def pruneNetwork(mask):
 			param.data = torch.mul(param.data,mask[12].cuda())
 
 	for child in net.children():
-		for param in child.fc1[0].parameters():
+		for param in child.fc1[1].parameters():
 			param.grad.data = torch.mul(param.grad.data,mask[13].cuda())
 			param.data = torch.mul(param.data,mask[13].cuda())
 	for child in net.children():
-		for param in child.fc2[0].parameters():
+		for param in child.fc2[1].parameters():
 			param.grad.data = torch.mul(param.grad.data,mask[14].cuda())
 			param.data = torch.mul(param.data,mask[14].cuda())
 	for child in net.children():
@@ -800,9 +506,9 @@ def set_mask(mask, block, val):
 			mask[10][i,0:447,:,:] = val
 			mask[11][i,0:447,:,:] = val
 			mask[12][i,0:447,:,:] = val
-		mask[13][0:3583,0:21951] = val 
-		mask[14][0:3583,0:3583] = val 
-		mask[15][:,0:3583] = val 
+			mask[13][i,0:447] = val 
+			mask[14][i,0:447] = val 
+		mask[15][:,0:447] = val 
 	elif block == 2:
 		for i in range(48):
 			mask[0][i,:,:,:] = val
@@ -821,9 +527,9 @@ def set_mask(mask, block, val):
 			mask[10][i,0:383,:,:] = val
 			mask[11][i,0:383,:,:] = val
 			mask[12][i,0:383,:,:] = val
-		mask[13][0:3071,0:18815] = val 
-		mask[14][0:3071,0:3071] = val 
-		mask[15][:,0:3071] = val 
+			mask[13][i,0:383] = val 
+			mask[14][i,0:383] = val 
+		mask[15][:,0:383] = val 
 	elif block == 3:
 		for i in range(40):
 			mask[0][i,:,:,:] = val
@@ -842,9 +548,9 @@ def set_mask(mask, block, val):
 			mask[10][i,0:319,:,:] = val
 			mask[11][i,0:319,:,:] = val
 			mask[12][i,0:319,:,:] = val
-		mask[13][0:2559,0:15679] = val 
-		mask[14][0:2559,0:2559] = val 
-		mask[15][:,0:2559] = val 
+			mask[13][i,0:319] = val 
+			mask[14][i,0:319] = val 
+		mask[15][:,0:319] = val 
 	elif block == 4:
 		for i in range(32):
 			mask[0][i,:,:,:] = val
@@ -863,9 +569,9 @@ def set_mask(mask, block, val):
 			mask[10][i,0:255,:,:] = val
 			mask[11][i,0:255,:,:] = val
 			mask[12][i,0:255,:,:] = val
-		mask[13][0:2047,0:12543] = val 
-		mask[14][0:2047,0:2047] = val 
-		mask[15][:,0:2047] = val 
+			mask[13][i,0:255] = val 
+			mask[14][i,0:255] = val 
+		mask[15][:,0:255] = val 
 	return mask
 
 def save_network(layer):
@@ -910,10 +616,10 @@ def save_network(layer):
 			layer[12] = param.data
 
 	for child in net2.children():
-		for param in child.fc1[0].parameters():
+		for param in child.fc1[1].parameters():
 			layer[13] = param.data
 	for child in net2.children():
-		for param in child.fc2[0].parameters():
+		for param in child.fc2[1].parameters():
 			layer[14] = param.data
 	for child in net2.children():
 		for param in child.fc3[0].parameters():
@@ -964,10 +670,10 @@ def add_network():
 			param.data = torch.add(param.data,layer[12])
 
 	for child in net.children():
-		for param in child.fc1[0].parameters():
+		for param in child.fc1[1].parameters():
 			param.data = torch.add(param.data,layer[13])
 	for child in net.children():
-		for param in child.fc2[0].parameters():
+		for param in child.fc2[1].parameters():
 			param.data = torch.add(param.data,layer[14])
 	for child in net.children():
 		for param in child.fc3[0].parameters():
@@ -976,82 +682,332 @@ def add_network():
 def net_mask_mul(mask):
 	for child in net.children():
 		for param in child.conv1[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[0].cuda())
 			param.data = torch.mul(param.data,mask[0].cuda())
 	for child in net.children():
 		for param in child.conv2[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[1].cuda())
 			param.data = torch.mul(param.data,mask[1].cuda())
 	for child in net.children():
 		for param in child.conv3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[2].cuda())
 			param.data = torch.mul(param.data,mask[2].cuda())
 	for child in net.children():
 		for param in child.conv4[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[3].cuda())
 			param.data = torch.mul(param.data,mask[3].cuda())
 	for child in net.children():
 		for param in child.conv5[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[4].cuda())
 			param.data = torch.mul(param.data,mask[4].cuda())
 	for child in net.children():
 		for param in child.conv6[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[5].cuda())
 			param.data = torch.mul(param.data,mask[5].cuda())
 	for child in net.children():
 		for param in child.conv7[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[6].cuda())
 			param.data = torch.mul(param.data,mask[6].cuda())
 	for child in net.children():
 		for param in child.conv8[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[7].cuda())
 			param.data = torch.mul(param.data,mask[7].cuda())
 	for child in net.children():
 		for param in child.conv9[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[8].cuda())
 			param.data = torch.mul(param.data,mask[8].cuda())
 	for child in net.children():
 		for param in child.conv10[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[9].cuda())
 			param.data = torch.mul(param.data,mask[9].cuda())
 	for child in net.children():
 		for param in child.conv11[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[10].cuda())
 			param.data = torch.mul(param.data,mask[10].cuda())
 	for child in net.children():
 		for param in child.conv12[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[11].cuda())
 			param.data = torch.mul(param.data,mask[11].cuda())
 	for child in net.children():
 		for param in child.conv13[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[12].cuda())
 			param.data = torch.mul(param.data,mask[12].cuda())
 
 	for child in net.children():
-		for param in child.fc1[0].parameters():
+		for param in child.fc1[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[13].cuda())
 			param.data = torch.mul(param.data,mask[13].cuda())
 	for child in net.children():
-		for param in child.fc2[0].parameters():
+		for param in child.fc2[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[14].cuda())
 			param.data = torch.mul(param.data,mask[14].cuda())
 	for child in net.children():
 		for param in child.fc3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[15].cuda())
 			param.data = torch.mul(param.data,mask[15].cuda())
 
-def roundmax(input):
-	maximum = 2 ** args.iwidth - 1
-	minimum = -maximum - 1
-	input = F.relu(torch.add(input, -minimum))
-	input = F.relu(torch.add(torch.neg(input), maximum - minimum))
-	input = torch.add(torch.neg(input), maximum)
-	return input
+# Load checkpoint.
+if args.mode == 0:
+	print('==> Resuming from checkpoint..')
+	assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
+	checkpoint = torch.load('./checkpoint/'+args.network)
+	net = checkpoint['net']
 
-def quant(input):
-	input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
-	return input
+elif args.mode == 1:
+	checkpoint = torch.load('./checkpoint/ckpt_20180914_half_clean_G1.t0')
+	ckpt = torch.load('./checkpoint/ckpt_20180914_half_clean.t0')
+	net = checkpoint['net']
+	net2 = ckpt['net']
+	if args.resume:
+		print('==> Resuming from checkpoint..')
+		best_acc = checkpoint['acc']
+	else:
+		best_acc = 0
 
-mode = args.mode
+elif args.mode == 2:
+	checkpoint = torch.load('./checkpoint/'+args.network)
+	net = checkpoint['net']
+	if args.resume:
+		print('==> Resuming from checkpoint..')
+		best_acc = checkpoint['acc']
+	else:
+		best_acc = 0
+
+if args.pr:
+	params = paramsget()
+	if args.thres == 0:
+		thres = findThreshold(params)
+	else:
+		thres = args.thres
+	mask_prune = getPruningMask(thres)
+
+#printsize()
+#net = checkpoint['net']
+if use_cuda:
+	net.cuda()
+	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
+	if args.mode > 0:
+		net2.cuda()
+		net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
+	cudnn.benchmark = True
+
+#pruneNetwork(mask)
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+#optimizer = optim.Adam(net.parameters(), lr=args.lr, weight_decay=5e-4)
+
+start_epoch = args.se
+num_epoch = args.ne
+
+# Training
+def train(epoch):
+	global glob_gau
+	global glob_blur
+	print('\nEpoch: %d' % epoch)
+	net.train()
+	train_loss = 0
+	correct = 0
+	total = 0
+	mask_channel = torch.load('mask_null.dat')
+	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	for batch_idx, (inputs, targets) in enumerate(train_loader):
+		glob_gau = 0
+		if use_cuda:
+			inputs, targets = inputs.cuda(), targets.cuda()
+		optimizer.zero_grad()
+		inputs, targets = Variable(inputs), Variable(targets)
+		outputs = net(inputs)
+		loss = criterion(outputs, targets)
+		loss.backward()
+
+		net_mask_mul(mask_channel)
+		add_network()
+
+		optimizer.step()
+
+		train_loss += loss.data[0]
+		_, predicted = torch.max(outputs.data, 1)
+		total += targets.size(0)
+		correct += predicted.eq(targets.data).cpu().sum()
+
+		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+	for batch_idx, (inputs, targets) in enumerate(train_loader):
+		glob_gau = 1
+		if use_cuda:
+			inputs, targets = inputs.cuda(), targets.cuda()
+		optimizer.zero_grad()
+		inputs, targets = Variable(inputs), Variable(targets)
+		outputs = net(inputs)
+		loss = criterion(outputs, targets)
+		loss.backward()
+
+		net_mask_mul(mask_channel)
+		add_network()
+
+		optimizer.step()
+
+		train_loss += loss.data[0]
+		_, predicted = torch.max(outputs.data, 1)
+		total += targets.size(0)
+		correct += predicted.eq(targets.data).cpu().sum()
+
+		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+def test():
+	global glob_gau
+	global glob_blur
+	global best_acc
+	glob_gau = 1
+	net.eval()
+	test_loss = 0
+	correct = 0
+	total = 0
+	mask_channel = torch.load('mask_null.dat')
+	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	net_mask_mul(mask_channel)
+	add_network()
+	for batch_idx, (inputs, targets) in enumerate(test_loader):
+		if use_cuda:
+			inputs, targets = inputs.cuda(), targets.cuda()
+		inputs, targets = Variable(inputs, volatile=True), Variable(targets)
+		outputs = net(inputs)
+		loss = criterion(outputs, targets)
+
+		test_loss += loss.data[0]
+		_, predicted = torch.max(outputs.data, 1)
+		total += targets.size(0)
+		correct += predicted.eq(targets.data).cpu().sum()
+
+		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+
+	# Save checkpoint.
+	acc = 100.*correct/total
+	if acc > best_acc:
+
+		state = {
+			'net': net.module if use_cuda else net,
+			'acc': acc,
+		}
+		if not os.path.isdir('checkpoint'):
+			os.mkdir('checkpoint')
+		if args.mode == 0:
+			pass
+		else:
+			print('Saving..')
+			torch.save(state, './checkpoint/ckpt_20180914_half_clean_G1.t0')
+		best_acc = acc
+
+	return acc
+	
+# Retraining
+def retrain(epoch, mask):
+	print('\nEpoch: %d' % epoch)
+	global best_acc
+	net.train()
+	train_loss = 0
+	total = 0
+	correct = 0
+	mask_channel = torch.load('mask_null.dat')
+	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	for batch_idx, (inputs, targets) in enumerate(train_loader):
+		if use_cuda:
+			inputs, targets = inputs.cuda(), targets.cuda()
+		optimizer.zero_grad()
+		inputs, targets = Variable(inputs), Variable(targets)
+		outputs = net(inputs)
+		loss = criterion(outputs, targets)
+		loss.backward()
+
+		quantize()
+
+		net_mask_mul(mask_channel)
+		
+		pruneNetwork(mask)
+
+		optimizer.step()
+
+		train_loss += loss.data[0]
+		_, predicted = torch.max(outputs.data, 1)
+		total += targets.size(0)
+		correct += predicted.eq(targets.data).cpu().sum()
+
+		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+		acc = 100.*correct/total
+
+# Truncate weight param
+pprec = args.pprec
+def quantize():
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+
+
+# Train+inference vs. Inference
 if mode == 0: # only inference
 	test()
+
 elif mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
-		print("epoch : {}".format(epoch))
-		print(time.ctime())
 		train(epoch)
 
 		test()
 elif mode == 2: # retrain for quantization and pruning
-	for epoch in range(0,10):
-		print("epoch : {}".format(epoch))
-		print(time.ctime())
+	for epoch in range(0,50):
 		retrain(epoch, mask_prune) 
 
 		test()
 else:
 	pass
+

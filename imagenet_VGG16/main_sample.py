@@ -28,11 +28,12 @@ parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--se', default=0, type=int, help='start epoch')
 parser.add_argument('--ne', default=0, type=int, help='number of epoch')
-parser.add_argument('--pr', default=0, type=int, help='pruning') # mode=1 is pruning, mode=0 is no pruning
-parser.add_argument('--ldpr', default=0, type=int, help='pruning') # mode=1 load pruned trained data. mode=0 is trained, but not pruned data
+parser.add_argument('--pr', default=0, type=int, help='pruning')
+parser.add_argument('--ldpr', default=0, type=int, help='pruning')
 parser.add_argument('--bs', default=128, type=int, help='batch size')
-parser.add_argument('--mode', default=1, type=int, help='train or inference') #mode=1 is train, mode=0 is inference
-parser.add_argument('--print', default=0, type=int, help='print input and dirty img to png') #mode=1 is train, mode=0 is inference
+parser.add_argument('--mode', default=1, type=int, help='train or inference')
+parser.add_argument('--print', default=0, type=int, help='print input and dirty img to png')
+parser.add_argument('--samplesize', default=0, type=int, help='set sample size')
 parser.add_argument('--prindex', default=0.0005, type=float)
 parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter precision for layer weight')
 parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
@@ -40,7 +41,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20181006_blur_0675.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190422_sampled.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -48,12 +49,37 @@ use_cuda = torch.cuda.is_available()
 top1_acc = 0  # best test accuracy
 top5_acc = 0  # best test accuracy
 
+###########################################################################
+# code from : https://discuss.pytorch.org/t/balanced-sampling-between-classes-with-torchvision-dataloader/2703/3
+
+#def make_weights_for_balanced_classes(images, nclasses):                        
+#    count = [0] * nclasses                                                      
+#    for item in images:                                                         
+#        count[item[1]] += 1                                                     
+#    weight_per_class = [0.] * nclasses                                      
+#    N = float(sum(count))                                                   
+#    for i in range(nclasses):                                                   
+#        weight_per_class[i] = N/float(count[i])                                 
+#    weight = [0] * len(images)                                              
+#    for idx, val in enumerate(images):                                          
+#        weight[idx] = weight_per_class[val[1]]                                  
+#    return weight      
+
+###########################################################################
+
+
+
 traindir = os.path.join('/usr/share/ImageNet/train')
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_dataset = datasets.ImageFolder(traindir,transforms.Compose([transforms.RandomSizedCrop(224),transforms.RandomHorizontalFlip(),transforms.ToTensor(),normalize,]))
 
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.bs, shuffle=True,num_workers=8, pin_memory=True)
+#weights = make_weights_for_balanced_classes(train_dataset.imgs, len(train_dataset.classes))
+#weights = torch.DoubleTensor(weights)
+#sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, len(weights))
+
+train_sub_dataset, dump = torch.utils.data.random_split(train_dataset,[args.samplesize,(len(train_dataset)-args.samplesize)])
+train_loader = torch.utils.data.DataLoader(train_sub_dataset, batch_size=args.bs, shuffle=True, num_workers=8, pin_memory=True)
 
 valdir = os.path.join('/usr/share/ImageNet/val')
 val_loader = torch.utils.data.DataLoader(datasets.ImageFolder(valdir,transforms.Compose([transforms.Scale(256),transforms.CenterCrop(224),transforms.ToTensor(),normalize])),batch_size=128, shuffle=False,num_workers=8, pin_memory=True)
@@ -152,18 +178,25 @@ class VGG16(nn.Module):
 		self._initialize_weights()
 
 	def forward(self,x):
-		if (args.gau==0)&(args.blur==0):
+		global glob_gau
+		global glob_blur
+		if args.print == 1:
+			npimg = np.array(x,dtype=float)
+			npimg = npimg.squeeze(0)
+			scipy.misc.toimage(npimg).save("img0.png")
+		#Noise generation part
+		if (glob_gau==0)&(glob_blur==0):
 			#no noise
 			pass
 
-		elif (args.blur == 0)&(args.gau != 0):
+		elif (glob_blur == 0)&(glob_gau == 1):
 			#gaussian noise add
 			
 			gau_kernel = torch.randn(x.size())*args.gau
 			x = Variable(gau_kernel.cuda()) + x
 			
 
-		elif (args.gau == 0)&(args.blur != 0):
+		elif (glob_gau == 0)&(glob_blur == 1):
 			#blur noise add
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -177,7 +210,7 @@ class VGG16(nn.Module):
 			#x = torch.nn.functional.conv2d(x, weight=blur_kernel.cuda(), padding=blur_padding)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
 
-		elif (args.gau != 0) & (args.blur != 0):
+		elif (glob_gau == 1) & (glob_blur == 1):
 			#both gaussian and blur noise added
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -193,6 +226,11 @@ class VGG16(nn.Module):
 			x = Variable(gau_kernel.cuda()) + x
 		else:
 			print("Something is wrong in noise adding part")
+			exit()
+		if args.print == 1:
+			npimg = np.array(x,dtype=float)
+			npimg = npimg.squeeze(0)
+			scipy.misc.toimage(npimg).save("img1.png")
 			exit()
 		fixed = 0
 		if fixed:
@@ -317,12 +355,16 @@ class VGG16(nn.Module):
 if args.mode == 0:
 	checkpoint = torch.load('./checkpoint/'+args.network)
 	net = checkpoint['net']
+	#print(net.conv3[0].weight[0,0])
+	print(net.conv3[1].weight.size())
+	#print(net.fc1[0].weight[0:5,0:5])
+	exit()
 
 elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20190422_sampled.t0')
 		net = checkpoint['net']
 		#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 		#net2 = ckpt['net']
@@ -335,7 +377,7 @@ elif args.mode == 1:
 		top5_acc = 0
 
 elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190422_sampled.t0')
 	net = checkpoint['net']
 	#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 	#net2 = ckpt['net']
@@ -418,11 +460,11 @@ def train(epoch):
 	net.train()
 
 	end = time.time()
-	#mask_channel = torch.load('mask_null.dat')
+	mask_channel = torch.load('mask_null.dat')
 	#mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	#mask_channel = set_mask(mask_channel, 4, 1)
+	mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 0
+		glob_gau = 0
 
 		# measure data loading time
 		data_time.update(time.time() - end)
@@ -449,47 +491,6 @@ def train(epoch):
 
 		optimizer.step()
 
-		if batch_idx % 200 == 0:
-			batch_time.update(time.time() - end)
-			end = time.time()
-			print('Epoch: [{0}][{1}/{2}]\t'
-				  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-				  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				   epoch, batch_idx, len(train_loader), batch_time=batch_time,
-				   data_time=data_time, loss=losses, top1=top1, top5=top5))
-
-	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 1
-
-		# measure data loading time
-		data_time.update(time.time() - end)
-
-		if use_cuda is not None:
-			inputs, targets = inputs.cuda(), targets.cuda()
-
-		# compute output
-		outputs = net(inputs)
-		loss = criterion(outputs, targets)
-
-		# measure accuracy and record loss
-		prec1, prec5 = accuracy(outputs, targets, topk=(1, 5))
-		losses.update(loss.item(), inputs.size(0))
-		top1.update(prec1[0], inputs.size(0))
-		top5.update(prec5[0], inputs.size(0))
-
-		# compute gradient and do SGD step
-		optimizer.zero_grad()
-		loss.backward()
-
-		#net_mask_mul(mask_channel)
-		#add_network() 
-
-		optimizer.step()
-
-		# measure elapsed time
 		if batch_idx % 200 == 0:
 			batch_time.update(time.time() - end)
 			end = time.time()
@@ -544,13 +545,13 @@ def test():
 				   batch_idx, len(val_loader), batch_time=batch_time, loss=losses,
 				   top1=top1, top5=top5))
 
+	print('Acc : {}'.format(top1.avg))
 	# Save checkpoint.
 	if top1.avg > top1_acc:
 		if mode == 0:
-			print('Acc : {}'.format(top1.avg))
-			return
+			pass
 		else:
-			print('Saving.. Acc : {}'.format(top1.avg))
+			print('Saving..')
 			state = {
 				'net': net.module if use_cuda else net,
 				'top1_acc': top1.avg,
@@ -558,7 +559,7 @@ def test():
 			}
 			if not os.path.isdir('checkpoint'):
 				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20181006_blur_0675.t0')
+			torch.save(state, './checkpoint/ckpt_20190422_sampled.t0')
 			top1_acc = top1.avg
 
 def retrain(epoch):
@@ -1047,7 +1048,7 @@ elif mode == 1: # mode=1 is training & inference @ each epoch
 
 		test()
 elif mode == 2: # retrain for quantization and pruning
-	for epoch in range(0,10):
+	for epoch in range(0,50):
 		print("epoch : {}".format(epoch))
 		print(time.ctime())
 		retrain(epoch, mask_prune) 

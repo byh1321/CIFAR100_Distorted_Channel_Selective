@@ -152,23 +152,18 @@ class VGG16(nn.Module):
 		self._initialize_weights()
 
 	def forward(self,x):
-		global glob_gau
-		global glob_blur
-		if args.print == 1:
-			npimg = np.array(x,dtype=float)
-			npimg = npimg.squeeze(0)
-			scipy.misc.toimage(npimg).save("img0.png")
-		#Noise generation part
-		if (glob_gau==0)&(glob_blur==0):
+		if (args.gau==0)&(args.blur==0):
 			#no noise
 			pass
 
-		elif (glob_blur == 0)&(glob_gau == 1):
+		elif (args.blur == 0)&(args.gau != 0):
 			#gaussian noise add
-			gau_kernel = torch.randn(x.size()) * args.gau
+			
+			gau_kernel = torch.randn(x.size())*args.gau
 			x = Variable(gau_kernel.cuda()) + x
+			
 
-		elif (glob_gau == 0)&(glob_blur == 1):
+		elif (args.gau == 0)&(args.blur != 0):
 			#blur noise add
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -182,7 +177,7 @@ class VGG16(nn.Module):
 			#x = torch.nn.functional.conv2d(x, weight=blur_kernel.cuda(), padding=blur_padding)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
 
-		elif (glob_gau == 1) & (glob_blur == 1):
+		elif (args.gau != 0) & (args.blur != 0):
 			#both gaussian and blur noise added
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -194,15 +189,10 @@ class VGG16(nn.Module):
 			blur_kernel = blur_kernel.view(3,3,kernel_size,kernel_size)
 			blur_padding = int((blur_kernel_partial.size()[0]-1)/2)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
-			gau_kernel = torch.randn(x.size()) * args.gau
+			gau_kernel = torch.randn(x.size())*args.gau
 			x = Variable(gau_kernel.cuda()) + x
 		else:
 			print("Something is wrong in noise adding part")
-			exit()
-		if args.print == 1:
-			npimg = np.array(x,dtype=float)
-			npimg = npimg.squeeze(0)
-			scipy.misc.toimage(npimg).save("img1.png")
 			exit()
 		fixed = 0
 		if fixed:
@@ -527,7 +517,6 @@ def test():
 	end = time.time()
 	count = 0
 	for batch_idx, (inputs, targets) in enumerate(val_loader):
-		glob_gau = 1
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
 		inputs, targets = Variable(inputs), Variable(targets)

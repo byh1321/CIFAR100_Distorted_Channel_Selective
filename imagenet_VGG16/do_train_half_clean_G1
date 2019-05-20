@@ -1,4 +1,5 @@
-#python -W ignore main_half_clean_G1.py --mode 1 --lr 0.1 --bs 256 --ne 15 -r --gau 0.08
+python3 -W ignore network_gen.py --block1 ckpt_20190103_half_clean.t0 --o ckpt_20190403_half_clean_G1.t0 --mode 1
+python -W ignore main_half_clean_G1.py --mode 1 --lr 0.1 --bs 256 --ne 15 -r --gau 0.08
 python -W ignore main_half_clean_G1.py --mode 1 --lr 0.01 --bs 256 --ne 15 -r --gau 0.08
 python -W ignore main_half_clean_G1.py --mode 1 --lr 0.001 --bs 256 --ne 15 -r --gau 0.08
 python -W ignore main_half_clean_G1.py --mode 0 -r --gau 0.08
