@@ -55,11 +55,11 @@ transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
 transform_test = transforms.Compose([transforms.ToTensor(),
 									 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
 
-cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_transform=None, download=True)
-cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
+cifar_train = dset.CIFAR100("./Dataset/CIFAR100/", train=True, transform=transform_train, target_transform=None, download=True)
+cifar_test = dset.CIFAR100("./Dataset/CIFAR100/", train=False, transform=transform_test, target_transform=None, download=True)
 
-train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=2,drop_last=False)
-test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=2,drop_last=False)
+train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 mask_conv0 = torch.cuda.FloatTensor(64,3,3,3)
 mask_conv3 = torch.cuda.FloatTensor(64,64,3,3)
@@ -289,7 +289,7 @@ else:
 
 if use_cuda:
 	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(0,2))
+	net = torch.nn.DataParallel(net, device_ids=range(0,8))
 	cudnn.benchmark = True
 
 criterion = nn.CrossEntropyLoss()
@@ -318,7 +318,7 @@ def train(epoch):
 		train_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += predicted.eq(targets.data).cpu().sum().item()
 
 		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
@@ -339,7 +339,7 @@ def test():
 		test_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += predicted.eq(targets.data).cpu().sum().item()
 
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
@@ -806,6 +806,4 @@ elif mode == 0: # only inference
 	test()
 else:
 	pass
-
-number_wv = 1
 
