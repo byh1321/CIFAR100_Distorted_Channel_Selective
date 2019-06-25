@@ -178,7 +178,19 @@ class VGG16(nn.Module):
 		PFSUM = 0
 		for i in range(0,224):
 			for j in range(0,224):
-				#'''
+				if (i+j) < 111:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				elif (i-j) > 112:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				elif (j-i) > 112:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				elif (i+j) > 335:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				else:
+					freq_h = freq_h + torch.abs(tmp[0,i,j])
+		'''
+		for i in range(0,224):
+			for j in range(0,224):
 				if (i+j) < 24:
 					freq_l = freq_l + torch.abs(tmp[0,i,j])
 				elif (i-j) > 200:
@@ -191,7 +203,7 @@ class VGG16(nn.Module):
 					if abs(i-j) < 24:
 						if (i+j) < 248:
 							freq_h = freq_h + torch.abs(tmp[0,i,j])
-				#'''
+		'''
 		PFSUM = freq_l - freq_h
 		f = open(args.outputfile,'a+')
 		print(PFSUM.item(),file=f)
