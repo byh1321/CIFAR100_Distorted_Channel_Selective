@@ -40,7 +40,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20190520_half_clean_G1.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190525_B1.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -201,11 +201,6 @@ class VGG16(nn.Module):
 		else:
 			print("Something is wrong in noise adding part")
 			exit()
-		if args.print == 1:
-			npimg = np.array(x,dtype=float)
-			npimg = npimg.squeeze(0)
-			scipy.misc.toimage(npimg).save("img1.png")
-			exit()
 		fixed = 0
 		if fixed:
 			x = quant(x)
@@ -334,22 +329,20 @@ elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G1.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20190525_B1.t0')
 		net = checkpoint['net']
-		ckpt = torch.load('./checkpoint/ckpt_20190103_half_clean.t0')
-		net2 = ckpt['net']
+		#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
+		#net2 = ckpt['net']
 		top1_acc = checkpoint['top1_acc'] 
 		top5_acc = checkpoint['top5_acc'] 
 	else:
-		checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G1.t0')
-		net = checkpoint['net']
-		ckpt = torch.load('./checkpoint/ckpt_20190103_half_clean.t0')
-		net2 = ckpt['net']
+		print('==> Building model..')
+		net = VGG16()
 		top1_acc = 0
 		top5_acc = 0
 
 elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G1.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190525_B1.t0')
 	net = checkpoint['net']
 	#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 	#net2 = ckpt['net']
@@ -432,11 +425,8 @@ def train(epoch):
 	net.train()
 
 	end = time.time()
-	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(set_mask(mask_channel, 2, 1), 4, 0)
-	#mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_gau = 0
+		glob_blur = 0
 
 		# measure data loading time
 		data_time.update(time.time() - end)
@@ -458,8 +448,8 @@ def train(epoch):
 		optimizer.zero_grad()
 		loss.backward()
 
-		net_mask_mul(mask_channel)
-		add_network() 
+		#net_mask_mul(mask_channel)
+		#add_network() 
 
 		optimizer.step()
 
@@ -476,7 +466,7 @@ def train(epoch):
 				   data_time=data_time, loss=losses, top1=top1, top5=top5))
 
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_gau = 1
+		glob_blur = 1
 
 		# measure data loading time
 		data_time.update(time.time() - end)
@@ -498,8 +488,8 @@ def train(epoch):
 		optimizer.zero_grad()
 		loss.backward()
 
-		net_mask_mul(mask_channel)
-		add_network() 
+		#net_mask_mul(mask_channel)
+		#add_network() 
 
 		optimizer.step()
 
@@ -530,16 +520,11 @@ def test():
 	
 	end = time.time()
 	count = 0
-	if args.mode == 0:
-		pass
-	else:
-		mask_channel = torch.load('mask_null.dat')
-		#mask_channel = set_mask(mask_channel, 4, 1)
-		mask_channel = set_mask(set_mask(mask_channel, 2, 1), 4, 0)
-		net_mask_mul(mask_channel)
-		add_network()
 	for batch_idx, (inputs, targets) in enumerate(val_loader):
-		glob_gau = 1
+		if (args.blur != 0):
+			glob_blur = 1
+		else:
+			pass
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
 		inputs, targets = Variable(inputs), Variable(targets)
@@ -567,11 +552,11 @@ def test():
 				   batch_idx, len(val_loader), batch_time=batch_time, loss=losses,
 				   top1=top1, top5=top5))
 
+	print('Acc : {}'.format(top1.avg))
 	# Save checkpoint.
 	if top1.avg > top1_acc:
 		if mode == 0:
-			print('Acc : {}'.format(top1.avg))
-			return
+			pass
 		else:
 			print('Saving.. Acc : {}'.format(top1.avg))
 			state = {
@@ -581,7 +566,7 @@ def test():
 			}
 			if not os.path.isdir('checkpoint'):
 				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20190520_half_clean_G1.t0')
+			torch.save(state, './checkpoint/ckpt_20190525_B1.t0')
 			top1_acc = top1.avg
 
 def retrain(epoch):
@@ -623,7 +608,7 @@ def retrain(epoch):
 		optimizer.zero_grad()
 		loss.backward()
 
-		#quantize()
+		quantize()
 
 		net_mask_mul(mask_channel)
 		#add_network()
@@ -674,8 +659,8 @@ def findThreshold(params):
 		tmp = (torch.abs(params.data)>thres).type(torch.FloatTensor)
 		#result = torch.sum(tmp)/params.size()[0]*64/28
 		#result = torch.sum(tmp)/params.size()[0]*64/11
-		#result = torch.sum(tmp)/params.size()[0]*64/9
-		result = torch.sum(tmp)/params.size()[0]*4 #for half clean
+		result = torch.sum(tmp)/params.size()[0]*64/9
+		#result = torch.sum(tmp)/params.size()[0]*4 #for half clean
 		#result = torch.sum(tmp)/params.size()[0] # for full size
 		if ((100-args.pr)/100)>result:
 			print("threshold : {}".format(thres))
@@ -891,79 +876,61 @@ def set_mask(mask, block, val):
 		mask[15][:,0:2047] = val 
 	return mask
 
-def save_network(net):
-	mask = torch.load('mask_null.dat')
-	try:
-		mask[0] = net.conv1[0].weight.data
-		mask[1] = net.conv2[0].weight.data
-		mask[2] = net.conv3[0].weight.data
-		mask[3] = net.conv4[0].weight.data
-		mask[4] = net.conv5[0].weight.data
-		mask[5] = net.conv6[0].weight.data
-		mask[6] = net.conv7[0].weight.data
-		mask[7] = net.conv8[0].weight.data
-		mask[8] = net.conv9[0].weight.data
-		mask[9] = net.conv10[0].weight.data 
-		mask[10] = net.conv11[0].weight.data
-		mask[11] = net.conv12[0].weight.data
-		mask[12] = net.conv13[0].weight.data
-		mask[13] = net.fc1[0].weight.data
-		mask[14] = net.fc2[0].weight.data
-		mask[15] = net.fc3[0].weight.data
-	except:
-		for child in net.children():
-			for param in child.conv1[0].parameters():
-				mask[0] = param.data
-		for child in net.children():
-			for param in child.conv2[0].parameters():
-				mask[1] = param.data		
-		for child in net.children():
-			for param in child.conv3[0].parameters():
-				mask[2] = param.data		
-		for child in net.children():
-			for param in child.conv4[0].parameters():
-				mask[3] = param.data		
-		for child in net.children():
-			for param in child.conv5[0].parameters():
-				mask[4] = param.data	
-		for child in net.children():
-			for param in child.conv6[0].parameters():
-				mask[5] = param.data
-		for child in net.children():
-			for param in child.conv7[0].parameters():
-				mask[6] = param.data
-		for child in net.children():
-			for param in child.conv8[0].parameters():
-				mask[7] = param.data
-		for child in net.children():
-			for param in child.conv9[0].parameters():
-				mask[8] = param.data
-		for child in net.children():
-			for param in child.conv10[0].parameters():
-				mask[9] = param.data
-		for child in net.children():
-			for param in child.conv11[0].parameters():
-				mask[10] = param.data
-		for child in net.children():
-			for param in child.conv12[0].parameters():
-				mask[11] = param.data
-		for child in net.children():
-			for param in child.conv13[0].parameters():
-				mask[12] = param.data
+def save_network(layer):
+	for child in net2.children():
+		for param in child.conv1[0].parameters():
+			layer[0] = param.data
+	for child in net2.children():
+		for param in child.conv2[0].parameters():
+			layer[1] = param.data		
+	for child in net2.children():
+		for param in child.conv3[0].parameters():
+			layer[2] = param.data		
+	for child in net2.children():
+		for param in child.conv4[0].parameters():
+			layer[3] = param.data		
+	for child in net2.children():
+		for param in child.conv5[0].parameters():
+			layer[4] = param.data	
+	for child in net2.children():
+		for param in child.conv6[0].parameters():
+			layer[5] = param.data
+	for child in net2.children():
+		for param in child.conv7[0].parameters():
+			layer[6] = param.data
+	for child in net2.children():
+		for param in child.conv8[0].parameters():
+			layer[7] = param.data
+	for child in net2.children():
+		for param in child.conv9[0].parameters():
+			layer[8] = param.data
+	for child in net2.children():
+		for param in child.conv10[0].parameters():
+			layer[9] = param.data
+	for child in net2.children():
+		for param in child.conv11[0].parameters():
+			layer[10] = param.data
+	for child in net2.children():
+		for param in child.conv12[0].parameters():
+			layer[11] = param.data
+	for child in net2.children():
+		for param in child.conv13[0].parameters():
+			layer[12] = param.data
 
-		for child in net.children():
-			for param in child.fc1[0].parameters():
-				mask[13] = param.data
-		for child in net.children():
-			for param in child.fc2[0].parameters():
-				mask[14] = param.data
-		for child in net.children():
-			for param in child.fc3[0].parameters():
-				mask[15] = param.data
-	return mask
+	for child in net2.children():
+		for param in child.fc1[0].parameters():
+			layer[13] = param.data
+	for child in net2.children():
+		for param in child.fc2[0].parameters():
+			layer[14] = param.data
+	for child in net2.children():
+		for param in child.fc3[0].parameters():
+			layer[15] = param.data
+	return layer
 
 def add_network():
-	layer = save_network(net2)
+	layer = torch.load('layer_null.dat')
+	layer = save_network(layer)
 	for child in net.children():
 		for param in child.conv1[0].parameters():
 			param.data = torch.add(param.data,layer[0])
