@@ -1,11 +1,11 @@
 ########################################
 # train 0.125 from pruned, qunted half
 python3 -W ignore network_gen.py --block1 ckpt_20190403_half_clean.t0 --o ckpt_20190403_half_clean_G1.t0 --mode 1
-python3 -W ignore main_half_clean_G1_20190403.py --lr 0.1 --bs 128 --mode 1 --ne 20 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
-python3 -W ignore main_half_clean_G1_20190403.py --lr 0.01 --bs 128 --mode 1 --ne 20 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
-python3 -W ignore main_half_clean_G1_20190403.py --lr 0.001 --bs 128 --mode 1 --ne 20 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
-#python3 -W ignore main_half_clean_G1_20190403.py --lr 0.001 --bs 128 --mode 1 --ne 10 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
-#python3 -W ignore main_half_clean_G1_20190403.py --mode 0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
+python3 -W ignore main_half_clean_G1_20190403.py --lr 0.8 --bs 1024 --mode 1 --ne 50 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
+python3 -W ignore main_half_clean_G1_20190403.py --lr 0.08 --bs 1024 --mode 1 --ne 50 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
+python3 -W ignore main_half_clean_G1_20190403.py --lr 0.008 --bs 1024 --mode 1 --ne 50 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
+python3 -W ignore main_half_clean_G1_20190403.py --lr 0.001 --bs 128 --mode 1 --ne 10 -r --outputfile ckpt_20190403_half_clean_G1.t0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
+python3 -W ignore main_half_clean_G1_20190403.py --mode 0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
 ########################################
 
 ########################################

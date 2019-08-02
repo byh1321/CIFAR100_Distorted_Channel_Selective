@@ -32,7 +32,6 @@ import struct
 import random
 import cifar_dirty_test
 import cifar_dirty_train
-#import VGG16_yh 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -810,25 +809,12 @@ if args.pr:
 
 #printsize()
 #net = checkpoint['net']
-'''
 if use_cuda:
 	net.cuda()
-	if args.mode > 0:
-		net = torch.nn.DataParallel(net, device_ids=range(0,1))
-		net2.cuda()
-		#net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
-		net2 = torch.nn.DataParallel(net2, device_ids=range(0,1))
-	else:
-		net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
-	cudnn.benchmark = True
-'''
-if use_cuda:
-	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(0,1))
+	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 	if args.mode > 0:
 		net2.cuda()
-		#net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
-		net2 = torch.nn.DataParallel(net2, device_ids=range(0,1))
+		net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
 	cudnn.benchmark = True
 
 #pruneNetwork(mask)

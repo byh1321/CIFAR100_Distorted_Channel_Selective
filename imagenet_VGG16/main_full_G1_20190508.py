@@ -40,7 +40,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20181006_blur_0675.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190508_gau_03.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -152,18 +152,25 @@ class VGG16(nn.Module):
 		self._initialize_weights()
 
 	def forward(self,x):
-		if (args.gau==0)&(args.blur==0):
+		global glob_gau
+		global glob_blur
+		if args.print == 1:
+			npimg = np.array(x,dtype=float)
+			npimg = npimg.squeeze(0)
+			scipy.misc.toimage(npimg).save("img0.png")
+		#Noise generation part
+		if (glob_gau==0)&(glob_blur==0):
 			#no noise
 			pass
 
-		elif (args.blur == 0)&(args.gau != 0):
+		elif (glob_blur == 0)&(glob_gau == 1):
 			#gaussian noise add
 			
 			gau_kernel = torch.randn(x.size())*args.gau
 			x = Variable(gau_kernel.cuda()) + x
 			
 
-		elif (args.gau == 0)&(args.blur != 0):
+		elif (glob_gau == 0)&(glob_blur == 1):
 			#blur noise add
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -177,7 +184,7 @@ class VGG16(nn.Module):
 			#x = torch.nn.functional.conv2d(x, weight=blur_kernel.cuda(), padding=blur_padding)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
 
-		elif (args.gau != 0) & (args.blur != 0):
+		elif (glob_gau == 1) & (glob_blur == 1):
 			#both gaussian and blur noise added
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -322,7 +329,7 @@ elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20190508_gau_03.t0')
 		net = checkpoint['net']
 		#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 		#net2 = ckpt['net']
@@ -335,7 +342,7 @@ elif args.mode == 1:
 		top5_acc = 0
 
 elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20181006_blur_0675.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190508_gau_03.t0')
 	net = checkpoint['net']
 	#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 	#net2 = ckpt['net']
@@ -418,11 +425,8 @@ def train(epoch):
 	net.train()
 
 	end = time.time()
-	#mask_channel = torch.load('mask_null.dat')
-	#mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	#mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 0
+		glob_gau = 0
 
 		# measure data loading time
 		data_time.update(time.time() - end)
@@ -462,7 +466,7 @@ def train(epoch):
 				   data_time=data_time, loss=losses, top1=top1, top5=top5))
 
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_blur = 1
+		glob_gau = 1
 
 		# measure data loading time
 		data_time.update(time.time() - end)
@@ -517,6 +521,10 @@ def test():
 	end = time.time()
 	count = 0
 	for batch_idx, (inputs, targets) in enumerate(val_loader):
+		if (args.gau != 0):
+			glob_gau = 1
+		else:
+			pass
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
 		inputs, targets = Variable(inputs), Variable(targets)
@@ -544,11 +552,11 @@ def test():
 				   batch_idx, len(val_loader), batch_time=batch_time, loss=losses,
 				   top1=top1, top5=top5))
 
+	print('Acc : {}'.format(top1.avg))
 	# Save checkpoint.
 	if top1.avg > top1_acc:
 		if mode == 0:
-			print('Acc : {}'.format(top1.avg))
-			return
+			pass
 		else:
 			print('Saving.. Acc : {}'.format(top1.avg))
 			state = {
@@ -558,7 +566,7 @@ def test():
 			}
 			if not os.path.isdir('checkpoint'):
 				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20181006_blur_0675.t0')
+			torch.save(state, './checkpoint/ckpt_20190508_gau_03.t0')
 			top1_acc = top1.avg
 
 def retrain(epoch):
@@ -1047,7 +1055,7 @@ elif mode == 1: # mode=1 is training & inference @ each epoch
 
 		test()
 elif mode == 2: # retrain for quantization and pruning
-	for epoch in range(0,10):
+	for epoch in range(0,50):
 		print("epoch : {}".format(epoch))
 		print(time.ctime())
 		retrain(epoch, mask_prune) 

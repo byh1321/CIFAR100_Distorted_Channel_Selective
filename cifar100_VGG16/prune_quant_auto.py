@@ -670,7 +670,7 @@ def retrain(epoch,mask):
 		if args.fixed:
 			quantize()
 
-		pruneNetwork(mask):
+		pruneNetwork(mask)
 
 		optimizer.step()
 

@@ -753,11 +753,11 @@ def train(epoch):
 
 		optimizer.step()
 
-		train_loss += loss.data.item()
+		train_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
 		#correct += predicted.eq(targets.data).cpu().sum().item().item()
-		correct += predicted.eq(targets.data).cpu().sum().item()
+		correct += predicted.eq(targets.data).cpu().sum()
 
 		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
@@ -778,10 +778,10 @@ def test():
 		outputs = net(inputs)
 		loss = criterion(outputs, targets)
 
-		test_loss += loss.data.item()
+		test_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum().item()
+		correct += predicted.eq(targets.data).cpu().sum()
 		#correct += predicted.eq(targets.data).cpu().sum().item().item()
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), float(100.*correct/total), correct, total))
@@ -831,10 +831,10 @@ def retrain(epoch, mask):
 
 		optimizer.step()
 
-		train_loss += loss.data.item()
+		train_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum().item()
+		correct += predicted.eq(targets.data).cpu().sum()
 
 		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
