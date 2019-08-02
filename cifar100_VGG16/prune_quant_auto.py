@@ -3,7 +3,7 @@ some parts of code are extracted from "https://github.com/kuangliu/pytorch-cifar
 I modified some parts for our experiment
 '''
 ############################################################################################
-# example : python3 -W ignore prune_auto.py --network ckpt_20180425.t0 --pr 80 --outputfile ckpt_20180425_prune_80.t0 --pprec 7
+# example : python3 -W ignore prune_auto.py --network ckpt_20180425.t0 --pr 80 --output ckpt_20180425_prune_80.t0 --pprec 7
 ############################################################################################
 
 
@@ -27,10 +27,6 @@ import argparse
 
 import struct
 import random
-import cifar_dirty_test
-import cifar_dirty_train
-import concate_network as cn
-#import VGG16_yh 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -40,23 +36,19 @@ parser.add_argument('--ne', default=0, type=int, help='number of epoch')
 parser.add_argument('--pr', default=0, type=int, help='pruning') # mode=1 is pruning, mode=0 is no pruning
 parser.add_argument('--bs', default=128, type=int, help='batch size')
 parser.add_argument('--mode', default=1, type=int, help='train or inference') #mode=1 is train, mode=0 is inference
-parser.add_argument('--thres', default=0.0005, type=float)
+parser.add_argument('--thres', default=0, type=float)
 parser.add_argument('--pprec', type=int, default=20, metavar='N',help='parameter precision for layer weight')
 parser.add_argument('--aprec', type=int, default=20, metavar='N',help='Arithmetic precision for internal arithmetic')
 parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer bitwidth for internal part')
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--network', default='NULL', help='input network ckpt name', metavar="FILE")
-parser.add_argument('--outputfile', default='garbage.txt', help='output file name', metavar="FILE")
+parser.add_argument('--output', default='garbage.txt', help='output file name', metavar="FILE")
 
 
 args = parser.parse_args()
 
 use_cuda = torch.cuda.is_available()
 best_acc = 0  # best test accuracy
-best_acc_80 = 0
-best_acc_90 = 0
-
-use_cuda = torch.cuda.is_available()
 
 transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
 									  transforms.RandomHorizontalFlip(),
@@ -68,34 +60,7 @@ transform_test = transforms.Compose([transforms.ToTensor(),
 cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_transform=None, download=True)
 cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
 
-cifar_test_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_test_targets.csv")
-cifar_test_gaussian_016 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_test_targets.csv")
-cifar_test_gaussian_008 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_test_targets.csv")
-
-cifar_train_gaussian_025 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
-cifar_train_gaussian_016 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_train_targets.csv")
-cifar_train_gaussian_008 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_train_targets.csv")
-
-cifar_test_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_test_targets.csv")
-cifar_test_blur_08 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_test_targets.csv")
-cifar_test_blur_06 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_test_targets.csv")
-cifar_test_blur_03 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_test_targets.csv")
-
-cifar_train_blur_10 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
-cifar_train_blur_08 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_train_targets.csv")
-cifar_train_blur_06 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_train_targets.csv")
-cifar_train_blur_03 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_train_targets.csv")
-
-cifar_train_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
-cifar_train_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
-
-cifar_train_gaussian_008_blur_03_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.3_train_targets.csv") 
-cifar_train_gaussian_016_blur_06_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.6_train_targets.csv") 
-cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.16_blur_0.8_train_targets.csv") 
-cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
-
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-#train_loader = torch.utils.data.DataLoader(cifar_train_blur_03,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 mode = args.mode
@@ -296,24 +261,74 @@ def quant(input):
 	#input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
 	return input
 
-def paramsget():
-	params = net.conv1[0].weight.view(-1,)
-	params = torch.cat((params,net.conv2[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv3[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv4[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv5[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv6[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv7[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv8[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv9[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv10[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv11[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv12[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.conv13[0].weight.view(-1,)),0)
-	params = torch.cat((params,net.fc1[1].weight.view(-1,)),0)
-	params = torch.cat((params,net.fc2[1].weight.view(-1,)),0)
-	params = torch.cat((params,net.fc3[0].weight.view(-1,)),0)
-	#net = checkpoint['net']
+def paramsget(net):
+	try:
+		params = net.conv1[0].weight.view(-1,)
+		params = torch.cat((params,net.conv2[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv3[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv4[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv5[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv6[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv7[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv8[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv9[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv10[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv11[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv12[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv13[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.fc1[1].weight.view(-1,)),0)
+		params = torch.cat((params,net.fc2[1].weight.view(-1,)),0)
+		params = torch.cat((params,net.fc3[0].weight.view(-1,)),0)
+	except:
+		for child in net.children():
+			for param in child.conv1[0].parameters():
+				params = param.view(-1,)
+		for child in net.children():
+			for param in child.conv2[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv3[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv4[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv5[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv6[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv7[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv8[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv9[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv10[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv11[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv12[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv13[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+
+		for child in net.children():
+			for param in child.fc1[1].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.fc2[1].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.fc3[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
 	return params
 
 def findThreshold(params):
@@ -329,38 +344,73 @@ def findThreshold(params):
 
 def getPruningMask(thres):
 	mask = torch.load('mask_null.dat')
-	mask[0] = torch.abs(net.conv1[0].weight.data)>thres
-	mask[1] = torch.abs(net.conv2[0].weight.data)>thres
-	mask[2] = torch.abs(net.conv3[0].weight.data)>thres
-	mask[3] = torch.abs(net.conv4[0].weight.data)>thres
-	mask[4] = torch.abs(net.conv5[0].weight.data)>thres
-	mask[5] = torch.abs(net.conv6[0].weight.data)>thres
-	mask[6] = torch.abs(net.conv7[0].weight.data)>thres
-	mask[7] = torch.abs(net.conv8[0].weight.data)>thres
-	mask[8] = torch.abs(net.conv9[0].weight.data)>thres
-	mask[9] = torch.abs(net.conv10[0].weight.data)>thres
-	mask[10] = torch.abs(net.conv11[0].weight.data)>thres
-	mask[11] = torch.abs(net.conv12[0].weight.data)>thres
-	mask[12] = torch.abs(net.conv13[0].weight.data)>thres
-	mask[13] = torch.abs(net.fc1[1].weight.data)>thres
-	mask[14] = torch.abs(net.fc2[1].weight.data)>thres
-	mask[15] = torch.abs(net.fc3[0].weight.data)>thres
-	mask[0] = mask[0].type(torch.FloatTensor)
-	mask[1] = mask[1].type(torch.FloatTensor)
-	mask[2] = mask[2].type(torch.FloatTensor)
-	mask[3] = mask[3].type(torch.FloatTensor)
-	mask[4] = mask[4].type(torch.FloatTensor)
-	mask[5] = mask[5].type(torch.FloatTensor)
-	mask[6] = mask[6].type(torch.FloatTensor)
-	mask[7] = mask[7].type(torch.FloatTensor)
-	mask[8] = mask[8].type(torch.FloatTensor)
-	mask[9] = mask[9].type(torch.FloatTensor)
-	mask[10] = mask[10].type(torch.FloatTensor)
-	mask[11] = mask[11].type(torch.FloatTensor)
-	mask[12] = mask[12].type(torch.FloatTensor)
-	mask[13] = mask[13].type(torch.FloatTensor)
-	mask[14] = mask[14].type(torch.FloatTensor)
-	mask[15] = mask[15].type(torch.FloatTensor)
+	try:
+		mask[0] = (torch.abs(net.conv1[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[1] = (torch.abs(net.conv2[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[2] = (torch.abs(net.conv3[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[3] = (torch.abs(net.conv4[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[4] = (torch.abs(net.conv5[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[5] = (torch.abs(net.conv6[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[6] = (torch.abs(net.conv7[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[7] = (torch.abs(net.conv8[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[8] = (torch.abs(net.conv9[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[9] = (torch.abs(net.conv10[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[10] = (torch.abs(net.conv11[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[11] = (torch.abs(net.conv12[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[12] = (torch.abs(net.conv13[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[13] = (torch.abs(net.fc1[1].weight.data)>thres).type(torch.FloatTensor)
+		mask[14] = (torch.abs(net.fc2[1].weight.data)>thres).type(torch.FloatTensor)
+		mask[15] = (torch.abs(net.fc3[0].weight.data)>thres).type(torch.FloatTensor)
+	except:
+		for child in net.children():
+			for param in child.conv1[0].parameters():
+				mask[0] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv2[0].parameters():
+				mask[1] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv3[0].parameters():
+				mask[2] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv4[0].parameters():
+				mask[3] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv5[0].parameters():
+				mask[4] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv6[0].parameters():
+				mask[5] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv7[0].parameters():
+				mask[6] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv8[0].parameters():
+				mask[7] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv9[0].parameters():
+				mask[8] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv10[0].parameters():
+				mask[9] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv11[0].parameters():
+				mask[10] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv12[0].parameters():
+				mask[11] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv13[0].parameters():
+				mask[12] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+
+		for child in net.children():
+			for param in child.fc1[1].parameters():
+				mask[13] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.fc2[1].parameters():
+				mask[14] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.fc3[0].parameters():
+				mask[15] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
 	return mask
 
 
@@ -432,6 +482,58 @@ def pruneNetwork(mask):
 			param.data = torch.mul(param.data,mask[15].cuda())
 	return
 
+def quantize():
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(args.pprec))) * (2 ** -(args.pprec))
+
+
 # Load checkpoint.
 print('==> Resuming from checkpoint..')
 
@@ -501,10 +603,10 @@ def train(epoch):
 		loss.backward()
 		optimizer.step()
 
-		train_loss += loss.data[0]
+		train_loss += loss.data.item()
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += float(predicted.eq(targets.data).cpu().sum())
 
 		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
@@ -522,10 +624,10 @@ def test():
 		outputs = net(inputs)
 		loss = criterion(outputs, targets)
 
-		test_loss += loss.data[0]
+		test_loss += loss.data.item()
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += float(predicted.eq(targets.data).cpu().sum())
 
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
@@ -534,14 +636,15 @@ def test():
 	# Save checkpoint.
 	acc = 100.*correct/total
 	if acc > best_acc:
-		print('Saving..')
 		state = {
 			'net': net.module if use_cuda else net,
 			'acc': acc,
 		}
 		if not os.path.isdir('checkpoint'):
 			os.mkdir('checkpoint')
-		torch.save(state, './checkpoint/'+args.outputfile)
+		if args.mode > 0:
+			print('Saving..')
+			torch.save(state, './checkpoint/'+args.output)
 		best_acc = acc
 
 		return acc
@@ -564,74 +667,21 @@ def retrain(epoch,mask):
 		loss = criterion(outputs, targets)
 		loss.backward()
 
-		quantize()
+		if args.fixed:
+			quantize()
 
 		pruneNetwork(mask):
 
 		optimizer.step()
 
-		train_loss += loss.data[0]
+		train_loss += loss.data.item()
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
+		correct += float(predicted.eq(targets.data).cpu().sum())
 
 		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 		acc = 100.*correct/total
-
-# Truncate weight param
-pprec = args.pprec
-def quantize():
-	for child in net.children():
-		for param in child.conv1[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv2[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv3[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv4[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv5[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv6[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv7[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv8[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv9[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv10[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv11[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv12[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.conv13[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-
-	for child in net.children():
-		for param in child.fc1[1].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.fc2[1].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-	for child in net.children():
-		for param in child.fc3[0].parameters():
-			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
-
 
 # Train+inference vs. Inference
 if mode == 1: # mode=1 is training & inference @ each epoch
@@ -641,7 +691,7 @@ if mode == 1: # mode=1 is training & inference @ each epoch
 elif mode == 0: # only inference
 	test()
 elif mode == 2: # retrain for quantization
-	for epoch in range(0,10):
+	for epoch in range(0,args.ne):
 		retrain(epoch) 
 		test()
 else:
