@@ -40,7 +40,7 @@ parser.add_argument('--iwidth', type=int, default=10, metavar='N',help='integer 
 parser.add_argument('--fixed', type=int, default=0, metavar='N',help='fixed=0 - floating point arithmetic')
 parser.add_argument('--gau', type=float, default=0, metavar='N',help='gaussian noise standard deviation')
 parser.add_argument('--blur', type=float, default=0, metavar='N',help='blur noise standard deviation')
-parser.add_argument('--network', default='ckpt_20190520_half_clean_G1.t0', help='input network ckpt name', metavar="FILE")
+parser.add_argument('--network', default='ckpt_20190520_half_clean_G2.t0', help='input network ckpt name', metavar="FILE")
 
 args = parser.parse_args()
 
@@ -334,14 +334,14 @@ elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-		checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G2.t0')
 		net = checkpoint['net']
 		ckpt = torch.load('./checkpoint/ckpt_20190520_half_clean_G1.t0')
 		net2 = ckpt['net']
 		top1_acc = checkpoint['top1_acc'] 
 		top5_acc = checkpoint['top5_acc'] 
 	else:
-		checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G1.t0')
+		checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G2.t0')
 		net = checkpoint['net']
 		ckpt = torch.load('./checkpoint/ckpt_20190520_half_clean_G1.t0')
 		net2 = ckpt['net']
@@ -349,7 +349,7 @@ elif args.mode == 1:
 		top5_acc = 0
 
 elif args.mode == 2:
-	checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G1.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190520_half_clean_G2.t0')
 	net = checkpoint['net']
 	#ckpt = torch.load('./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0')
 	#net2 = ckpt['net']
@@ -581,7 +581,7 @@ def test():
 			}
 			if not os.path.isdir('checkpoint'):
 				os.mkdir('checkpoint')
-			torch.save(state, './checkpoint/ckpt_20190520_half_clean_G1.t0')
+			torch.save(state, './checkpoint/ckpt_20190520_half_clean_G2.t0')
 			top1_acc = top1.avg
 
 def retrain(epoch):
@@ -600,7 +600,7 @@ def retrain(epoch):
 
 	mask_channel = torch.load('mask_null.dat')
 	#mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	mask_channel = set_mask(set_mask(mask_channel, 2, 1), 4, 0)
+	mask_channel = set_mask(mask_channel, 4, 1)
 
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		# measure data loading time

@@ -805,7 +805,8 @@ if __name__ == '__main__':
 	#Enable this part for blur 06, gau 008
 	#'''
 	if args.mode == 1:
-		mask = set_mask(0,1)
+		mask = set_mask(3,1)
+		mask = set_mask(4,0)
 		for i in range(16):
 			mask[i] = torch.mul(mask[i],mask_rand[i])
 		add_mask(net1,mask) 
@@ -826,7 +827,11 @@ if __name__ == '__main__':
 	#Enable this part for blur 08, gau 016
 	#'''
 	if args.mode == 2:
-		mask = set_mask(0,1)
+		mask = set_mask(3,1)
+		#print(type(mask))
+		net1 = net_mask_mul(net1, mask)
+		mask = set_mask(2,1)
+		mask = set_mask(3,0)
 		for i in range(16):
 			mask[i] = torch.mul(mask[i],mask_rand[i])
 		add_mask(net1,mask) 
