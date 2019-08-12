@@ -36,11 +36,25 @@
 #echo "half G2 done"
 #source do_train_half_clean_G3_20180914
 #echo "half G3 done"
-source do_train_full_G1_20180914
-echo "full G1 done"
-source do_train_full_G2_20180914
-echo "full G2 done"
-source do_train_full_G3_20180914
-echo "full G3 done"
-source do_train_full_all_20180913
-echo "full all done"
+#source do_train_full_G1_20180914
+#echo "full G1 done"
+#source do_train_full_G2_20180914
+#echo "full G2 done"
+#source do_train_full_G3_20180914
+#echo "full G3 done"
+#source do_train_full_all_20180913
+#echo "full all done"
+
+#################################################  20190403  ###################################################
+#source do_train_half_clean_G1_20190403
+#source do_train_half_clean_G2_20190403
+#source do_train_half_clean_G3_20190403
+#source do_train_half_clean_G1_transfer_20190403
+#source do_train_half_clean_G2_transfer_20190403
+#source do_train_half_clean_G3_transfer_20190403
+python3 -W ignore main_half_clean_G1_20190403.py --mode 0 --network ckpt_20190403_half_clean_G1.t0 --gau 0.05
+python3 -W ignore main_half_clean_G2_20190403.py --mode 0 --network ckpt_20190403_half_clean_G2.t0 --gau 0.1
+python3 -W ignore main_half_clean_G3_20190403.py --mode 0 --network ckpt_20190403_half_clean_G3.t0 --gau 0.15
+python3 -W ignore main_half_clean_G1_20190403_transfer.py --mode 0 --network ckpt_20190403_half_clean_G1_transfer.t0 --gau 0.05
+python3 -W ignore main_half_clean_G2_20190403_transfer.py --mode 0 --network ckpt_20190403_half_clean_G2_transfer.t0 --gau 0.1
+python3 -W ignore main_half_clean_G3_20190403_transfer.py --mode 0 --network ckpt_20190403_half_clean_G3_transfer.t0 --gau 0.15

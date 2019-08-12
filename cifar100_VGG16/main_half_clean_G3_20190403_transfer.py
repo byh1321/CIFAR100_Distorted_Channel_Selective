@@ -32,6 +32,7 @@ import struct
 import random
 import cifar_dirty_test
 import cifar_dirty_train
+#import VGG16_yh 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -511,9 +512,10 @@ def set_mask(mask, block, val):
 		mask[10][:,:,:,:] = val
 		mask[11][:,:,:,:] = val
 		mask[12][:,:,:,:] = val
-		mask[13][:,:] = val 
-		mask[14][:,:] = val 
-		mask[15][:,:] = val 
+		if val == 1:
+			mask[13][:,:] = val 
+			mask[14][:,:] = val 
+			mask[15][:,:] = val 
 	elif block == 1:
 		for i in range(56):
 			mask[0][i,:,:,:] = val
@@ -532,9 +534,11 @@ def set_mask(mask, block, val):
 			mask[10][i,0:447,:,:] = val
 			mask[11][i,0:447,:,:] = val
 			mask[12][i,0:447,:,:] = val
-			mask[13][i,0:447] = val 
-			mask[14][i,0:447] = val 
-		mask[15][:,0:447] = val 
+			if val == 1:
+				mask[13][i,0:447] = val 
+				mask[14][i,0:447] = val 
+		if val == 1:
+			mask[15][:,0:447] = val 
 	elif block == 2:
 		for i in range(48):
 			mask[0][i,:,:,:] = val
@@ -553,9 +557,11 @@ def set_mask(mask, block, val):
 			mask[10][i,0:383,:,:] = val
 			mask[11][i,0:383,:,:] = val
 			mask[12][i,0:383,:,:] = val
-			mask[13][i,0:383] = val 
-			mask[14][i,0:383] = val 
-		mask[15][:,0:383] = val 
+			if val == 1:
+				mask[13][i,0:383] = val 
+				mask[14][i,0:383] = val 
+		if val == 1:
+			mask[15][:,0:383] = val 
 	elif block == 3:
 		for i in range(40):
 			mask[0][i,:,:,:] = val
@@ -574,9 +580,11 @@ def set_mask(mask, block, val):
 			mask[10][i,0:319,:,:] = val
 			mask[11][i,0:319,:,:] = val
 			mask[12][i,0:319,:,:] = val
-			mask[13][i,0:319] = val 
-			mask[14][i,0:319] = val 
-		mask[15][:,0:319] = val 
+			if val == 1:
+				mask[13][i,0:319] = val 
+				mask[14][i,0:319] = val 
+		if val == 1:
+			mask[15][:,0:319] = val 
 	elif block == 4:
 		for i in range(32):
 			mask[0][i,:,:,:] = val
@@ -595,9 +603,11 @@ def set_mask(mask, block, val):
 			mask[10][i,0:255,:,:] = val
 			mask[11][i,0:255,:,:] = val
 			mask[12][i,0:255,:,:] = val
-			mask[13][i,0:255] = val 
-			mask[14][i,0:255] = val 
-		mask[15][:,0:255] = val 
+			if val == 1:
+				mask[13][i,0:255] = val 
+				mask[14][i,0:255] = val 
+		if val == 1:
+			mask[15][:,0:255] = val 
 	return mask
 
 def save_network(layer):
@@ -694,7 +704,8 @@ def add_network():
 	for child in net.children():
 		for param in child.conv13[0].parameters():
 			param.data = torch.add(param.data,layer[12])
-
+	
+	"""
 	for child in net.children():
 		for param in child.fc1[1].parameters():
 			param.data = torch.add(param.data,layer[13])
@@ -704,6 +715,7 @@ def add_network():
 	for child in net.children():
 		for param in child.fc3[0].parameters():
 			param.data = torch.add(param.data,layer[15])
+	"""
 
 def net_mask_mul(mask):
 	for child in net.children():
@@ -780,8 +792,8 @@ if args.mode == 0:
 	net = checkpoint['net']
 
 elif args.mode == 1:
-	checkpoint = torch.load('./checkpoint/ckpt_20190403_half_clean_G1.t0')
-	ckpt = torch.load('./checkpoint/ckpt_20190403_half_clean.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190403_half_clean_G3_transfer.t0')
+	ckpt = torch.load('./checkpoint/ckpt_20190403_half_clean_G2_transfer.t0')
 	net = checkpoint['net']
 	net2 = ckpt['net']
 	if args.resume:
@@ -811,10 +823,12 @@ if args.pr:
 #net = checkpoint['net']
 if use_cuda:
 	net.cuda()
-	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
+	#net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
+	net = torch.nn.DataParallel(net, device_ids=range(0,1))
 	if args.mode > 0:
 		net2.cuda()
-		net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
+		#net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
+		net2 = torch.nn.DataParallel(net2, device_ids=range(0,1))
 	cudnn.benchmark = True
 
 #pruneNetwork(mask)
@@ -836,7 +850,7 @@ def train(epoch):
 	correct = 0
 	total = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	mask_channel = set_mask(set_mask(mask_channel, 0, 1), 2, 0)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		glob_gau = 0
 		if use_cuda:
@@ -892,7 +906,7 @@ def test():
 	correct = 0
 	total = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	mask_channel = set_mask(set_mask(mask_channel, 0, 1), 2, 0)
 	if args.mode > 0:
 		net_mask_mul(mask_channel)
 		add_network()
@@ -926,7 +940,7 @@ def test():
 			pass
 		else:
 			print('Saving..')
-			torch.save(state, './checkpoint/ckpt_20190403_half_clean_G1.t0')
+			torch.save(state, './checkpoint/ckpt_20190403_half_clean_G3_transfer.t0')
 		best_acc = acc
 
 	return acc
@@ -940,7 +954,7 @@ def retrain(epoch, mask):
 	total = 0
 	correct = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	mask_channel = set_mask(set_mask(mask_channel, 0, 1), 2, 0)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()

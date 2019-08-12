@@ -49,7 +49,7 @@ def init_params(net):
 _, term_width = os.popen('stty size', 'r').read().split()
 term_width = int(term_width)
 
-TOTAL_BAR_LENGTH = 65.
+TOTAL_BAR_LENGTH = 55.
 last_time = time.time()
 begin_time = last_time
 
@@ -129,15 +129,443 @@ def format_time(seconds):
     return f
 
 ##########################################################################
-# Codes bel this line is coded by YH.Byun
+# Codes under this line is written by YH.Byun
 
-def print_4Dtensor_to_png(tensor, filename):
-	npimg = np.array(tensor,dtype=float)
-	npimg = npimg.squeeze(0)
-	scipy.misc.toimage(npimg).save(filename+".png")
+def saveInitialParameter(net):
+	try:
+		net_param = torch.load('mask_null.dat')
+		net_param[0] = net.conv1[0].weight.data
+		net_param[1] = net.conv2[0].weight.data
+		net_param[2] = net.conv3[0].weight.data
+		net_param[3] = net.conv4[0].weight.data
+		net_param[4] = net.conv5[0].weight.data
+		net_param[5] = net.conv6[0].weight.data
+		net_param[6] = net.conv7[0].weight.data
+		net_param[7] = net.conv8[0].weight.data
+		net_param[8] = net.conv9[0].weight.data
+		net_param[9] = net.conv10[0].weight.data 
+		net_param[10] = net.conv11[0].weight.data
+		net_param[11] = net.conv12[0].weight.data
+		net_param[12] = net.conv13[0].weight.data
+		net_param[13] = net.fc1[1].weight.data
+		net_param[14] = net.fc2[1].weight.data
+		net_param[15] = net.fc3[0].weight.data
+	except:
+		for child in net.children():
+			for param in child.conv1[0].parameters():
+				net_param[0] = param.data
+		for child in net.children():
+			for param in child.conv2[0].parameters():
+				net_param[1] = param.data
+		for child in net.children():
+			for param in child.conv3[0].parameters():
+				net_param[2] = param.data
+		for child in net.children():
+			for param in child.conv4[0].parameters():
+				net_param[3] = param.data
+		for child in net.children():
+			for param in child.conv5[0].parameters():
+				net_param[4] = param.data
+		for child in net.children():
+			for param in child.conv6[0].parameters():
+				net_param[5] = param.data
+		for child in net.children():
+			for param in child.conv7[0].parameters():
+				net_param[6] = param.data
+		for child in net.children():
+			for param in child.conv8[0].parameters():
+				net_param[7] = param.data
+		for child in net.children():
+			for param in child.conv9[0].parameters():
+				net_param[8] = param.data
+		for child in net.children():
+			for param in child.conv10[0].parameters():
+				net_param[9] = param.data
+		for child in net.children():
+			for param in child.conv11[0].parameters():
+				net_param[10] = param.data
+		for child in net.children():
+			for param in child.conv12[0].parameters():
+				net_param[11] = param.data
+		for child in net.children():
+			for param in child.conv13[0].parameters():
+				net_param[12] = param.data
+		for child in net.children():
+			for param in child.fc1[1].parameters():
+				net_param[13] = param.data
+		for child in net.children():
+			for param in child.fc2[1].parameters():
+				net_param[14] = param.data
+		for child in net.children():
+			for param in child.fc3[0].parameters():
+				net_param[15] = param.data
+	torch.save(net_param,'./net_initialized_param.dat')
+	print("saving initial parameters")
+	
+def quantize(net, pprec):
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
 
-def genblurkernel(sigma):
-	order = 0
-	radius = int(4 * float(sigma) + 0.5)
-	kernel = scipy.ndimage.filters._gaussian_kernel1d(sigma, order, radius)
-	return kernel
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.round(param.data / (2 ** -(pprec))) * (2 ** -(pprec))
+	return net
+
+def maskGen(num_class):
+	mask=[]
+
+	mask_conv0 = torch.zeros(64,3,3,3).cuda()
+	mask_conv1 = torch.zeros(64,64,3,3).cuda()
+
+	mask_conv2 = torch.zeros(128,64,3,3).cuda()
+	mask_conv3 = torch.zeros(128,128,3,3).cuda()
+
+	mask_conv4 = torch.zeros(256,128,3,3).cuda()
+	mask_conv5 = torch.zeros(256,256,3,3).cuda()
+	mask_conv6 = torch.zeros(256,256,3,3).cuda()
+
+	mask_conv7 = torch.zeros(512,256,3,3).cuda()
+	mask_conv8 = torch.zeros(512,512,3,3).cuda()
+	mask_conv9 = torch.zeros(512,512,3,3).cuda()
+	mask_conv10 = torch.zeros(512,512,3,3).cuda()
+	mask_conv11 = torch.zeros(512,512,3,3).cuda()
+	mask_conv12 = torch.zeros(512,512,3,3).cuda()
+	mask_fc0 = torch.zeros(512,512).cuda()
+	mask_fc1 = torch.zeros(512,512).cuda()
+
+	mask_fc2 = torch.zeros(num_class,512).cuda()
+
+	mask.append(mask_conv0)
+	mask.append(mask_conv1)
+	mask.append(mask_conv2)
+	mask.append(mask_conv3)
+	mask.append(mask_conv4)
+	mask.append(mask_conv5)
+	mask.append(mask_conv6)
+	mask.append(mask_conv7)
+	mask.append(mask_conv8)
+	mask.append(mask_conv9)
+	mask.append(mask_conv10)
+	mask.append(mask_conv11)
+	mask.append(mask_conv12)
+	mask.append(mask_fc0)
+	mask.append(mask_fc1)
+	mask.append(mask_fc2)
+
+	torch.save(mask, 'mask_null.dat')
+
+def pruneNetwork(net, mask):
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[0].cuda())
+			param.data = torch.mul(param.data,mask[0].cuda())
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[1].cuda())
+			param.data = torch.mul(param.data,mask[1].cuda())
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[2].cuda())
+			param.data = torch.mul(param.data,mask[2].cuda())
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[3].cuda())
+			param.data = torch.mul(param.data,mask[3].cuda())
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[4].cuda())
+			param.data = torch.mul(param.data,mask[4].cuda())
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[5].cuda())
+			param.data = torch.mul(param.data,mask[5].cuda())
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[6].cuda())
+			param.data = torch.mul(param.data,mask[6].cuda())
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[7].cuda())
+			param.data = torch.mul(param.data,mask[7].cuda())
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[8].cuda())
+			param.data = torch.mul(param.data,mask[8].cuda())
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[9].cuda())
+			param.data = torch.mul(param.data,mask[9].cuda())
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[10].cuda())
+			param.data = torch.mul(param.data,mask[10].cuda())
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[11].cuda())
+			param.data = torch.mul(param.data,mask[11].cuda())
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[12].cuda())
+			param.data = torch.mul(param.data,mask[12].cuda())
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[13].cuda())
+			param.data = torch.mul(param.data,mask[13].cuda())
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[14].cuda())
+			param.data = torch.mul(param.data,mask[14].cuda())
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.grad.data = torch.mul(param.grad.data,mask[15].cuda())
+			param.data = torch.mul(param.data,mask[15].cuda())
+	return net
+
+def paramsget(net):
+	try:
+		params = net.conv1[0].weight.view(-1,)
+		params = torch.cat((params,net.conv2[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv3[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv4[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv5[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv6[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv7[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv8[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv9[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv10[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv11[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv12[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.conv13[0].weight.view(-1,)),0)
+		params = torch.cat((params,net.fc1[1].weight.view(-1,)),0)
+		params = torch.cat((params,net.fc2[1].weight.view(-1,)),0)
+		params = torch.cat((params,net.fc3[0].weight.view(-1,)),0)
+	except:
+		for child in net.children():
+			for param in child.conv1[0].parameters():
+				params = param.view(-1,)
+		for child in net.children():
+			for param in child.conv2[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv3[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv4[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv5[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv6[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv7[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv8[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv9[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv10[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv11[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv12[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.conv13[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+
+		for child in net.children():
+			for param in child.fc1[1].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.fc2[1].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+		for child in net.children():
+			for param in child.fc3[0].parameters():
+				params = torch.cat((params,param.view(-1,)),0)
+	return params
+
+def findThreshold(net, params, pr):
+	thres=0
+	while 1:
+		tmp = (torch.abs(params.data)<thres).type(torch.FloatTensor)
+		result = torch.sum(tmp)/params.size()[0]
+		if (pr/100)<result:
+			#print("threshold : {}".format(thres))
+			return thres
+		else:
+			thres += 0.0001
+
+def getPruningMask(net, thres):
+	mask = torch.load('mask_null.dat')
+	try:
+		mask[0] = (torch.abs(net.conv1[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[1] = (torch.abs(net.conv2[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[2] = (torch.abs(net.conv3[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[3] = (torch.abs(net.conv4[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[4] = (torch.abs(net.conv5[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[5] = (torch.abs(net.conv6[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[6] = (torch.abs(net.conv7[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[7] = (torch.abs(net.conv8[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[8] = (torch.abs(net.conv9[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[9] = (torch.abs(net.conv10[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[10] = (torch.abs(net.conv11[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[11] = (torch.abs(net.conv12[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[12] = (torch.abs(net.conv13[0].weight.data)>thres).type(torch.FloatTensor)
+		mask[13] = (torch.abs(net.fc1[1].weight.data)>thres).type(torch.FloatTensor)
+		mask[14] = (torch.abs(net.fc2[1].weight.data)>thres).type(torch.FloatTensor)
+		mask[15] = (torch.abs(net.fc3[0].weight.data)>thres).type(torch.FloatTensor)
+	except:
+		for child in net.children():
+			for param in child.conv1[0].parameters():
+				mask[0] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv2[0].parameters():
+				mask[1] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv3[0].parameters():
+				mask[2] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv4[0].parameters():
+				mask[3] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv5[0].parameters():
+				mask[4] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv6[0].parameters():
+				mask[5] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv7[0].parameters():
+				mask[6] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv8[0].parameters():
+				mask[7] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv9[0].parameters():
+				mask[8] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv10[0].parameters():
+				mask[9] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv11[0].parameters():
+				mask[10] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv12[0].parameters():
+				mask[11] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.conv13[0].parameters():
+				mask[12] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+
+		for child in net.children():
+			for param in child.fc1[1].parameters():
+				mask[13] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.fc2[1].parameters():
+				mask[14] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+		for child in net.children():
+			for param in child.fc3[0].parameters():
+				mask[15] = (torch.abs(param.data)>thres).type(torch.FloatTensor)
+	return mask
+
+def netMaskMul(net, mask):
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.data = torch.mul(param.data,mask[0].cuda())
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.mul(param.data,mask[1].cuda())
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.mul(param.data,mask[2].cuda())
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.mul(param.data,mask[3].cuda())
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.mul(param.data,mask[4].cuda())
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.mul(param.data,mask[5].cuda())
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.mul(param.data,mask[6].cuda())
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.mul(param.data,mask[7].cuda())
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.mul(param.data,mask[8].cuda())
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.mul(param.data,mask[9].cuda())
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.mul(param.data,mask[10].cuda())
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.mul(param.data,mask[11].cuda())
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.mul(param.data,mask[12].cuda())
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.mul(param.data,mask[13].cuda())
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.mul(param.data,mask[14].cuda())
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.mul(param.data,mask[15].cuda())
+	return net
+

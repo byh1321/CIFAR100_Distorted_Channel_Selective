@@ -32,6 +32,8 @@ import struct
 import random
 import cifar_dirty_test
 import cifar_dirty_train
+import concate_network as cn
+#import VGG16_yh 
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -70,13 +72,36 @@ transform_test = transforms.Compose([transforms.ToTensor(),
 cifar_train = dset.CIFAR100("./", train=True, transform=transform_train, target_transform=None, download=True)
 cifar_test = dset.CIFAR100("./", train=False, transform=transform_test, target_transform=None, download=True)
 
-cifar_test_gaussian_015 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.15_blur_0.0_test_targets.csv")
-cifar_test_gaussian_010 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.1_blur_0.0_test_targets.csv")
-cifar_test_gaussian_005 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.05_blur_0.0_test_targets.csv")
+cifar_test_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_test_targets.csv")
+cifar_test_gaussian_016 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_test_targets.csv")
+cifar_test_gaussian_008 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_test_targets.csv")
 
-cifar_train_gaussian_015 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.15_blur_0.0_train_targets.csv")
-cifar_train_gaussian_010 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.1_blur_0.0_train_targets.csv")
-cifar_train_gaussian_005 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.05_blur_0.0_train_targets.csv")
+cifar_train_gaussian_025 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
+cifar_train_gaussian_016 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.0_train_targets.csv")
+cifar_train_gaussian_008 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.0_train_targets.csv")
+
+cifar_test_blur_15 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.5_test_targets.csv")
+cifar_test_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_test_targets.csv")
+cifar_test_blur_08 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_test_targets.csv")
+cifar_test_blur_06 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_test_targets.csv")
+cifar_test_blur_05 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_test_targets.csv")
+cifar_test_blur_04 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_test_targets.csv")
+cifar_test_blur_03 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_test_targets.csv")
+cifar_test_blur_066 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_test_targets.csv")
+cifar_test_blur_033 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.33_test_targets.csv")
+
+cifar_train_blur_15 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.5_train_targets.csv")
+cifar_train_blur_10 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
+cifar_train_blur_08 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.0_blur_0.8_train_targets.csv")
+cifar_train_blur_06 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.6_train_targets.csv")
+cifar_train_blur_05 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.5_train_targets.csv")
+cifar_train_blur_04 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.4_train_targets.csv")
+cifar_train_blur_03 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.3_train_targets.csv")
+cifar_train_blur_066 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.66_train_targets.csv")
+cifar_train_blur_033 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_0.33_train_targets.csv")
+
+cifar_train_gaussian_025 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_0.0_train_targets.csv")
+cifar_train_blur_10 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.0_blur_1.0_train_targets.csv")
 
 cifar_train_gaussian_008_blur_03_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.08_blur_0.3_train_targets.csv") 
 cifar_train_gaussian_016_blur_06_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.6_train_targets.csv") 
@@ -84,15 +109,11 @@ cifar_train_gaussian_008_blur_033_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/
 cifar_train_gaussian_016_blur_066_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.16_blur_0.66_train_targets.csv") 
 cifar_train_gaussian_016_blur_08_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/A2S/cifar100_VGG16/cifar100_gaussian_0.16_blur_0.8_train_targets.csv") 
 cifar_train_gaussian_025_blur_10_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.0_train_targets.csv") 
+cifar_train_gaussian_025_blur_15_mixed = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/180614_cifar_VGG16/cifar100_gaussian_0.25_blur_1.5_train_targets.csv") 
 
-#train_loader = torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([cifar_train, cifar_train_blur_033]),batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
-train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=1,drop_last=False)
-test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1000, shuffle=False,num_workers=1,drop_last=False)
-
-global glob_gau
-global glob_blur
-glob_gau = 0
-glob_blur = 0
+train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+#train_loader = torch.utils.data.DataLoader(cifar_train_blur_03,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
+test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=10000, shuffle=False,num_workers=8,drop_last=False)
 
 mode = args.mode
 
@@ -192,37 +213,24 @@ class CNN(nn.Module):
 		self.fc3 = nn.Sequential(
 			nn.Linear(512,100, bias=False) #fc_layer6
 		)
+		#self._initialize_weights()
 
 	def forward(self,x):
-		global glob_gau
-		global glob_blur
-
 		if args.imgprint == 1:
 			npimg = np.array(x,dtype=float)
 			npimg = npimg.squeeze(0)
 			scipy.misc.toimage(npimg).save("img0.png")
-
 		#Noise generation part
-		if (glob_gau==0)&(glob_blur==0):
+		if (args.gau==0)&(args.blur==0):
 			#no noise
 			pass
 
-		elif (glob_blur == 0)&(glob_gau == 1):
+		elif args.blur == 0:
 			#gaussian noise add
-			
-			gau_kernel = torch.randn(x.size())*args.gau
-			
-			#print(x[0,0,0,0:31])
-			#print(gau_kernel[0,0,0,0:31])
-			#
-			#x = Variable(gau_kernel.cuda()) + x
-			#
-			#print(x[0,0,0,0:31])
-			#exit()
-
+			gau_kernel = torch.randn(x.size())
 			x = Variable(gau_kernel.cuda()) + x
 
-		elif (glob_gau == 0)&(glob_blur == 1):
+		elif args.gau == 0:
 			#blur noise add
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -236,7 +244,7 @@ class CNN(nn.Module):
 			#x = torch.nn.functional.conv2d(x, weight=blur_kernel.cuda(), padding=blur_padding)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
 
-		elif (glob_gau == 1) & (glob_blur == 1):
+		elif (not(args.gau == 0)) & (not(args.blur == 0)):
 			#both gaussian and blur noise added
 			blur_kernel_partial = torch.FloatTensor(utils.genblurkernel(args.blur))
 			blur_kernel_partial = torch.matmul(blur_kernel_partial.unsqueeze(1),torch.transpose(blur_kernel_partial.unsqueeze(1),0,1))
@@ -248,17 +256,17 @@ class CNN(nn.Module):
 			blur_kernel = blur_kernel.view(3,3,kernel_size,kernel_size)
 			blur_padding = int((blur_kernel_partial.size()[0]-1)/2)
 			x = torch.nn.functional.conv2d(x, weight=Variable(blur_kernel.cuda()), padding=blur_padding)
-			gau_kernel = torch.randn(x.size())*args.gau
+			gau_kernel = torch.randn(x.size())
 			x = Variable(gau_kernel.cuda()) + x
 		else:
 			print("Something is wrong in noise adding part")
 			exit()
-
 		if args.imgprint == 1:
 			npimg = np.array(x,dtype=float)
 			npimg = npimg.squeeze(0)
 			scipy.misc.toimage(npimg).save("img1.png")
 			exit()
+
 
 		if args.fixed:
 			x = roundmax(x)
@@ -344,17 +352,38 @@ class CNN(nn.Module):
 			out22 = roundmax(out22)
 		'''
 		return out22
+	'''
+	def _initialize_weights(self):
+		for m in self.modules():
+			if isinstance(m, nn.Conv2d):
+				#print(m)
+				nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+
+				#if m.bias is not None:
+					#nn.init.constant_(m.bias, 0)
+			elif isinstance(m, nn.BatchNorm2d):
+				nn.init.constant_(m.weight, 1)
+				#nn.init.constant_(m.bias, 0)
+			elif isinstance(m, nn.Linear):
+				#print(m)
+				nn.init.normal_(m.weight, 0, 0.01)
+				#nn.init.constant_(m.bias, 0)
+	'''
+
+
 
 def roundmax(input):
+	'''
 	maximum = 2**args.iwidth-1
 	minimum = -maximum-1
 	input = F.relu(torch.add(input, -minimum))
 	input = F.relu(torch.add(torch.neg(input), maximum-minimum))
 	input = torch.add(torch.neg(input), maximum)
+	'''
 	return input	
 
 def quant(input):
-	input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
+	#input = torch.round(input / (2 ** (-args.aprec))) * (2 ** (-args.aprec))
 	return input
 
 def paramsget():
@@ -600,176 +629,55 @@ def set_mask(mask, block, val):
 		mask[15][:,0:255] = val 
 	return mask
 
-def save_network(layer):
-	for child in net2.children():
-		for param in child.conv1[0].parameters():
-			layer[0] = param.data
-	for child in net2.children():
-		for param in child.conv2[0].parameters():
-			layer[1] = param.data		
-	for child in net2.children():
-		for param in child.conv3[0].parameters():
-			layer[2] = param.data		
-	for child in net2.children():
-		for param in child.conv4[0].parameters():
-			layer[3] = param.data		
-	for child in net2.children():
-		for param in child.conv5[0].parameters():
-			layer[4] = param.data	
-	for child in net2.children():
-		for param in child.conv6[0].parameters():
-			layer[5] = param.data
-	for child in net2.children():
-		for param in child.conv7[0].parameters():
-			layer[6] = param.data
-	for child in net2.children():
-		for param in child.conv8[0].parameters():
-			layer[7] = param.data
-	for child in net2.children():
-		for param in child.conv9[0].parameters():
-			layer[8] = param.data
-	for child in net2.children():
-		for param in child.conv10[0].parameters():
-			layer[9] = param.data
-	for child in net2.children():
-		for param in child.conv11[0].parameters():
-			layer[10] = param.data
-	for child in net2.children():
-		for param in child.conv12[0].parameters():
-			layer[11] = param.data
-	for child in net2.children():
-		for param in child.conv13[0].parameters():
-			layer[12] = param.data
-
-	for child in net2.children():
-		for param in child.fc1[1].parameters():
-			layer[13] = param.data
-	for child in net2.children():
-		for param in child.fc2[1].parameters():
-			layer[14] = param.data
-	for child in net2.children():
-		for param in child.fc3[0].parameters():
-			layer[15] = param.data
-	return layer
-
-def add_network():
-	layer = torch.load('layer_null.dat')
-	layer = save_network(layer)
-	for child in net.children():
-		for param in child.conv1[0].parameters():
-			param.data = torch.add(param.data,layer[0])
-	for child in net.children():
-		for param in child.conv2[0].parameters():
-			param.data = torch.add(param.data,layer[1])
-	for child in net.children():
-		for param in child.conv3[0].parameters():
-			param.data = torch.add(param.data,layer[2])
-	for child in net.children():
-		for param in child.conv4[0].parameters():
-			param.data = torch.add(param.data,layer[3])
-	for child in net.children():
-		for param in child.conv5[0].parameters():
-			param.data = torch.add(param.data,layer[4])
-	for child in net.children():
-		for param in child.conv6[0].parameters():
-			param.data = torch.add(param.data,layer[5])
-	for child in net.children():
-		for param in child.conv7[0].parameters():
-			param.data = torch.add(param.data,layer[6])
-	for child in net.children():
-		for param in child.conv8[0].parameters():
-			param.data = torch.add(param.data,layer[7])
-	for child in net.children():
-		for param in child.conv9[0].parameters():
-			param.data = torch.add(param.data,layer[8])
-	for child in net.children():
-		for param in child.conv10[0].parameters():
-			param.data = torch.add(param.data,layer[9])
-	for child in net.children():
-		for param in child.conv11[0].parameters():
-			param.data = torch.add(param.data,layer[10])
-	for child in net.children():
-		for param in child.conv12[0].parameters():
-			param.data = torch.add(param.data,layer[11])
-	for child in net.children():
-		for param in child.conv13[0].parameters():
-			param.data = torch.add(param.data,layer[12])
-
-	for child in net.children():
-		for param in child.fc1[1].parameters():
-			param.data = torch.add(param.data,layer[13])
-	for child in net.children():
-		for param in child.fc2[1].parameters():
-			param.data = torch.add(param.data,layer[14])
-	for child in net.children():
-		for param in child.fc3[0].parameters():
-			param.data = torch.add(param.data,layer[15])
-
 def net_mask_mul(mask):
 	for child in net.children():
 		for param in child.conv1[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[0].cuda())
 			param.data = torch.mul(param.data,mask[0].cuda())
 	for child in net.children():
 		for param in child.conv2[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[1].cuda())
 			param.data = torch.mul(param.data,mask[1].cuda())
 	for child in net.children():
 		for param in child.conv3[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[2].cuda())
 			param.data = torch.mul(param.data,mask[2].cuda())
 	for child in net.children():
 		for param in child.conv4[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[3].cuda())
 			param.data = torch.mul(param.data,mask[3].cuda())
 	for child in net.children():
 		for param in child.conv5[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[4].cuda())
 			param.data = torch.mul(param.data,mask[4].cuda())
 	for child in net.children():
 		for param in child.conv6[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[5].cuda())
 			param.data = torch.mul(param.data,mask[5].cuda())
 	for child in net.children():
 		for param in child.conv7[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[6].cuda())
 			param.data = torch.mul(param.data,mask[6].cuda())
 	for child in net.children():
 		for param in child.conv8[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[7].cuda())
 			param.data = torch.mul(param.data,mask[7].cuda())
 	for child in net.children():
 		for param in child.conv9[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[8].cuda())
 			param.data = torch.mul(param.data,mask[8].cuda())
 	for child in net.children():
 		for param in child.conv10[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[9].cuda())
 			param.data = torch.mul(param.data,mask[9].cuda())
 	for child in net.children():
 		for param in child.conv11[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[10].cuda())
 			param.data = torch.mul(param.data,mask[10].cuda())
 	for child in net.children():
 		for param in child.conv12[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[11].cuda())
 			param.data = torch.mul(param.data,mask[11].cuda())
 	for child in net.children():
 		for param in child.conv13[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[12].cuda())
 			param.data = torch.mul(param.data,mask[12].cuda())
 
 	for child in net.children():
 		for param in child.fc1[1].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[13].cuda())
 			param.data = torch.mul(param.data,mask[13].cuda())
 	for child in net.children():
 		for param in child.fc2[1].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[14].cuda())
 			param.data = torch.mul(param.data,mask[14].cuda())
 	for child in net.children():
 		for param in child.fc3[0].parameters():
-			param.grad.data = torch.mul(param.grad.data,mask[15].cuda())
 			param.data = torch.mul(param.data,mask[15].cuda())
 
 # Load checkpoint.
@@ -780,15 +688,15 @@ if args.mode == 0:
 	net = checkpoint['net']
 
 elif args.mode == 1:
-	checkpoint = torch.load('./checkpoint/ckpt_20190403_half_clean_G1.t0')
-	ckpt = torch.load('./checkpoint/ckpt_20190403_half_clean.t0')
-	net = checkpoint['net']
-	net2 = ckpt['net']
 	if args.resume:
 		print('==> Resuming from checkpoint..')
-		best_acc = checkpoint['acc']
+		assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
+		checkpoint = torch.load('./checkpoint/ckpt_20180911_half_clean.t0')
+		best_acc = checkpoint['acc'] 
+		net = checkpoint['net']
 	else:
-		best_acc = 0
+		print('==> Building model..')
+		net = CNN()
 
 elif args.mode == 2:
 	checkpoint = torch.load('./checkpoint/'+args.network)
@@ -812,9 +720,6 @@ if args.pr:
 if use_cuda:
 	net.cuda()
 	net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
-	if args.mode > 0:
-		net2.cuda()
-		net2 = torch.nn.DataParallel(net2, device_ids=range(torch.cuda.device_count()))
 	cudnn.benchmark = True
 
 #pruneNetwork(mask)
@@ -828,17 +733,14 @@ num_epoch = args.ne
 
 # Training
 def train(epoch):
-	global glob_gau
-	global glob_blur
 	print('\nEpoch: %d' % epoch)
 	net.train()
 	train_loss = 0
 	correct = 0
 	total = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_gau = 0
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
 		optimizer.zero_grad()
@@ -848,54 +750,27 @@ def train(epoch):
 		loss.backward()
 
 		net_mask_mul(mask_channel)
-		add_network()
 
 		optimizer.step()
 
 		train_loss += loss.data[0]
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
-		correct += predicted.eq(targets.data).cpu().sum()
-
-		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
-	for batch_idx, (inputs, targets) in enumerate(train_loader):
-		glob_gau = 1
-		if use_cuda:
-			inputs, targets = inputs.cuda(), targets.cuda()
-		optimizer.zero_grad()
-		inputs, targets = Variable(inputs), Variable(targets)
-		outputs = net(inputs)
-		loss = criterion(outputs, targets)
-		loss.backward()
-
-		net_mask_mul(mask_channel)
-		add_network()
-
-		optimizer.step()
-
-		train_loss += loss.data[0]
-		_, predicted = torch.max(outputs.data, 1)
-		total += targets.size(0)
+		#correct += predicted.eq(targets.data).cpu().sum().item()
 		correct += predicted.eq(targets.data).cpu().sum()
 
 		progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
 			% (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
 def test():
-	global glob_gau
-	global glob_blur
 	global best_acc
-	glob_gau = 1
 	net.eval()
 	test_loss = 0
 	correct = 0
 	total = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
-	if args.mode > 0:
-		net_mask_mul(mask_channel)
-		add_network()
+	mask_channel = set_mask(mask_channel, 4, 1)
+	net_mask_mul(mask_channel)
 	for batch_idx, (inputs, targets) in enumerate(test_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
@@ -907,15 +782,13 @@ def test():
 		_, predicted = torch.max(outputs.data, 1)
 		total += targets.size(0)
 		correct += predicted.eq(targets.data).cpu().sum()
-
+		#correct += predicted.eq(targets.data).cpu().sum().item()
 		progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-			% (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
-
+			% (test_loss/(batch_idx+1), float(100.*correct/total), correct, total))
 
 	# Save checkpoint.
-	acc = 100.*correct/total
+	acc = float(100.*correct/total)
 	if acc > best_acc:
-
 		state = {
 			'net': net.module if use_cuda else net,
 			'acc': acc,
@@ -926,7 +799,7 @@ def test():
 			pass
 		else:
 			print('Saving..')
-			torch.save(state, './checkpoint/ckpt_20190403_half_clean_G1.t0')
+			torch.save(state, './checkpoint/ckpt_20180911_half_clean.t0')
 		best_acc = acc
 
 	return acc
@@ -940,7 +813,7 @@ def retrain(epoch, mask):
 	total = 0
 	correct = 0
 	mask_channel = torch.load('mask_null.dat')
-	mask_channel = set_mask(set_mask(mask_channel, 3, 1), 4, 0)
+	mask_channel = set_mask(mask_channel, 4, 1)
 	for batch_idx, (inputs, targets) in enumerate(train_loader):
 		if use_cuda:
 			inputs, targets = inputs.cuda(), targets.cuda()
@@ -1028,11 +901,13 @@ if mode == 0: # only inference
 elif mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
 		train(epoch)
+		
 
 		test()
 elif mode == 2: # retrain for quantization and pruning
 	for epoch in range(0,50):
 		retrain(epoch, mask_prune) 
+
 
 		test()
 else:
