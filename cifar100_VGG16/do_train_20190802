@@ -1,0 +1,62 @@
+#network 내부에서 noise주입. random한 이미지들로 학습시 testset 인식률이 급곃히 떨어짐. 
+########################## train half clean network #######################################
+#echo "train half clean network"
+#python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100
+#python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r
+#python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r
+#python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 30 -r
+#python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 30 -r --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################### train half clean G1 network #####################################
+#echo "train half clean G1 network"
+#python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_G1.t0
+#python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08
+#python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08
+#python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08
+#python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08
+#python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################### train half clean G2 network #####################################
+#echo "train half clean G2 network"
+#python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_G1.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_G2.t0
+#python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.16
+#python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.16
+#python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.16
+#python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.16
+#python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.16 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################### train half clean G3 network #####################################
+#echo "train half clean G3 network"
+#python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_G2.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_G3.t0
+#python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.25
+#python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.25
+#python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.25
+#python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.25
+#python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.25 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################### train half clean B1 network #####################################
+#echo "train half clean B1 network"
+#python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_B1.t0
+#python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08 --blur 0.45
+#python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08 --blur 0.45
+#python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08 --blur 0.45
+#python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08 --blur 0.45
+#python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --blur 0.45 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+#
+######################### train half clean B2 network #####################################
+#echo "train half clean B2 network"
+#python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_B1.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_B2.t0
+#python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08 --blur 0.675
+#python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08 --blur 0.675
+#python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08 --blur 0.675
+#python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08 --blur 0.675
+#python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --blur 0.675 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+#
+######################### train half clean B3 network #####################################
+#echo "train half clean B3 network"
+#python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_B2.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_B3.t0
+#python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08 --blur 0.9
+#python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08 --blur 0.9
+#python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08 --blur 0.9
+#python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08 --blur 0.9
+#python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --blur 0.9 --fixed 1 --pprec 15 --aprec 10 --iwidth 5

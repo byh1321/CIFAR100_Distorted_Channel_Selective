@@ -1,9 +1,7 @@
-#!/bin/bash
-for (( i=1; i<10; i++ ))
-do
-	for(( j=0; j<7; j++ ))
-	do
-	python3 -W ignore main_network_test.py --modelsel $i --testsel $j
-	done
-	echo "model $i is done"
-done
+python -W ignore main_half_clean_B3_20190802.py --mode 0 --network ckpt_20190802_half_clean_B3.t0 --blur 0.9
+python -W ignore main_half_clean_B2_20190802.py --mode 0 --network ckpt_20190802_half_clean_B2.t0 --blur 0.675
+python -W ignore main_half_clean_B1_20190802.py --mode 0 --network ckpt_20190802_half_clean_B1.t0 --blur 0.45
+python -W ignore main_half_clean_20190802.py --mode 0 --network ckpt_20190802_half_clean.t0
+python -W ignore main_half_clean_G1_20190802.py --mode 0 --network ckpt_20190802_half_clean_G1.t0 --gau 0.08
+python -W ignore main_half_clean_G2_20190802.py --mode 0 --network ckpt_20190802_half_clean_G2.t0 --gau 0.16
+python -W ignore main_half_clean_G3_20190802.py --mode 0 --network ckpt_20190802_half_clean_G3.t0 --gau 0.25

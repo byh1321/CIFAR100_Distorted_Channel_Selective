@@ -21,6 +21,9 @@ from utils import progress_bar
 
 import os
 import argparse
+# import VGG16
+import cifar_dirty_test
+import cifar_dirty_train
 
 import struct
 import random
@@ -60,6 +63,21 @@ transform_test = transforms.Compose([transforms.ToTensor(),
 
 cifar_train = dset.CIFAR100("/home/yhbyun/Dataset/CIFAR100/", train=True, transform=transform_train, target_transform=None, download=True)
 cifar_test = dset.CIFAR100("/home/yhbyun/Dataset/CIFAR100/", train=False, transform=transform_test, target_transform=None, download=True)
+
+cifar_test_G1 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/Dataset/mhha/cifar100_noise_level1_test_targets.csv")
+cifar_test_G2 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/Dataset/mhha/cifar100_noise_level2_test_targets.csv")
+cifar_test_G3 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/Dataset/mhha/cifar100_noise_level3_test_targets.csv")
+cifar_train_G1 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/Dataset/mhha/cifar100_noise_level1_train_targets.csv")
+cifar_train_G2 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/Dataset/mhha/cifar100_noise_level2_train_targets.csv")
+cifar_train_G3 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/Dataset/mhha/cifar100_noise_level3_train_targets.csv")
+
+cifar_test_B1 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/Dataset/mhha/cifar100_blur_level1_test_targets.csv")
+cifar_test_B2 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/Dataset/mhha/cifar100_blur_level2_test_targets.csv")
+cifar_test_B3 = cifar_dirty_test.CIFAR100DIRTY_TEST("/home/yhbyun/Dataset/mhha/cifar100_blur_level3_test_targets.csv")
+cifar_train_B1 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/Dataset/mhha/cifar100_blur_level1_train_targets.csv")
+cifar_train_B2 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/Dataset/mhha/cifar100_blur_level2_train_targets.csv")
+cifar_train_B3 = cifar_dirty_train.CIFAR100DIRTY_TRAIN("/home/yhbyun/Dataset/mhha/cifar100_blur_level3_train_targets.csv")
+
 
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
 test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1, shuffle=False,num_workers=8,drop_last=False)
@@ -212,19 +230,36 @@ class CNN(nn.Module):
 		tmp = torch.add(torch.add(mag[:,0,:,:],mag[:,1,:,:]),mag[:,2,:,:])
 		tmp = torch.abs(tmp)
 		PFSUM = 0
+		'''
 		for i in range(0,32):
 			for j in range(0,32):
-				print_value = 1
-				if (i+j) < 15:
+				if (i+j) > 15:
 					print_value = 0
-				elif (i-j) > 17:
+				elif (i-j) < 17:
 					print_value = 0
-				elif (j-i) > 17:
+				elif (j-i) < 17:
 					print_value = 0
-				elif (i+j) > 48:
+				elif (i+j) < 48:
 					print_value = 0
-				elif print_value == 1:	
+				else:
 					PFSUM = PFSUM + tmp[0,i,j]
+		'''
+		freq_l = 0
+		freq_h = 0
+		for i in range(0,32):
+			for j in range(0,32):
+				#'''
+				if (i+j) < 11:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				elif (i-j) > 21:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				elif (j-i) > 21:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				elif (i+j) > 52:
+					freq_l = freq_l + torch.abs(tmp[0,i,j])
+				else:
+					freq_h = freq_h + torch.abs(tmp[0,i,j])
+		PFSUM = freq_l - freq_h
 		f = open(args.outputfile,'a+')
 		print(PFSUM.item(),file=f)
 		f.close()

@@ -15,6 +15,7 @@ from __future__ import print_function
 import numpy as np
 
 import torch
+import utils
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.datasets as dset
@@ -780,6 +781,8 @@ elif args.mode == 1:
 	if args.resume:
 		print('==> Resuming from checkpoint..')
 		best_acc = checkpoint['acc']
+		if args.fixed:
+			best_acc = 0
 	else:
 		best_acc = 0
 

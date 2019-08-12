@@ -1,0 +1,4 @@
+python -W ignore main.py --mode 1 --bs 256 --lr 0.2 --ne 50
+python -W ignore main.py --mode 1 --bs 256 --lr 0.02 --ne 50 --resume
+python -W ignore main.py --mode 1 --bs 256 --lr 0.002 --ne 50 --resume
+python -W ignore main.py --mode 1 --bs 256 --lr 0.0002 --ne 50 --resume

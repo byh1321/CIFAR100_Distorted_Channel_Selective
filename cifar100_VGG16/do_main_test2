@@ -1,0 +1,5 @@
+python main_test2.py --mode 1 --ne 80 --lr 0.4 --bs 512 --fixed 1 --pprec 6
+python main_test2.py --mode 1 --ne 80 --lr 0.04 --bs 512 --fixed 1 --pprec 6 -r
+python main_test2.py --mode 1 --ne 80 --lr 0.004 --bs 512 --fixed 1 --pprec 6 -r
+python main_test2.py --mode 1 --ne 80 --lr 0.0004 --bs 512 --fixed 1 --pprec 6 -r
+python main_test2.py --mode 0 -r
