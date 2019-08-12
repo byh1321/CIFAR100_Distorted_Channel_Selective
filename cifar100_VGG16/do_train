@@ -1,10 +1,61 @@
-#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.8 --ne=150 --bs=1024 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1
-#python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.08 --ne=150 --bs=1024 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1 --network ckpt_20180722_half_clean.t0
-#python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.008 --ne=150 --bs=1024 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1 --network ckpt_20180722_half_clean.t0
-#python3 -W ignore prune_quant_auto_half_clean.py --resume --lr=0.001 --ne=150 --bs=128 --mode=1 --outputfile ckpt_20180722_half_clean.t0 --mode 1 --network ckpt_20180722_half_clean.t0
-#python3 -W ignore prune_quant_auto_half_clean.py --resume --mode 0 --network ckpt_20180722_half_clean.t0
+########################## train half clean network #######################################
+echo "train half clean network"
+python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100
+python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r
+python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r
+python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 30 -r
+python -W ignore main_half_clean_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 30 -r --fixed 1 --pprec 15 --aprec 10 --iwidth 5
 
-#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.008 --bs=1024 --mode=2 --network ckpt_20180722_half_clean.t0 --pr 80 --outputfile ckpt_20180722_half_clean_prune_80_pprec_15.t0 --pprec 15
-#cp ./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15.t0 ./checkpoint/ckpt_20180722_half_clean_prune_80_pprec_15_510.t0
-#python3 -W ignore prune_quant_auto_half_clean.py --lr=0.008 --bs=1024 --mode=2 --network ckpt_20180722_half_clean_prune_80_pprec_15_510.t0 --pr 80 --outputfile ckpt_20180722_half_clean_prune_80_pprec_15.t0 --pprec 15 --fixed 1 --aprec 5 --iwidth 10 --thres 0.0260
-python -W ignore prune_quant_auto_half_clean.py --mode 0 --network ckpt_20180722_half_clean_prune_80_pprec_15.t0 --pprec 15 --fixed 1 --aprec 10 --iwidth 5 -r
+######################## train half clean G1 network #####################################
+echo "train half clean G1 network"
+python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_G1.t0
+python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08
+python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08
+python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08
+python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08
+python -W ignore main_half_clean_G1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################## train half clean G2 network #####################################
+echo "train half clean G2 network"
+python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_G1.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_G2.t0
+python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.16
+python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.16
+python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.16
+python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.16
+python -W ignore main_half_clean_G2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.16 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################## train half clean G3 network #####################################
+echo "train half clean G3 network"
+python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_G2.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_G3.t0
+python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.25
+python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.25
+python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.25
+python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.25
+python -W ignore main_half_clean_G3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.25 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################## train half clean B1 network #####################################
+echo "train half clean B1 network"
+python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_B1.t0
+python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08 --blur 0.45
+python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08 --blur 0.45
+python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08 --blur 0.45
+python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08 --blur 0.45
+python -W ignore main_half_clean_B1_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --blur 0.45 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################## train half clean B2 network #####################################
+echo "train half clean B2 network"
+python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_B1.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_B2.t0
+python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08 --blur 0.675
+python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08 --blur 0.675
+python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08 --blur 0.675
+python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08 --blur 0.675
+python -W ignore main_half_clean_B2_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --blur 0.675 --fixed 1 --pprec 15 --aprec 10 --iwidth 5
+
+######################## train half clean B3 network #####################################
+echo "train half clean B3 network"
+python -W ignore network_gen.py --mode 0 --block1 ckpt_20190802_half_clean_B2.t0 --initparam net_initialized_param.dat --o ckpt_20190802_half_clean_B3.t0
+python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.2 --bs 256 --ne 100 --gau 0.08 --blur 0.9
+python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.02 --bs 256 --ne 100 -r --gau 0.08 --blur 0.9
+python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.002 --bs 256 --ne 100 -r --gau 0.08 --blur 0.9
+python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 50 -r --gau 0.08 --blur 0.9
+python -W ignore main_half_clean_B3_20190802.py --mode 1 --lr 0.001 --bs 128 --ne 20 -r --gau 0.08 --blur 0.9 --fixed 1 --pprec 15 --aprec 10 --iwidth 5

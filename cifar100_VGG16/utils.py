@@ -131,6 +131,121 @@ def format_time(seconds):
 ##########################################################################
 # Codes under this line is written by YH.Byun
 
+def print_4Dtensor_to_png(tensor, filename):
+	npimg = np.array(tensor,dtype=float)
+	npimg = npimg.squeeze(0)
+	scipy.misc.toimage(npimg).save(filename+".png")
+
+def genblurkernel(sigma):
+	order = 0
+	radius = int(4 * float(sigma) + 0.5)
+	kernel = scipy.ndimage.filters._gaussian_kernel1d(sigma, order, radius)
+	return kernel
+	
+def setMask(mask, block, val):
+	if block == 0:
+		mask[0][:,:,:,:] = val
+		mask[1][:,:,:,:] = val 
+		mask[2][:,:,:,:] = val 
+		mask[3][:,:,:,:] = val
+		mask[4][:,:,:,:] = val
+		mask[5][:,:,:,:] = val
+		mask[6][:,:,:,:] = val
+		mask[7][:,:,:,:] = val
+		mask[8][:,:,:,:] = val
+		mask[9][:,:,:,:] = val
+		mask[10][:,:,:,:] = val
+		mask[11][:,:,:,:] = val
+		mask[12][:,:,:,:] = val
+		mask[13][:,:] = val 
+		mask[14][:,:] = val 
+		mask[15][:,:] = val 
+	elif block == 1:
+		for i in range(56):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:55,:,:] = val 
+		for i in range(112):
+			mask[2][i,0:55,:,:] = val 
+			mask[3][i,0:111,:,:] = val
+		for i in range(224):
+			mask[4][i,0:111,:,:] = val
+			mask[5][i,0:223,:,:] = val
+			mask[6][i,0:223,:,:] = val
+		for i in range(448):
+			mask[7][i,0:223,:,:] = val
+			mask[8][i,0:447,:,:] = val
+			mask[9][i,0:447,:,:] = val
+			mask[10][i,0:447,:,:] = val
+			mask[11][i,0:447,:,:] = val
+			mask[12][i,0:447,:,:] = val
+			mask[13][i,0:447] = val 
+			mask[14][i,0:447] = val 
+		mask[15][:,0:447] = val 
+	elif block == 2:
+		for i in range(48):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:47,:,:] = val 
+		for i in range(96):
+			mask[2][i,0:47,:,:] = val 
+			mask[3][i,0:95,:,:] = val
+		for i in range(192):
+			mask[4][i,0:95,:,:] = val
+			mask[5][i,0:191,:,:] = val
+			mask[6][i,0:191,:,:] = val
+		for i in range(384):
+			mask[7][i,0:191,:,:] = val
+			mask[8][i,0:383,:,:] = val
+			mask[9][i,0:383,:,:] = val
+			mask[10][i,0:383,:,:] = val
+			mask[11][i,0:383,:,:] = val
+			mask[12][i,0:383,:,:] = val
+			mask[13][i,0:383] = val 
+			mask[14][i,0:383] = val 
+		mask[15][:,0:383] = val 
+	elif block == 3:
+		for i in range(40):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:39,:,:] = val 
+		for i in range(80):
+			mask[2][i,0:39,:,:] = val 
+			mask[3][i,0:79,:,:] = val
+		for i in range(160):
+			mask[4][i,0:79,:,:] = val
+			mask[5][i,0:159,:,:] = val
+			mask[6][i,0:159,:,:] = val
+		for i in range(320):
+			mask[7][i,0:159,:,:] = val
+			mask[8][i,0:319,:,:] = val
+			mask[9][i,0:319,:,:] = val
+			mask[10][i,0:319,:,:] = val
+			mask[11][i,0:319,:,:] = val
+			mask[12][i,0:319,:,:] = val
+			mask[13][i,0:319] = val 
+			mask[14][i,0:319] = val 
+		mask[15][:,0:319] = val 
+	elif block == 4:
+		for i in range(32):
+			mask[0][i,:,:,:] = val
+			mask[1][i,0:31,:,:] = val 
+		for i in range(64):
+			mask[2][i,0:31,:,:] = val 
+			mask[3][i,0:63,:,:] = val
+		for i in range(128):
+			mask[4][i,0:63,:,:] = val
+			mask[5][i,0:127,:,:] = val
+			mask[6][i,0:127,:,:] = val
+		for i in range(256):
+			mask[7][i,0:127,:,:] = val
+			mask[8][i,0:255,:,:] = val
+			mask[9][i,0:255,:,:] = val
+			mask[10][i,0:255,:,:] = val
+			mask[11][i,0:255,:,:] = val
+			mask[12][i,0:255,:,:] = val
+			mask[13][i,0:255] = val 
+			mask[14][i,0:255] = val 
+		mask[15][:,0:255] = val 
+	return mask
+
 def saveInitialParameter(net):
 	try:
 		net_param = torch.load('mask_null.dat')
@@ -365,7 +480,7 @@ def pruneNetwork(net, mask):
 			param.data = torch.mul(param.data,mask[15].cuda())
 	return net
 
-def paramsget(net):
+def paramsGet(net):
 	try:
 		params = net.conv1[0].weight.view(-1,)
 		params = torch.cat((params,net.conv2[0].weight.view(-1,)),0)
@@ -568,4 +683,110 @@ def netMaskMul(net, mask):
 		for param in child.fc3[0].parameters():
 			param.data = torch.mul(param.data,mask[15].cuda())
 	return net
+
+def addNetwork(net, net2):
+	mask = torch.load('mask_null.dat')
+	mask = saveNetwork(net2, mask)
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			param.data = torch.add(param.data,mask[0])
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			param.data = torch.add(param.data,mask[1])
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			param.data = torch.add(param.data,mask[2])
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			param.data = torch.add(param.data,mask[3])
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			param.data = torch.add(param.data,mask[4])
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			param.data = torch.add(param.data,mask[5])
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			param.data = torch.add(param.data,mask[6])
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			param.data = torch.add(param.data,mask[7])
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			param.data = torch.add(param.data,mask[8])
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			param.data = torch.add(param.data,mask[9])
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			param.data = torch.add(param.data,mask[10])
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			param.data = torch.add(param.data,mask[11])
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			param.data = torch.add(param.data,mask[12])
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			param.data = torch.add(param.data,mask[13])
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			param.data = torch.add(param.data,mask[14])
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			param.data = torch.add(param.data,mask[15])
+	return net
+
+def saveNetwork(net, mask):
+	for child in net.children():
+		for param in child.conv1[0].parameters():
+			mask[0] = param.data
+	for child in net.children():
+		for param in child.conv2[0].parameters():
+			mask[1] = param.data		
+	for child in net.children():
+		for param in child.conv3[0].parameters():
+			mask[2] = param.data		
+	for child in net.children():
+		for param in child.conv4[0].parameters():
+			mask[3] = param.data		
+	for child in net.children():
+		for param in child.conv5[0].parameters():
+			mask[4] = param.data	
+	for child in net.children():
+		for param in child.conv6[0].parameters():
+			mask[5] = param.data
+	for child in net.children():
+		for param in child.conv7[0].parameters():
+			mask[6] = param.data
+	for child in net.children():
+		for param in child.conv8[0].parameters():
+			mask[7] = param.data
+	for child in net.children():
+		for param in child.conv9[0].parameters():
+			mask[8] = param.data
+	for child in net.children():
+		for param in child.conv10[0].parameters():
+			mask[9] = param.data
+	for child in net.children():
+		for param in child.conv11[0].parameters():
+			mask[10] = param.data
+	for child in net.children():
+		for param in child.conv12[0].parameters():
+			mask[11] = param.data
+	for child in net.children():
+		for param in child.conv13[0].parameters():
+			mask[12] = param.data
+
+	for child in net.children():
+		for param in child.fc1[1].parameters():
+			mask[13] = param.data
+	for child in net.children():
+		for param in child.fc2[1].parameters():
+			mask[14] = param.data
+	for child in net.children():
+		for param in child.fc3[0].parameters():
+			mask[15] = param.data
+	return mask
 

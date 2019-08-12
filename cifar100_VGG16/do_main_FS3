@@ -1,0 +1,31 @@
+#python3 -W ignore main_FS3.py -r --mode 0 --outputfile train4_B3.txt --trainsel 0
+#python3 -W ignore main_FS3.py -r --mode 0 --outputfile train4_B2.txt --trainsel 1
+#python3 -W ignore main_FS3.py -r --mode 0 --outputfile train4_B1.txt --trainsel 2
+#python3 -W ignore main_FS3.py -r --mode 0 --outputfile train3_clean.txt --trainsel 3
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile train3_G1.txt --trainsel 4
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile train3_G2.txt --trainsel 5
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile train3_G3.txt --trainsel 6
+
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile test3_B3.txt --testsel 0
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile test3_B2.txt --testsel 1
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile test3_B1.txt --testsel 2
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile test3_clean.txt --testsel 3
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile test3_G1.txt --testsel 4
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile test3_G2.txt --testsel 5
+#python3 -W ignore main_FS.py -r --mode 0 --outputfile test3_G3.txt --testsel 6
+
+#python FindPFSUMThres.py --min 100 --max 20000 --interval 100 --input1 train3_B3.txt --input2 train3_B2.txt
+#python FindPFSUMThres.py --min 100 --max 20000 --interval 100 --input1 train3_B2.txt --input2 train3_B1.txt
+#python FindPFSUMThres.py --min 100 --max 20000 --interval 100 --input1 train3_B1.txt --input2 train3_clean.txt
+######################## main_FS3, B3-B2 77.92%, B2-B1 75.90% classify #########################
+
+python FindPFSUMThres.py --min 100 --max 20000 --interval 100 --input1 train4_B3.txt --input2 train4_B2.txt
+python FindPFSUMThres.py --min 100 --max 20000 --interval 100 --input1 train4_B2.txt --input2 train4_B1.txt
+######################## main_FS4, B3-B2 xx.xx%, B2-B1 xx.xx% classify #########################
+
+#python FindPFSUMThres.py --min 600 --max 1000 --interval 1 --input1 train3_B3.txt --input2 train3_B2.txt
+#python FindPFSUMThres.py --min 1000 --max 1100 --interval 1 --input1 train3_B2.txt --input2 train3_B1.txt
+#python FindPFSUMThres.py --min 2700 --max 2800 --interval 1 --input1 train3_B1.txt --input2 train3_clean.txt
+#python FindPFSUMThres.py --min 18400 --max 18600 --interval 1 --input1 train3_clean.txt --input2 train3_G1.txt
+#python FindPFSUMThres.py --min 33700 --max 33900 --interval 1 --input1 train3_G1.txt --input2 train3_G2.txt
+#python FindPFSUMThres.py --min 53600 --max 53700 --interval 1 --input1 train3_G2.txt --input2 train3_G3.txt

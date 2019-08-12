@@ -8,6 +8,7 @@ from __future__ import print_function
 import numpy as np
 
 import torch
+import utils
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.datasets as dset
@@ -52,192 +53,168 @@ transform_train = transforms.Compose([transforms.RandomCrop(32,padding=4),
 transform_test = transforms.Compose([transforms.ToTensor(),
 									 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
 
-cifar_train = dset.CIFAR100("./Dataset/CIFAR100/", train=True, transform=transform_train, target_transform=None, download=True)
-cifar_test = dset.CIFAR100("./Dataset/CIFAR100/", train=False, transform=transform_test, target_transform=None, download=True)
+cifar_train = dset.CIFAR100("~/Dataset/CIFAR100/", train=True, transform=transform_train, target_transform=None, download=True)
+cifar_test = dset.CIFAR100("~/Dataset/CIFAR100/", train=False, transform=transform_test, target_transform=None, download=True)
 
 train_loader = torch.utils.data.DataLoader(cifar_train,batch_size=args.bs, shuffle=True,num_workers=8,drop_last=False)
 test_loader = torch.utils.data.DataLoader(cifar_test,batch_size=1250, shuffle=False,num_workers=8,drop_last=False)
 
 class CNN(nn.Module):
 	def __init__(self):
-		super(CNN,self).__init__()
+		super(CNN, self).__init__()
 		self.conv1 = nn.Sequential(
-			nn.Conv2d(3,64,3,padding=1,bias=False), #layer0
-			nn.BatchNorm2d(64), # batch norm is added because dataset is changed
+			nn.Conv2d(3, 64, 3, padding=1, bias=False),  
+			nn.BatchNorm2d(64),  
 			nn.ReLU(inplace=True),
 		)
+
 		self.conv2 = nn.Sequential(
-			nn.Conv2d(64,64,3,padding=1, bias=False), #layer3
+			nn.Conv2d(64, 64, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(64),
 			nn.ReLU(inplace=True),
 		)
 		self.maxpool1 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 16*16* 64
+			nn.MaxPool2d(2, 2),  
 		)
 		self.conv3 = nn.Sequential(
-			nn.Conv2d(64,128,3,padding=1, bias=False), #layer7
+			nn.Conv2d(64, 128, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(128),
 			nn.ReLU(inplace=True),
 		)
 		self.conv4 = nn.Sequential(
-			nn.Conv2d(128,128,3,padding=1, bias=False),#layer10
+			nn.Conv2d(128, 128, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(128),
 			nn.ReLU(inplace=True),
 		)
 		self.maxpool2 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 8*8*128
+			nn.MaxPool2d(2, 2),  
 		)
 		self.conv5 = nn.Sequential(
-			nn.Conv2d(128,256,3,padding=1, bias=False), #layer14
+			nn.Conv2d(128, 256, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(256),
 			nn.ReLU(inplace=True),
 		)
 		self.conv6 = nn.Sequential(
-			nn.Conv2d(256,256,3,padding=1, bias=False), #layer17
+			nn.Conv2d(256, 256, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(256),
 			nn.ReLU(inplace=True),
 		)
 		self.conv7 = nn.Sequential(
-			nn.Conv2d(256,256,3,padding=1, bias=False), #layer20
+			nn.Conv2d(256, 256, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(256),
 			nn.ReLU(inplace=True),
 		)
 		self.maxpool3 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 4*4*256
+			nn.MaxPool2d(2, 2),  
 		)
 		self.conv8 = nn.Sequential(
-			nn.Conv2d(256,512,3,padding=1, bias=False), #layer24
+			nn.Conv2d(256, 512, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(512),
 			nn.ReLU(inplace=True),
 		)
 		self.conv9 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer27
+			nn.Conv2d(512, 512, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(512),
 			nn.ReLU(inplace=True),
 		)
 		self.conv10 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer30
+			nn.Conv2d(512, 512, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(512),
 			nn.ReLU(inplace=True),
 		)
 		self.maxpool4 = nn.Sequential(
-			nn.MaxPool2d(2,2), # 2*2*512
+			nn.MaxPool2d(2, 2),  
 		)
 		self.conv11 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer34
+			nn.Conv2d(512, 512, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(512),
 			nn.ReLU(inplace=True),
 		)
 		self.conv12 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer37
+			nn.Conv2d(512, 512, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(512),
 			nn.ReLU(inplace=True),
 		)
 		self.conv13 = nn.Sequential(
-			nn.Conv2d(512,512,3,padding=1, bias=False), #layer40
+			nn.Conv2d(512, 512, 3, padding=1, bias=False),  
 			nn.BatchNorm2d(512),
 			nn.ReLU(inplace=True),
 		)
 		self.maxpool5 = nn.Sequential(
-			nn.MaxPool2d(2,2) # 1*1*512
+			nn.MaxPool2d(2, 2)  
 		)
 		self.fc1 = nn.Sequential(
 			nn.Dropout(p=0.5),
-			nn.Linear(512,512, bias=False), #fc_layer1
+			nn.Linear(512, 512, bias=False),  
 			nn.ReLU(inplace=True),
 		)
 		self.fc2 = nn.Sequential(
 			nn.Dropout(p=0.5),
-			nn.Linear(512,512, bias=False), #fc_layer4
+			nn.Linear(512, 512, bias=False),  
 			nn.ReLU(inplace=True),
 		)
 		self.fc3 = nn.Sequential(
-			nn.Linear(512,100, bias=False) #fc_layer6
+			nn.Linear(512, 100, bias=False)  
 		)
+		self._initialize_weights()
 
-	def forward(self,x):
-		x = roundmax(x)
-		out1 = self.conv1(x) # 1250*64*32*32
-		
-		if args.fixed:
-			out1 = quant(out1) 
-			out1 = roundmax(out1)
+	def compfeature(self, input):
+		prout1 = input.view(1, -1)
+		filter = torch.ge(prout1, 0.1)
+		mfilter = filter.view(-1, 1)
+		print(mfilter)
+		return mfilter
 
-		out2 = self.conv2(out1) # 1250*64*32*32
-		if args.fixed:
-			out2 = quant(out2)
-			out2 = roundmax(out2)
+	def forward(self, x):
 
+		out1 = self.conv1(x)  
+
+		out2 = self.conv2(out1)  
 		out3 = self.maxpool1(out2)
-		out4 = self.conv3(out3) # 1250*128*16*16
-		if args.fixed:
-			out4 = quant(out4) 
-			out4 = roundmax(out4)
-		out5 = self.conv4(out4) # 1250*128*16*16
-		if args.fixed:
-			out5 = quant(out5) 
-			out5 = roundmax(out5)
 
+		out4 = self.conv3(out3)  
+
+		out5 = self.conv4(out4)  
 		out6 = self.maxpool2(out5)
-		out7 = self.conv5(out6) # 1250*256*8*8
-		if args.fixed:
-			out7 = quant(out7) 
-			out7 = roundmax(out7)
-		out8 = self.conv6(out7) # 1250*256*8*8
-		if args.fixed:
-			out8 = quant(out8) 
-			out8 = roundmax(out8)
-		out9 = self.conv7(out8) # 1250*256*8*8
-		if args.fixed:
-			out9 = quant(out9) 
-			out9 = roundmax(out9)
 
+		out7 = self.conv5(out6)  
+
+		out8 = self.conv6(out7)  
+
+		out9 = self.conv7(out8)  
 		out10 = self.maxpool3(out9)
-		out11 = self.conv8(out10) # 1250*512*4*4
-		if args.fixed:
-			out11 = quant(out11) 
-			out11 = roundmax(out11)
-		out12 = self.conv9(out11) # 1250*512*4*4
-		if args.fixed:
-			out12 = quant(out12) 
-			out12 = roundmax(out12)
-		out13 = self.conv10(out12) # 1250*512*4*
-		if args.fixed:
-			out13 = quant(out13) 
-			out13 = roundmax(out13)
 
+		out11 = self.conv8(out10)  
+
+		out12 = self.conv9(out11)  
+
+		out13 = self.conv10(out12)  
 		out14 = self.maxpool4(out13)
 
-		out15 = self.conv11(out14) # 1250*512*2*
-		if args.fixed:
-			out15 = quant(out15) 
-			out15 = roundmax(out15)
-		out16 = self.conv12(out15) # 1250*512*2*
-		if args.fixed:
-			out16 = quant(out16) 
-			out16 = roundmax(out16)
-		out17 = self.conv13(out16) # 1250*512*2*
-		if args.fixed:
-			out17 = quant(out17) 
-			out17 = roundmax(out17)
+		out15 = self.conv11(out14)  
 
+		out16 = self.conv12(out15)  
+
+		out17 = self.conv13(out16)  
 		out18 = self.maxpool5(out17)
 
-		out19 = out18.view(out18.size(0),-1)
-		out20 = self.fc1(out19) # 1250*512
-		if args.fixed:
-			out20 = quant(out20) 
-			out20 = roundmax(out20)
-		out21 = self.fc2(out20) # 1250*512
-		if args.fixed:
-			out21 = quant(out21) 
-			out21 = roundmax(out21)
-		out22 = self.fc3(out21) # 1250*10
-		if args.fixed:
-			out22 = quant(out22) 
-			out22 = roundmax(out22)
+		out19 = out18.view(out18.size(0), -1)
+
+		out20 = self.fc1(out19)  
+
+		out21 = self.fc2(out20)  
+
+		out22 = self.fc3(out21)  
 
 		return out22
+	def _initialize_weights(self):
+		for m in self.modules():
+			if isinstance(m, nn.Conv2d):
+				nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+			elif isinstance(m, nn.BatchNorm2d):
+				nn.init.constant_(m.weight, 1)
+			elif isinstance(m, nn.Linear):
+				nn.init.normal_(m.weight, 0, 0.01)
 
 def roundmax(input):
 	maximum = 2**args.iwidth-1
@@ -307,7 +284,7 @@ if args.resume:
 	# Load checkpoint.
 	print('==> Resuming from checkpoint..')
 	assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-	checkpoint = torch.load('./checkpoint/ckpt_20180425.t0')
+	checkpoint = torch.load('./checkpoint/ckpt_20190802.t0')
 	best_acc = 0 
 	net = checkpoint['net']
 
@@ -383,7 +360,7 @@ def test():
 			os.mkdir('checkpoint')
 		if args.mode > 0:
 			print('Saving..')
-			torch.save(state, './checkpoint/ckpt_20190801.t0')
+			torch.save(state, './checkpoint/ckpt_20190802.t0')
 		best_acc = acc
 	
 	return acc
@@ -393,6 +370,9 @@ mode = args.mode
 if mode == 1: # mode=1 is training & inference @ each epoch
 	for epoch in range(start_epoch, start_epoch+num_epoch):
 		train(epoch)
+		if (epoch == 5) and (args.resume == 0):
+			utils.maskGen(num_class = 100)
+			utils.saveInitialParameter(net)
 		test()
 elif mode == 0: # only inference
 	test()

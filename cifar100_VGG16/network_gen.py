@@ -23,6 +23,7 @@ parser.add_argument('--mode', default=0, type=int, help='mode 1 -> for 0.125, mo
 parser.add_argument('--block1', default='NULL', help='input block1 ckpt name', metavar="FILE")
 parser.add_argument('--block2', default='NULL', help='input block2 ckpt name', metavar="FILE")
 parser.add_argument('--block3', default='NULL', help='input block3 ckpt name', metavar="FILE")
+parser.add_argument('--initparam', default='NULL', help='initial parameter .dat file name', metavar="FILE")
 parser.add_argument('--o', default='NULL', help='output file name', metavar="FILE")
 
 
@@ -724,6 +725,18 @@ if __name__ == '__main__':
 		print("Error : Failed to load net3. End program.")
 		exit()
 	
+	#######################################################
+	# load network, give randn values to nonzero param.
+	#'''
+	if args.mode == 0:
+		mask = torch.load(args.initparam)
+		mask_null = torch.load('mask_null.dat')
+		net1 = net_mask_mul(net1, mask_null)
+		add_mask(net1, mask)
+		
+	#'''
+	#######################################################
+
 	#######################################################
 	#Enable this part for blur 06, gau 008
 	#'''
